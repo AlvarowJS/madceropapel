@@ -1,0 +1,177 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static utiles %}
+<table style="width: 100%">
+    <tr>
+        <td style="width: 30%">
+            <img src="{% static 'images/grc_hor_bn.png' %}" alt="" width="86px">
+        </td>
+        <td>
+            <div class="mesapartes">MESA DE PARTES</div>
+        </td>
+        <td style="width: 20%; text-align: right">
+            <img src="{% static 'images/logo_mad_clean_bn.png' %}" alt="" width="50px">
+        </td>
+    </tr>
+</table>
+<div class="dependencia-nombre">
+    {% if doc.emisor.area.esrindente %}
+        {{ doc.emisor.area.siglas|upper }}
+    {% elif doc.emisor.area.rindentepadre %} %}
+        {{ doc.emisor.area.rindentepadre.siglas|upper }}
+    {% else %}
+        {{ doc.documentotipoarea.area.dependencia.nombre|upper }}
+    {% endif %}
+</div>
+<div class="expediente-fila">
+    <strong class="expediente-label">Exp. N°</strong>
+    <span class="expediente-numero">
+        {{ doc.expedientenro }}
+    </span>
+</div>
+<div class="documento-siglas">{{ doc.documentonrosiglasmini }}</div>
+<table class="tabla-datos">
+    <tr>
+        <td style="width: 78%">
+            <table>
+                <tr>
+                    <th>Clave</th>
+                    <th>:</th>
+                    <td>
+                        <strong class="expediente-clave">
+                            {{ doc.clave }}
+                        </strong>
+                    </td>
+                    <th style="padding-left: 6px">Folios</th>
+                    <th>:</th>
+                    <td>
+                        <strong>{{ doc.folios|zfill:3 }}</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Fecha</th>
+                    <th>:</th>
+                    <td colspan="4">{{ doc.creado|date:"d/m/Y h:i a" }}</td>
+                </tr>
+                <tr>
+                    <td  colspan="6">
+                        <div class="seguimiento">
+                            {{ configapp.WebVerificador }}
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td>
+            <img src="{{ doc.expediente.qr }}" alt="" width="80px">
+        </td>
+    </tr>
+</table>
+<style>
+    .ticket-mad3 {
+        display: none;
+    }
+
+    @media print {
+        @page {
+            margin: 0;
+        }
+
+        * {
+            border: 0;
+            padding: 0;
+            margin: 0;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        #ticket-expediente {
+            visibility: hidden;
+        }
+
+        #btnImprimirTicket {
+            visibility: hidden;
+        }
+
+        .ticket-mad3 {
+            display: unset;
+            position: absolute;
+            width: 285px;
+            height: 172px;
+            border: 0px solid #BBB;
+            padding: 4pt 8px 6px 8px;
+            font-family: Verdana, serif;
+            font-size: 8pt;
+            overflow: hidden;
+        }
+
+        .mesapartes {
+            text-align: center;
+            font-size: 8.5pt;
+            font-weight: bold;
+        }
+
+        .dependencia-nombre {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 3px;
+            font-size: 7.5pt;
+        }
+
+        .dependencia-direccion {
+            text-align: center;
+            font-size: 7pt;
+            padding-bottom: 6px;
+        }
+
+
+        .expediente-fila {
+            background-color: dimgray;
+            padding: 3px 2px;
+            color: #FFFFFF;
+            text-align: center;
+            margin-top: 2px;
+        }
+
+        .expediente-label {
+            font-size: 9pt;
+            margin-right: 5px;
+        }
+
+        .expediente-numero {
+            font-size: 11pt;
+            font-weight: bold;
+        }
+
+        .documento-siglas {
+            margin-top:3px;
+            border: 1px solid black;
+            padding: 4px 2px;
+            text-align: center;
+            font-size: 9pt;
+        }
+
+        .tabla-datos tr th {
+            font-size: 8pt;
+            font-weight: normal;
+            padding-right: 2px;
+        }
+
+        .tabla-datos tr td {
+            font-size: 8pt;
+            padding: 1px;
+        }
+
+        .seguimiento {
+            margin-top: 6px;
+            text-align: center;
+            font-size: 7pt;
+            font-weight: bold;
+        }
+    }
+</style>

@@ -1,0 +1,60 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load queries %}
+<div class="card card-custom gutter-b">
+    <div class="card-body">
+        <div class="d-flex flex-column flex-grow-1">
+            <a href="javascript:;" class="text-dark-75 text-hover-primary mb-1 font-size-lg font-weight-bolder">
+                {{ oArea.nombre }}
+            </a>
+            <span class="text-muted font-weight-bold">
+                {{ oArea.nombrecorto }}
+            </span>
+        </div>
+        {% include "organizacion/area/detalle_info.html" with titulo="Tipo de Area" valor=oArea.areatipo %}
+        {% include "organizacion/area/detalle_info.html" with titulo="Nivel Organizacional" valor=oArea.get_nivel_display %}
+        {% include "organizacion/area/detalle_info.html" with titulo="Siglas" valor=oArea.siglas %}
+        {% include "organizacion/area/detalle_info.html" with titulo="Mesa de Partes" valor=oArea.mesadepartes|yesno:"Si,No" %}
+        {% include "organizacion/area/detalle_info.html" with titulo="Es Rindente" valor=oArea.esrindente|yesno:"Si,No" %}
+        {% include "organizacion/area/detalle_info.html" with titulo="Cargo Oficial" valor=oArea.cargooficial.nombrem %}
+        {% if oArea.mensajeria %}
+            {% include "organizacion/area/detalle_info.html" with titulo="Ámbito de Mensajería" valor=oArea.mensajeriaambito.get_codigo_display %}
+            {% if oArea.mensajeriadistritos %}
+                {% include "organizacion/area/detalle_info.html" with titulo="Ámbito de Mensajería" valor=oArea.MensajeriaDistritos %}
+            {% endif %}
+            {% if oArea.mensajeriahoramaxima %}
+                {% include "organizacion/area/detalle_info.html" with titulo="Hora Máxima" valor=oArea.mensajeriahoramaxima %}
+            {% endif %}
+        {% endif %}
+        {% if oArea.esrindente %}
+            {% include "organizacion/area/detalle_info.html" with titulo="Ubigeo" valor=oArea.distrito.RutaDepartamento|default:"-" %}
+            {% include "organizacion/area/detalle_info.html" with titulo="Dirección" valor=oArea.direccion|default:"-" %}
+            {% include "organizacion/area/detalle_info.html" with titulo="Teléfono" valor=oArea.telefono|default:"-" %}
+            {% include "organizacion/area/detalle_info.html" with titulo="WebSite" valor=oArea.web|default:"-" %}
+        {% endif %}
+        {% if oArea.jefeactual or oArea.TrabajadoresActuales|queryfilter:"tipo='EP'"|querycount > 0 or oArea.TrabajadoresActuales|queryfilter:"esapoyo=True"|querycount > 0 %}
+            <div class="row">
+                <div class="col-12">
+                    <span class="font-weight-bolder">Personal:</span>
+                </div>
+                <div class="col-12">
+                    {% if oArea.jefeactual %}
+                        {% include "organizacion/area/detalle_info.html" with titulo=oArea.jefeactual.get_esjefemodo_display valor=oArea.jefeactual.persona.nombrecompleto %}
+                    {% elif oArea.TrabajadoresActuales|queryfilter:"tipo='EP'"|querycount > 0 %}
+                        {% for encargado in oArea.TrabajadoresActuales|queryfilter:"tipo='EP'" %}
+                            {% include "organizacion/area/detalle_info.html" with titulo="Encargado Puesto" valor=encargado.persona.nombrecompleto %}
+                        {% endfor %}
+                    {% endif %}
+                    {% for apoyo in oArea.TrabajadoresActuales|queryfilter:"esapoyo=True" %}
+                        {% include "organizacion/area/detalle_info.html" with titulo="Apoyo" valor=apoyo.persona.nombrecompleto %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+        {% include "organizacion/area/detalle_info.html" with titulo="Margen Superior de la Firma" valor=oArea.firmamargensuperior %}
+    </div>
+</div>

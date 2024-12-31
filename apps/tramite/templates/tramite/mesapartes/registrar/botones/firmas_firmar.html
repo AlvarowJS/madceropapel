@@ -1,0 +1,23 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% if object.ArchivosPorFirmar and object.responsable.persona.usuario == user %}
+    <div class="btn-emi-fir">
+        <button type="button" class="btn btn-xs btn-light-primary btn-hover-primary text-primary btn-icon-primary">
+            <i class="fas fa-pen-nib p-0"></i>
+            <span class="ml-1 d-none d-sm-inline-block">Firmar</span>
+        </button>
+        <div></div>
+        <script type="text/javascript">
+            $(".btn-emi-fir button").on("click", function () {
+                $(this).next().cargarPagina(
+                    "post",
+                    "{% url 'apptra:documento_emitir_firmar' object.pk %}"
+                );
+            });
+        </script>
+    </div>
+{% endif %}

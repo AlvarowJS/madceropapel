@@ -1,0 +1,30 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% block modalTitulo %}
+    Reabriendo el Planillado
+{% endblock modalTitulo %}
+{% block modalAction %}{% url 'apptra:mesapartes_planillado_reabrir' object.pk %}{% endblock %}
+{% block modalBody %}
+    {% if noenviadook %}
+        <script type="text/javascript">
+            $("#modal-principal-centro").modal("hide");
+            refrescarDetalle();
+        </script>
+    {% else %}
+        <h5 class="col-12 text-center font-weight-bold mb-2">
+            ¿Desea Re Abrir el Planillado N° {{ object.NumeroFull }}?
+        </h5>
+        {% if object.cargopdf %}
+            <div class="col-12">
+                Debe tener en cuenta que ha subido un cargo y éste se eliminará.
+            </div>
+        {% endif %}
+        {% include "campos/errorform.html" %}
+    {% endif %}
+{% endblock %}

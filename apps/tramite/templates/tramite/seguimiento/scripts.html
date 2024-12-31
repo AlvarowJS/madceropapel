@@ -1,0 +1,19 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% include "modales/bmodal.html" with modalid="modal-seguimiento" centrado=True modalsize="lg" %}
+<script type="text/javascript">
+    $("html").on("click", "*[data-seg]", function () {
+        let urlSeg = "{% url 'apptra:seguimiento' 'X' 0 %}";
+        urlSeg = urlSeg.replace("X", $(this).data("modo"));
+        urlSeg = urlSeg.replace("0", $(this).data("seg"));
+        let origen = $(this).data("origen");
+        $.cargarPagina("post", urlSeg, $("body"), null, {"origen": origen}, null, function (e) {
+            $("#modal-seguimiento .modal-content").html(e);
+            $("#modal-seguimiento").modal("show");
+        });
+    });
+</script>

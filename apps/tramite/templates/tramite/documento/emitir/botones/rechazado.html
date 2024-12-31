@@ -1,0 +1,54 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles queries %}
+{% if destino.ultimoestado.estado == "RH" %}
+    <div class="btn-rhz-resend">
+        <a class='btn btn-xs btn-light-primary btn-hover-primary text-primary btn-icon-primary mr-2'
+                {% if documento.origentipo == "O" %}
+           href='{% url "apptra:oficina_bandeja_rechazado_reenviar" destino.pk %}'
+                {% elif documento.origentipo == "P" %}
+           href='{% url "apptra:personal_bandeja_rechazado_reenviar" destino.pk %}'
+                {% else %}
+           href='javascript:;'
+                {% endif %}
+           data-toggle='modal' data-target='#modal-principal-centro'
+           title='Enviar Nuevamente' rel='tooltip'>
+            <i class='fas fa-sync pr-0'></i>
+        </a>
+    </div>
+    {% setvar "filtroqe" "pk="|concatenar:destino.pk %}
+    {% if documento.des_documento|queryexclude:filtroqe|querycount > 0 %}
+        <div class="btn-rhz-resend">
+            <a class='btn btn-xs btn-light-danger btn-hover-danger text-danger btn-icon-danger mr-2'
+                    {% if documento.origentipo == "O" %}
+               href='{% url "apptra:oficina_bandeja_rechazado_anular" destino.pk %}'
+                    {% elif documento.origentipo == "P" %}
+               href='{% url "apptra:personal_bandeja_rechazado_anular" destino.pk %}'
+                    {% else %}
+               href='javascript:;'
+                    {% endif %}
+               data-toggle='modal' data-target='#modal-principal-centro'
+               title='Anular Emisión a Destino' rel='tooltip'>
+                <i class='fas fa-times pr-0'></i>
+            </a>
+        </div>
+    {% endif %}
+    <div class="btn-rhz-resend">
+        <a class='btn btn-xs btn-light-info btn-hover-info text-info btn-icon-info mr-2'
+                {% if documento.origentipo == "O" %}
+           href='{% url "apptra:oficina_bandeja_rechazado_archivar" destino.pk %}'
+                {% elif documento.origentipo == "P" %}
+           href='{% url "apptra:personal_bandeja_rechazado_archivar" destino.pk %}'
+                {% else %}
+           href='javascript:;'
+                {% endif %}
+           data-toggle='modal' data-target='#modal-principal-centro'
+           title='Archivar' rel='tooltip'>
+            <i class='fas fa-file-archive pr-0'></i>
+        </a>
+    </div>
+{% endif %}

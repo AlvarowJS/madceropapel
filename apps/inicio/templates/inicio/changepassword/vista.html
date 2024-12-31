@@ -1,0 +1,77 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalHeader %}
+    <div class="modal-header text-sm px-5 py-2 d-flex align-items-center" style="height: auto">
+        <h5 class="modal-title">
+            Cambiar Contraseña
+        </h5>
+        {% if not request.user.persona.personaconfiguracion.cambiarpassword %}
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <i aria-hidden="true" class="ki ki-close"></i>
+            </button>
+        {% endif %}
+    </div>
+{% endblock %}
+{% block modalAction %}
+    {% url 'appini:inicio_cambiar_password' %}
+{% endblock modalAction %}
+{% block modalBody %}
+    <div class="col-12">
+        {% if esok %}
+            La contraseña se cambió correctamente
+        {% else %}
+            {% if request.user.persona.personaconfiguracion.cambiarpassword %}
+                <div class="alert alert-info text-justify">
+                    Ud. ha iniciado sesión por primera vez o se le ha reiniciado su contraseña,
+                    debe cambiarla de manera Obligatoria.
+                </div>
+            {% endif %}
+            {{ form }}
+            {% include "campos/errorform.html" %}
+        {% endif %}
+    </div>
+
+
+    <style type="text/css">
+        #
+        {{ form.id }}
+        .helptext {
+            font-size: .85rem;
+            padding: 8px 0;
+            color: #646F88
+        }
+
+        #
+        {{ form.id }}
+        .helptext ul {
+            padding-left: 1.2rem;
+        }
+
+        #
+        {{ form.id }}
+        #id_old_password {
+            margin-bottom: 15px;
+        }
+
+        #
+        {{ form.id }}
+        .errorlist {
+            font-size: .85rem;
+            padding-left: 1.2rem;
+            color: red
+        }
+    </style>
+{% endblock modalBody %}
+{#{% block modalPost %}recargaNodo{% endblock modalPost %}#}
+{% block modalScriptPost %}
+    <div class="col-12 text-right mb-4">
+        <a href="{% url 'appini:inicio_logout' %}">
+            Cerrar Sesión
+        </a>
+    </div>
+{% endblock modalScriptPost %}

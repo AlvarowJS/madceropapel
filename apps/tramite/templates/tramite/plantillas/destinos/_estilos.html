@@ -1,0 +1,121 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static %}
+<style type="text/css">
+    {% if not configapp.EnDesarrollo %}
+    @font-face {
+        font-family: 'Arial Narrow';
+        font-style: normal;
+        src: url({% static 'fonts/AriaNarrow.ttf' %});
+    }
+
+    @font-face {
+        font-family: 'Arial Narrow';
+        font-style: normal;
+        font-weight: bold;
+        src: url({% static 'fonts/AriaNarrowBold.ttf' %});
+    }
+    {% endif %}
+
+    @page {
+        size: A4 portrait;
+
+        @frame watermark_frame {
+            -pdf-frame-content: watermark_content;
+            left: 2.5cm;
+        }
+
+        @frame header_frame {
+            -pdf-frame-content: header_content;
+            left: 1.5cm;
+            height: 5cm;
+            right: 1.5cm;
+        }
+
+        @frame content_frame {
+            top: 4.00cm;
+            left: 1.5cm;
+            height: 23.00cm;
+            right: 1.5cm;
+        }
+
+        @frame footer_frame {
+            -pdf-frame-content:footer_content;
+            left: 1.5cm;
+            right: 1.5cm;
+            top: 28cm;
+        }
+    }
+
+    body {
+        font-family: "Arial Narrow", serif;
+        padding-top: 0.5pt;
+        padding-bottom: -0.5pt;
+    }
+
+    table {
+        -pdf-keep-with-next: true;
+    }
+
+    .tabla-padding tr td, .tabla-padding tr th {
+        padding: .08cm .08cm 0 .08cm;
+    }
+
+    .td-striped {
+        background-color: #E8E8E8;
+    }
+
+    .footer {
+        font-size: 6pt;
+        font-weight: bold;
+        border-spacing: 0;
+        border-collapse: collapse;
+        color: black;
+        padding-top: 3pt;
+    }
+
+    .text-left {
+        text-align: left;
+    }
+
+    .text-right {
+        text-align: right;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .text-bold {
+        font-weight: bold;
+        padding-top: 50% !important;
+        padding-bottom: -50% !important;
+    }
+
+    .border-1 {
+        border: 1px solid #2C2C2C;
+    }
+
+    .border-top {
+        border-top: 1px solid black;
+    }
+
+    .tabla-firma {
+        font-size: 9pt;
+        margin-top: 1cm;
+        width: 100%;
+        padding-top: .3cm;
+
+    }
+    .tabla-firma td {
+        width: 50%;
+        vertical-align: middle;
+    }
+
+
+
+</style>

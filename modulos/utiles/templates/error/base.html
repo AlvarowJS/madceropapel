@@ -1,0 +1,109 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+<!DOCTYPE html>
+{% load i18n static %}
+<html lang="{{ request.LANGUAGE_CODE }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>
+        {% block errorTitulo %}
+        {% endblock errorTitulo %}
+    </title>
+    <!-- favicon -->
+{#    {{ request.scheme }}://{{ request.get_host }}/#}
+    <link rel=icon href="{% static 'portal/img/favicon.png' %}" sizes="20x20" type="image/png">
+
+    <!-- Additional plugin css -->
+    <link rel="stylesheet" href="{% static 'portal/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'portal/css/animate.css' %}">
+    <link rel="stylesheet" href="{% static 'portal/css/magnific-popup.css' %}">
+    <link rel="stylesheet" href="{% static 'portal/css/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'portal/css/slick.css' %}">
+    <link rel="stylesheet" href="{% static 'portal/css/swiper.min.css' %}">
+    <link rel="stylesheet" href="{% static 'portal/css/nice-select.css' %}">
+    <!-- icons -->
+    <link rel="stylesheet" href="{% static 'portal/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'portal/css/themify-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'portal/css/line-awesome.min.css' %}">
+    <!-- main css -->
+    <link rel="stylesheet" href="{% static 'portal/css/style.css' %}">
+    <!-- responsive css -->
+    <link rel="stylesheet" href="{% static 'portal/css/responsive.css' %}">
+    <!--Codingeek -->
+    <link rel="stylesheet" href="{% static 'portal/css/codingeek.min.css' %}">
+</head>
+<body>
+<!-- preloader area start -->
+<div class="preloader" id="preloader">
+    <div class="preloader-inner">
+        <div class="spinner">
+            <div class="dot1"></div>
+            <div class="dot2"></div>
+        </div>
+    </div>
+</div>
+<!-- preloader area end -->
+<!-- error page area end -->
+<div class="error-page-area text-center" style="background-image: url({% static 'portal/img/bg/6.png' %});">
+    <div class="container">
+        <div class="logo-wrapper">
+            <a href="{% url 'web_inicio' %}">
+                <img src="{% static 'portal/img/logo_780.png' %}" alt="logo">
+            </a>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-6 error-page-wrap">
+                <div class="error-page-info">
+                    <h1>
+                        {% block errorNumero %}
+                        {% endblock errorNumero %}
+                    </h1>
+                    <div class="error-page-info-details">
+                        <h2>
+                            {% block errorTitular %}
+                            {% endblock errorTitular %}
+                        </h2>
+                        <p>
+                            {% block errorDescripcion %}
+                            {% endblock errorDescripcion %}
+                        </p>
+                        <a class="btn btn-yellow" href="{% url 'web_inicio' %}">
+                            {% trans 'Back To Home' %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- error page area end -->
+
+<!-- Additional plugin js -->
+<script src="{% static 'portal/js/jquery-2.2.4.min.js' %}"></script>
+<script src="{% static 'portal/js/popper.min.js' %}"></script>
+<script src="{% static 'portal/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'portal/js/jquery.magnific-popup.js' %}"></script>
+<script src="{% static 'portal/js/owl.carousel.min.js' %}"></script>
+<script src="{% static 'portal/js/wow.min.js' %}"></script>
+<script src="{% static 'portal/js/slick.js' %}"></script>
+<script src="{% static 'portal/js/waypoints.min.js' %}"></script>
+<script src="{% static 'portal/js/jquery.counterup.min.js' %}"></script>
+<script src="{% static 'portal/js/imagesloaded.pkgd.min.js' %}"></script>
+<script src="{% static 'portal/js/isotope.pkgd.min.js' %}"></script>
+<script src="{% static 'portal/js/swiper.min.js' %}"></script>
+<script src="{% static 'portal/js/jquery.nice-select.min.js' %}"></script>
+<script src="{% static 'portal/js/jquery-ui.min.js' %}"></script>
+<!-- main js -->
+<script src="{% static 'portal/js/main.js' %}"></script>
+<!-- codingeek -->
+<script src="{% static 'portal/js/codingeek-link.min.js' %}"></script>
+<script src="{% static 'portal/js/codingeek.min.js' %}"></script>
+</body>
+</html>

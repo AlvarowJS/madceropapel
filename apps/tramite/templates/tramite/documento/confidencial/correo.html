@@ -1,0 +1,33 @@
+{% extends 'inicio/correo/base.html' %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block basecorreoEncabezado %}
+    Código de Solicitud de Acceso
+{% endblock basecorreoEncabezado %}
+{% block basecorreoCuerpo %}
+    <h3 style="text-align: center">Hola, <strong>{{ tokenlectura.tokensolicitante.persona.nombres }}</strong></h3>
+    <p style="margin-top:15px">
+        Ha solicitado acceder al documento
+        <span style="color: #156AF0">
+            {{ tokenlectura.documentopdf.documentoplantilla.documento.obtenerNumeroSiglas }}
+        </span>
+    </p>
+    <P>
+        Si no realizó esta solicitud, puede ignorar este correo electrónico.
+    </P>
+    <P>
+        De lo contrario, puede usar el siguiente código.
+    </p>
+    <div style="margin-top:35px; margin-bottom: 15px">
+        <div style="box-shadow:inset 0 1px 0 0 #97c4fe; background:linear-gradient(to bottom, #3d94f6 5%, #1e62d0 100%);
+         background-color:#3d94f6; border-radius:6px; border:1px solid #337fed; cursor:pointer; color:#ffffff;
+         font-size:15px; padding:6px 24px; text-decoration:none; text-shadow:4px 1px 0 #1570cd;">
+            {{ tokenlectura.token }}
+        </div>
+        Válido hasta: {{ tokenlectura.tokenvalido|date:"d/m/Y h:i a" }}
+    </div>
+{% endblock basecorreoCuerpo %}

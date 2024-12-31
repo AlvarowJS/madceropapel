@@ -1,0 +1,101 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static queries %}
+<input value="{{ listado.count|default:0 }} Documento{{ listado.count|default:0|pluralize:'s' }}"
+       type="hidden" name="regtotal">
+{% for docp in listado %}
+    <div class="d-flex align-items-center flex-column flex-md-row bg-light bg-hover-light-{{ tabobj.color }} rounded
+    px-3 py-2 mb-2 tablero-card ribbon ribbon-clip ribbon-right bgi-no-repeat bgi-position-x-right bgi-position-y-center">
+        {% block newvar %}
+        {% endblock newvar %}
+        {% if tabobj.verpdf %}
+            <div class="ribbon-target" style="top: 8px; height: 24px;"
+                 onclick="viewPDF(
+                         '{{ current_site }}{% url "apptra:documento_descargar" docp.documento.pk|default:docp.pk %}',
+                         '{{ docp.documento|default:docp|querygetvalue:"nombreDocumentoPdf()" }}',
+                         '{{ user.auth_token.key }}', 'docnew{{ docp.documento|default:docp|querygetvalue:"pk" }}')">
+                <span class="ribbon-inner bg-{{ tabobj.color }}"></span>
+                <i class="fa fa-1x fa-file-pdf text-white"></i>
+            </div>
+        {% endif %}
+        <div class="d-flex flex-column flex-grow-1 mr-2">
+            <a data-toggle="modal" data-target="#modal-principal" data-modal-size="xl"
+               class="font-weight-bolder text-dark text-hover-{{ tabobj.color }} font-size-lg mb-2"
+               href="{% url 'apptra:documento_emitir_editar' docp.documento.pk|default:docp.pk %}">
+                <span class="label label-sm label-{{ tabobj.color }} mr-2" rel="tooltip"
+                      title="{{ docp.documento|default:docp|querygetvalue:"get_origentipo_display()" }}">
+                    {{ docp.documento|default:docp|querygetvalue:"origentipo" }}
+                </span>
+                {% if tabobj.codigo == "dbEntrada" and docp.ultimoestado.estado == "NL" %}
+                    <span id="docnew{{ docp.documento|default:docp|querygetvalue:"pk" }}"
+                          class="label label-sm label-danger label-pill label-inline mr-1 pulse pulse-danger">
+                        Nuevo
+                        <span class="pulse-ring"></span>
+                    </span>
+                {% endif %}
+                {{ docp.documento|default:docp|querygetvalue:"nombreDocumentoNumero()" }}
+                :
+                <small class="font-weight-bold">{{ docp.documento|default:docp|querygetvalue:"asunto" }}</small>
+            </a>
+            <div class="font-size-md text-dark-75 mt-0">
+                <table>
+                    <tr>
+                        <td class="min-w-50px">
+                            <small>
+                                Origen:
+                            </small>
+                        </td>
+                        <td>
+                            <span class="font-weight-bold">
+                                {{ docp.documento|default:docp|querygetvalue:"documentotipoarea.area.nombrecorto" }}
+                            </span>
+                            -
+                            {{ docp.documento|default:docp|querygetvalue:"responsable.persona.NombreCorto()" }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <small>
+                                Destino{{ docp.documento|default:docp|querygetvalue:"des_documento"|queryexclude:"ultimoestado__estado='AN'"|querycount|pluralize:'s' }}:
+                            </small>
+                        </td>
+                        <td>
+                            {% for des in docp.documento|default:docp|querygetvalue:"des_documento.all()"|queryexclude:"ultimoestado__estado='AN'" %}
+                                {% if forloop.counter <= 2 %}
+                                    {{ des.obtenerNombreDestino }}
+                                    {% if not forloop.last or forloop.counter > 1 and forloop.counter < 2 %},
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                            {% if docp.documento|default:docp|querygetvalue:"des_documento"|queryexclude:"ultimoestado__estado='AN'"|querycount > 2 %}
+                                y más...
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="py-1 small text-center text-dark-75 min-w-120px {% if tabobj.verpdf %} mr-5{% endif %}">
+            <div>
+                {{ docp.documento.creado|default:docp.creado|date:'d/m/Y H:i' }}
+            </div>
+            {% if tabobj.verfirmavb %}
+                <div class="text-center text-{{ tabobj.color }}">
+                    {{ docp.documento|default:docp|querygetvalue:'estadoFirmas()'|safe }}
+                </div>
+            {% endif %}
+            {% if user.persona|periodoactual:"esjefe" and docp.creador != user %}
+                <div class="text-center mt-1">
+                    <span class="label label-outline-{{ tabobj.color }} label-pill label-inline mr-2"
+                          rel="tooltip" title="Elaborado por">
+                        {{ docp.creador.persona.alias|lower }}
+                    </span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endfor %}

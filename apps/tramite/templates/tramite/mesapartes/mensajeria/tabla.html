@@ -1,0 +1,307 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load table_tags %}
+<script>
+    function {{ TablaPrincipal.opts.id }}_afterload(settings, me) {
+        colocaTotales(me);
+        SeleccionaRegistros();
+    }
+
+    function {{ TablaPrincipal.opts.id }}_select(data, idx) {
+        SeleccionaRegistros();
+    }
+
+    function {{ TablaPrincipal.opts.id }}_deselect(data, idx) {
+        SeleccionaRegistros();
+    }
+
+    function {{ TablaPrincipal.opts.id }}_preServerParams(aoData) {
+        {% if FormListar %}
+            aoData.push({
+                "name": "listado",
+                "value": $("#{{ FormListar.cvista.auto_id }}").val()
+            });
+        {% endif %}
+    }
+
+    function SeleccionaRegistros() {
+        ids = "";
+        table_{{ TablaPrincipal.opts.id }}.api().rows({selected: true}).data().each(function (e) {
+            ids += $(e).last()[0] + "_";
+        });
+        {% if tablaid == "PE" %}
+            urlrecfull = "javascript:;"
+            if (ids.length > 0) {
+                urlrecfull = "{% url 'apptra:mesapartes_mensajeria_recibir' 'X' %}".replace("X", ids);
+                $("#btnRecibirMasivo").attr("data-toggle", "modal").attr("href", urlrecfull);
+                urldevfull = "{% url 'apptra:mesapartes_mensajeria_devolver' 'X' %}".replace("X", ids);
+                $("#btnDevolverMasivo").attr("data-toggle", "modal").attr("href", urldevfull);
+            } else {
+                $("#btnRecibirMasivo").attr("data-toggle", "none").attr("href", "");
+                $("#btnDevolverMasivo").attr("data-toggle", "none").attr("href", "");
+            }
+        {% elif tablaid == "XE" %}
+            urlnewplla = "javascript:;"
+            if (ids.length > 0) {
+                urlnewplla = "{% url 'apptra:mesapartes_planillado_agregar' 'M' 'NP' 'X' %}";
+                urlnewplla = urlnewplla.replace("M", $("#id_ambitos").val() || "T");
+                urlnewplla = urlnewplla.replace("X", ids);
+                $("#btnNuevoPlanillado").attr("data-toggle", "modal").attr("href", urlnewplla);
+                $("#btnAgregarPlanillado").attr("data-toggle", "modal").attr("href", urlnewplla.replace("NP", "PE"));
+            } else {
+                $("#btnNuevoPlanillado").attr("data-toggle", "none").attr("href", "");
+                $("#btnAgregarPlanillado").attr("data-toggle", "none").attr("href", "");
+            }
+        {% endif %}
+    }
+</script>
+{% if tablaid == "PE" %}
+    {% if FormListar %}
+        <div class="row">
+            {% include "campos/campoform.html" with campo=FormListar.cvista numcol=2 nolabel=True %}
+            <script type="text/javascript">
+                $("#{{ FormListar.cvista.auto_id }}")
+                    .on("change", function () {
+                        refrescar_tablaMensajeriaPE();
+                    })
+                    .selectpicker();
+            </script>
+        </div>
+    {% endif %}
+{% elif tablaid == "XE" %}
+    <div id="tablaMensajeriaXE_filterAmbito" class="float-right dataTables_select2 d-none">
+        <div class="input-group">
+            {{ FormAmbitos.ambitos }}
+        </div>
+    </div>
+    <script>
+        function {{ TablaPrincipal.opts.id }}_init(oSettings, json) {
+            $('#tablaMensajeriaXE_filterAmbito').appendTo(
+                $("#{{ TablaPrincipal.opts.id }}_wrapper .dt-buttons").parent()
+            ).removeClass("d-none");
+            $("#{{ FormAmbitos.ambitos.auto_id }}").on("change", function (e) {
+                urlXE = "{% url 'apptra:mesapartes_mensajeria_listar' 'XE' 'T' 0 %}".replace("T", $(this).val() || "T");
+                table_{{ TablaPrincipal.opts.id }}.api().ajax.url(urlXE).load();
+            }).djangoSelect2();
+        }
+
+        $("#id_ambitos").on("change", function () {
+            SeleccionaRegistros();
+        });
+    </script>
+{% elif tablaid in "PL" %}
+    <form id="{{ FormPllaSelector.id }}">
+        <div class="row">
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-10">
+                        <div id="plla-btn" class="row">
+                            {% include "campos/campoform.html" with campo=FormPllaSelector.psplla numcol=4 nolabel=True %}
+                            <div class="pt-2 d-inline-block" id="pllabtn">
+                                <a v-bind:href="data.editar" v-show="data.editar" title="Editar"
+                                   class="btn btn-xs btn-light-primary btn-icon mx-1"
+                                   rel="tooltip" data-toggle="modal" data-target="#modal-centro-scroll"
+                                   data-modal-size="xl">
+                                    <i class="fas fa-pencil-alt fa-1x"></i>
+                                </a>
+                                <a v-bind:href="data.eliminar" v-show="data.eliminar" title="Eliminar"
+                                   class="btn btn-xs btn-light-danger btn-icon mx-1"
+                                   rel="tooltip" data-toggle="modal" data-target="#modal-principal-centro"
+                                   data-modal-size="md">
+                                    <i class="fas fa-trash-alt fa-1x"></i>
+                                </a>
+                                <a v-bind:href="data.cerrar" v-show="data.cerrar"
+                                   class="btn btn-sm px-2 py-1 btn-light-warning mx-1"
+                                   data-toggle="modal" data-target="#modal-principal-centro"
+                                   data-modal-size="md">
+                                    <i class="fas fa-lock"></i> Cerrar
+                                </a>
+                                <div class="btn-group" v-show="data.exportar">
+                                    <a v-bind:href="data.exportar + '?como=pdf'" v-show="data.exportar"
+                                       class="btn btn-light-info btn-sm px-2 py-1" target="_blank">
+                                        <i class="fas fa-print fa-1x"></i> Imprimir
+                                    </a>
+                                    <button type="button"
+                                            class="btn btn-sm px-2 py-1 btn-light-info dropdown-toggle dropdown-toggle-split"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                            data-reference="parent">
+                                        <span class="sr-only">Toggle Dropdown</span>
+                                    </button>
+                                    <div class="dropdown-menu" style="">
+                                        <a v-bind:href="data.exportar + '?como=xls'" v-show="data.exportar"
+                                           class="dropdown-item font-size-sm" target="_blank">
+                                            <i class="fas fa-file-excel fa-1x pt-1 mr-2 text-success"></i> Exportar a
+                                            Excel
+                                        </a>
+                                    </div>
+                                </div>
+                                <a v-bind:href="data.cargo" v-show="data.cargo"
+                                   class="btn btn-sm px-2 py-1 btn-light-success mx-1"
+                                   data-toggle="modal" data-target="#modal-centro-scroll"
+                                   data-modal-size="xl">
+                                    <i class="fas fa-file-upload fa-1x"></i> Subir Cargo
+                                </a>
+                                <a v-bind:href="data.reabrir" v-show="data.reabrir"
+                                   class="btn btn-sm px-2 py-1 btn-light-warning mx-1"
+                                   data-toggle="modal" data-target="#modal-principal-centro"
+                                   data-modal-size="md">
+                                    <i class="fas fa-lock-open fa-1x"></i> Re-Abrir
+                                </a>
+                                <a v-bind:href="data.finalizar" v-show="data.finalizar"
+                                   class="btn btn-sm px-2 py-1 btn-light-primary ml-1"
+                                   data-toggle="modal" data-target="#modal-principal-centro"
+                                   data-modal-size="md">
+                                    <i class="fas fa-check fa-1x"></i> Finalizar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% include "campos/campoform.html" with campo=FormPllaSelector.pstodos numcol=2 labelinline=True clase="text-right" %}
+                </div>
+            </div>
+        </div>
+        {% include "tramite/mesapartes/mensajeria/info.html" with tplid="plla-info" %}
+    </form>
+{% elif tablaid in "FI" %}
+    <form id="{{ FormPllaSelectorF.id }}">
+        <div class="row">
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-6">
+                        <div id="plla-btnf" class="row">
+                            {% include "campos/campoform.html" with campo=FormPllaSelectorF.psplla numcol=6 nolabel=True %}
+                        </div>
+                    </div>
+                    {% include "campos/campoform.html" with campo=FormPllaSelectorF.pstodos numcol=6 labelinline=True clase="text-right" %}
+                </div>
+            </div>
+        </div>
+        {% include "tramite/mesapartes/mensajeria/info.html" with tplid="plla-infof" %}
+    </form>
+{% endif %}
+{% render_table TablaPrincipal %}
+<script>
+    {% if tablaid == "PE" %}
+        funcExec(function () {
+            $("#btnRecibirMasivo").attr("data-toggle", "none");
+        });
+    {% elif tablaid == "XE" %}
+        funcExec(function () {
+            $("#btnNuevoPlanillado").attr("data-toggle", "none");
+            $("#btnAgregarPlanillado").attr("data-toggle", "none");
+        });
+    {% elif tablaid == "PL" %}
+        var datapl = {"data": {}}
+        var databtn = {"data": {}}
+        var vdatapl = new Vue({
+            el: '#plla-info',
+            delimiters: ['{$', '$}'],
+            data: datapl
+        });
+        var vdatabtn = new Vue({
+            el: '#pllabtn',
+            delimiters: ['{$', '$}'],
+            data: databtn,
+            watch: {
+                "data": function (val) {
+                    $('#pllabtn [rel="tooltip"]').tooltip('dispose');
+                    setTimeout(function () {
+                        $('#pllabtn [rel="tooltip"]').tooltip({trigger: 'hover', html: true});
+                    }, 500);
+                },
+            }
+        });
+
+        $.formatearCampos("#{{ FormPllaSelector.id }}");
+
+        $("#{{ FormPllaSelector.psplla.auto_id }}").on("change", function () {
+            refrescarDetalle();
+        }).trigger("change");
+
+        function refrescarDetalle() {
+            let valor = $("#{{ FormPllaSelector.psplla.auto_id }}").val() || 0;
+            let todos = $("#{{ FormPllaSelector.pstodos.auto_id }}").is(":checked");
+            let psbtn = $("#plla-btn");
+            let psinfo = $("#plla-info");
+            if (todos) {
+                psbtn.hide();
+                psinfo.hide();
+                refrescarDetalleTabla(todos, 0);
+            } else {
+                psbtn.show();
+                psinfo.show();
+                $.cargarPagina(
+                    "post",
+                    "{% url 'apptra:mesapartes_planillado_detalle' 0 %}".replace("0", valor),
+                    $("#kt_body"), "Cargando...", {}, {}, function (e) {
+                        vdatapl["data"] = e["info"];
+                        vdatabtn["data"] = e["btn"];
+                        refrescarDetalleTabla(todos, valor)
+                    }
+                );
+            }
+        }
+
+        function refrescarDetalleTabla(todos, valor) {
+            let urlplladet = "{% url 'apptra:mesapartes_mensajeria_listar' 'PL' 'T' 0 %}";
+            urlplladet = urlplladet.replace("T", todos ? "T" : "N");
+            urlplladet = urlplladet.replace("0", valor);
+            table_tablaMensajeriaPL.api().ajax.url(urlplladet).load();
+        }
+
+        $("#{{ FormPllaSelector.pstodos.auto_id }}").on("switchChange.bootstrapSwitch", function (e, s) {
+            refrescarDetalle();
+        })
+    {% elif tablaid == "FI" %}
+        var dataplf = {"data": {}}
+        var vdataplf = new Vue({
+            el: '#plla-infof',
+            delimiters: ['{$', '$}'],
+            data: dataplf
+        });
+
+        $.formatearCampos("#{{ FormPllaSelectorF.id }}");
+
+        $("#{{ FormPllaSelectorF.psplla.auto_id }}").on("change", function () {
+            refrescarDetallef();
+        }).trigger("change");
+
+        function refrescarDetallef() {
+            let valorf = $("#{{ FormPllaSelectorF.psplla.auto_id }}").val() || 0;
+            let todosf = $("#{{ FormPllaSelectorF.pstodos.auto_id }}").is(":checked");
+            let psbtnf = $("#plla-btnf");
+            let psinfof = $("#plla-infof");
+            if (todosf) {
+                psbtnf.hide();
+                psinfof.hide();
+                refrescarDetalleTablaf(todosf, 0);
+            } else {
+                psbtnf.show();
+                psinfof.show();
+                $.cargarPagina(
+                    "post",
+                    "{% url 'apptra:mesapartes_planillado_detalle' 0 %}".replace("0", valorf),
+                    $("#kt_body"), "Cargando...", {}, {}, function (e) {
+                        vdataplf["data"] = e["info"];
+                        refrescarDetalleTablaf(todosf, valorf);
+                    }
+                );
+            }
+        }
+
+        function refrescarDetalleTablaf(todos, valor) {
+            let urlplladetf = "{% url 'apptra:mesapartes_mensajeria_listar' 'FI' 'T' 0 %}";
+            urlplladetf = urlplladetf.replace("T", todos ? "T" : "N");
+            urlplladetf = urlplladetf.replace("0", valor);
+            table_tablaMensajeriaFI.api().ajax.url(urlplladetf).load();
+        }
+
+        $("#{{ FormPllaSelectorF.pstodos.auto_id }}").on("switchChange.bootstrapSwitch", function (e, s) {
+            refrescarDetallef();
+        })
+    {% endif %}
+</script>

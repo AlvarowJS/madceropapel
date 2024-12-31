@@ -1,0 +1,79 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles queries %}
+{% block modalTitulo %}
+    Impresión de Documentos
+{% endblock modalTitulo %}
+{% block modalBodyTotal %}
+    <div class="modal-body text-sm">
+        <div class="container px-0">
+            {% include "tramite/mesapartes/mensajeria/destino_info.html" with destino=destino sindetalle=True %}
+{#            {% if destino.documento.documentotipoarea.documentotipo.esmultiple and not destino.documento.documentotipoarea.documentotipo.esmultipledestino %}#}
+{#                {% setvar "esmultiple" True %}#}
+{#            {% endif %}#}
+            <div class="row">
+                <div class="col-{{ esmultiple|yesno:"6,12" }} text-center">
+                    <a id="doc-print" class="btn btn-info" href="javascript:;">
+                        <i class="flaticon2-print"></i> Imprimir
+                    </a>
+                    <div class="d-none"></div>
+                </div>
+                {% if esmultiple %}
+                    <div class="col-6">
+                        <a class="btn btn-success" href="#">
+                            <i class="flaticon2-clip-symbol"></i> Descargar Documentos
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="row">
+                {% if destino.documento.anexos.count > 0 %}
+                    <div class="col-12 mt-6">
+                        <div class="bg-light rounded text-center p-1 mb-2">
+                            ANEXOS
+                            <div class="badge bg-gray-700 text-white py-1 px-2">
+                                {{ destino.documento.anexos.count }}
+                            </div>
+                        </div>
+                        {% for anexo in destino.documento.anexos.all|querysort:'creado' %}
+                            <div class="navi navi-hover navi-link-rounded" style="">
+                            <div class="navi-item mb-1">
+                                <div class="row w-100 align-items-center">
+                                    <div class="col-2 col-md-1 text-center">
+                                        {{ anexo.archivonombre|get_extension }}
+                                    </div>
+                                    <div class="col-10 col-md-9">
+                                        <a href="{% url "apptra:documento_anexo_descargar" anexo.id %}?csrfmiddlewaretoken={{ user.auth_token.key }}"
+                                           target="_blank" class="navi-link py-1 px-2">
+                                            {{ anexo.descripcion|safe|charespecials }}
+                                        </a>
+                                    </div>
+                                    <div class="offset-2 offset-md-0 col-12 col-md-2 text-left text-md-right pl-2 pr-1">
+                                        {{ anexo.Tamanio|len_in_mb }}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block modalScriptPost %}
+    <script type="text/javascript">
+        $("#doc-print").on("click", function () {
+            $(this).next().cargarPagina(
+                "post", "{% url 'apptra:mesapartes_mensajeria_imprimir_directo' destino.pk %}",
+                $("#modal-principal-centro .modal-content"), "Cargando...",
+                null, null, null, true
+            );
+        });
+    </script>
+{% endblock modalScriptPost %}

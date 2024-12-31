@@ -1,0 +1,40 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load i18n %}
+<div class="mb-10">
+    <p class="pt-3 max-w-450px">
+        {% translate 'Forgotten your password? Enter your email address below, and we’ll email instructions for setting a new one.' %}
+    </p>
+</div>
+
+<form class="form text-left" id="kt_login_reset_form" method="post" autocomplete="off">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger text-justify">
+            {% for error in form.non_field_errors %}
+                {{ error|safe }}
+                {% if not forloop.last %}<br>{% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    {{ form.email }}
+    <div class="form-group text-center mt-10">
+        <button id="kt_login_reset_submit" type="submit"
+                class="btn btn-pill btn-outline-white font-weight-bold opacity-90 px-15 py-3">
+            RESTABLECER CONTRASEÑA
+        </button>
+    </div>
+</form>
+<script>
+    funcExec(
+        function () {
+            $("#kt_login_reset_form").enviarForm(
+                $("#capa-reset"), $("#kt_body"), "Validando..."
+            );
+        }
+    );
+</script>

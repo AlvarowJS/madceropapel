@@ -1,0 +1,76 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% include "clases/campos/input.html" %}
+<div id="{{ widget.attrs.id }}_errors" class="font-size-xs  m-0 mt-2 px-3 py-2"></div>
+<script type="text/javascript">
+    funcExec(function () {
+        $("#{{ widget.attrs.id }}").fileinput('destroy');
+        $("#{{ widget.attrs.id }}").fileinput({
+            language: 'es',
+            showPreview: false,
+            showUpload: false,
+            uploadAsync: false,
+            browseLabel: '',
+            browseIcon: '<i class="fas fa-1x fa-folder-open pr-0"></i>',
+            removeLabel: '',
+            removeIcon: '<i class="fas fa-1x fa-times-circle pr-0"></i>',
+            elErrorContainer: '#{{ widget.attrs.id }}_errors',
+            allowedFileExtensions: {{ widget.extensiones|safe }},
+            maxFileSize: {{ widget.maxsize }},
+            msgSizeTooLarge: 'El archivo "{name}" (<b>{customSize}</b>) excede el tamaño máximo permitido de <b>{customMaxSize}</b>.',
+            {% if widget.folder %}
+                allowedPreviewTypes: null,
+                previewFileIconSettings: {
+                    'doc': '<i class="fas fa-file-word text-primary"></i>',
+                    'xls': '<i class="fas fa-file-excel text-success"></i>',
+                    'ppt': '<i class="fas fa-file-powerpoint text-danger"></i>',
+                    'jpg': '<i class="fas fa-file-image text-warning"></i>',
+                    'pdf': '<i class="fas fa-file-pdf text-danger"></i>',
+                    'zip': '<i class="fas fa-file-archive text-muted"></i>',
+                    'txt': '<i class="fas fa-file-alt text-info"></i>'
+                },
+                previewFileExtSettings: {
+                    'doc': function (ext) {
+                        return ext.match(/(doc|docx)$/i);
+                    },
+                    'xls': function (ext) {
+                        return ext.match(/(xls|xlsx)$/i);
+                    },
+                    'ppt': function (ext) {
+                        return ext.match(/(ppt|pptx)$/i);
+                    },
+                    'jpg': function (ext) {
+                        return ext.match(/(jp?g|png|gif|bmp)$/i);
+                    },
+                    'zip': function (ext) {
+                        return ext.match(/(zip|rar|tar|gzip|gz|7z)$/i);
+                    },
+                    'txt': function (ext) {
+                        return ext.match(/(txt|ini|md)$/i);
+                    }
+                }
+            {% endif %}
+        }).on('fileerror', function (event, data, msg) {
+            if (msg.indexOf("excede") > -1) {
+                let finput = $(this).data().fileinput;
+                let mensaje = finput.msgSizeTooLarge,
+                    sizes = finput.sizeUnits,
+                    size = data.files[0].size,
+                    maxFileSize = finput.maxFileSize,
+                    formatSize = (s) => {
+                        let i = Math.floor(Math.log(s) / Math.log(1024));
+                        return (s / Math.pow(1024, i)).toFixed(2) * 1 + ' ' + sizes[i];
+                    };
+                mensaje = mensaje
+                    .replace('{name}', data.files[0].name)
+                    .replace('{customSize}', formatSize(size))
+                    .replace('{customMaxSize}', formatSize(maxFileSize * 1024 /* Convert KB to Bytes */));
+                $('#{{ widget.attrs.id }}_errors').html(mensaje);
+            }
+        });
+    });
+</script>

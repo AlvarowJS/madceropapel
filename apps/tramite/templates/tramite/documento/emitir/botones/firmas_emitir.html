@@ -1,0 +1,51 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load queries utiles %}
+{% setvar "emitirdoc" False %}
+{% if object.DocumentoPorFirmar and not object.ArchivosPorFirmar %}
+    {% if object.responsable.persona.usuario == user %}
+        {% setvar "emitirdoc" True %}
+    {% elif object.responsable.area == user.persona|periodoactual:"area" and user.persona|periodoactual:"tipo" in "EN,EP" %}
+        {% setvar "emitirdoc" True %}
+    {% endif %}
+{% endif %}
+{% if emitirdoc %}
+    <div class="btn-emi-env">
+        <button type="button" class="btn btn-xs btn-light-info btn-hover-info text-info btn-icon-info
+            {% if object.AnexosNoFirmados > 0 %}opacity-60{% endif %}">
+            <i class="fas fa-paper-plane p-0"></i>
+            <span class="ml-1 d-none d-sm-inline-block">Emitir</span>
+        </button>
+        <div></div>
+        <script type="text/javascript">
+            $(".btn-emi-env button").on("click", function () {
+                {% if object.AnexosNoFirmados > 0 %}
+                    appAlert(
+                        "info", "Atención", "El documento no puede ser emitido por falta de Firmas o VB en los anexos."
+                    );
+                {% else %}
+                    appConfirm(
+                        "¿Está seguro?",
+                        "¿Desea emitir el documento?",
+                        "warning",
+                        function () {
+                            $.cargarPagina(
+                                "post",
+                                "{% url 'apptra:documento_emitir_enviar' object.pk %}",
+                                $("#modal-principal .modal-content"),
+                                "Un momento...", {codest: "EM"}, null,
+                                function (e) {
+                                    $(".btn-emi-env button").next().html(e);
+                                }
+                            );
+                        }
+                    );
+                {% endif %}
+            });
+        </script>
+    </div>
+{% endif %}

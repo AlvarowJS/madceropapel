@@ -1,0 +1,113 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static utiles %}
+{% block modalTitulo %}
+    Firma Masiva
+{% endblock modalTitulo %}
+{% block modalBodyTotal %}
+    <div id="fm-info">
+        <div class="modal-body text-sm">
+            <div class="container p-0">
+                <div class="mb-2">Se procederá a firmar la siguiente lista de documentos :</div>
+                {% for documento in documentos %}
+                    <div class="d-flex align-items-center flex-grow-1 border rounded px-3 py-2 mb-1
+                        {% if documento.FirmaTitular %}
+                            {% if documento.ultimoestado.estado in "OF" %}
+                                bg-light-danger
+                            {% endif %}
+                        {% else %}
+                            bg-light-warning
+                        {% endif %}">
+                        <div class="d-flex flex-wrap justify-content-between w-100">
+                            <div class="d-flex flex-column" style="width: 85%;">
+                                <div class="text-dark-75">
+                                    {{ documento.obtenerNumeroSiglas }}
+                                    {% if documento.expediente %}
+                                        <span class="ml-2 small font-weight-bolder badge badge-light badge-primary">
+                                            EXP {{ documento.expedientenro }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                <p class="text-dark-50 mb-0 font-size-sm">
+                                    {{ documento.asuntocorto }}
+                                </p>
+                            </div>
+                            <div class="small text-center" style="width: 15%;">
+                                <div>
+                                    {{ documento.ultimoestado.creado|date:"d/m/Y h:i a" }}
+                                </div>
+                                <div>
+                                    {% if not documento.pk|string in ids %}
+                                        <i class="fas fa-exclamation-triangle fa-2x text-info" rel="tooltip"
+                                           title="Este documento no puede ser firmado ni emitido por Ud.">
+                                        </i>
+                                    {% elif documento.FirmaTitular %}
+                                        {% if documento.ultimoestado.estado in "OF" %}
+                                            <i class="fas fa-times-circle fa-2x text-danger" rel="tooltip"
+                                               data-html="true"
+                                               title="Este documento está en estado {{ documento.estadoFirmas }}">
+                                            </i>
+                                        {% elif documento.AnexosNoFirmados > 0 %}
+                                            <i class="fas fa-exclamation-triangle fa-2x text-warning" rel="tooltip"
+                                               title="Este documento tiene anexos sin firmar, por lo tanto solo será firmado pero no se emitirá">
+                                            </i>
+                                        {% else %}
+                                            <i class="fas fa-check-circle fa-2x text-success">
+                                            </i>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="fa-stack fa-md">
+                                            <i class="fas fa-circle fa-stack-2x text-warning"></i>
+                                            <i class="fas fa-paper-plane fa-stack-1x text-white font-size-sm" rel="tooltip"
+                                               data-html="true"
+                                               title="Este documento está en estado {{ documento.estadoFirmas }}">
+                                            </i>
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="modal-footer justify-content-{% if ids %}between{% else %}center{% endif %}">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            {% if ids %}
+                <button type="button" class="btn btn-primary btn-firmar-masivo" data-forma="0">
+                    <i class="la la-pen-nib"></i>
+                    Firmar
+                </button>
+                <button type="button" class="btn btn-warning btn-firmar-masivo" data-forma="1">
+                    <i class="fas fa-paper-plane fa-1x"></i>
+                    Firmar y Emitir
+                </button>
+            {% endif %}
+        </div>
+        <div id="capa-firma-masiva" class="d-none"></div>
+    </div>
+{% endblock %}
+{% block modalScriptPost %}
+    <script type="text/javascript">
+        $("#fm-info [rel='tooltip']").tooltip({
+            trigger: 'hover'
+        });
+        {% if ids %}
+            $(".btn-firmar-masivo").on("click", function () {
+                let emitir = $(this).data("forma");
+                $("#capa-firma-masiva").cargarPagina(
+                    "post",
+                    "{% url 'apptra:oficina_bandeja_despacho_firmamasiva_ejecutar' %}",
+                    $("#modal-principal-centro .modal-content"),
+                    "Cargando...",
+                    {"codigos": "{{ ids }}", "emitir": emitir}
+                );
+            });
+        {% endif %}
+    </script>
+{% endblock modalScriptPost %}

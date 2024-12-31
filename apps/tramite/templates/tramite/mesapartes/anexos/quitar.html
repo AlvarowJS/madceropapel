@@ -1,0 +1,29 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    Quitando Anexo
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% url 'apptra:mesapartes_registrar_anexo_quitar' view.kwargs.pk %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% if anxok %}
+        <script>
+            $("#modal-principal-centro .modal-content").load(
+                "{% url 'apptra:mesapartes_registrar_anexos' doc.id %}"
+            );
+            refrescar_tablaMesaPartesRegistrados();
+            $("#documento-detalle-modal").modal("hide");
+        </script>
+    {% else %}
+        <div class="col-12">
+            ¿Desea quitar el anexo de este documento?
+        </div>
+    {% endif %}
+{% endblock %}
+{#{% block modalPost %}refrescarAnexos({{ object.documento.pk }}){% endblock %}#}

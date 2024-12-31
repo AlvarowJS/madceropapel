@@ -1,0 +1,34 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load queries %}
+<div class="d-flex justify-content-between">
+    <div class="btn-toolbar mb-1" role="toolbar" aria-label="Toolbar with button groups">
+        {% include "tramite/documento/emitir/botones/seguimiento.html" %}
+        {% include "tramite/documento/emitir/botones/guardar.html" %}
+        {% include "tramite/documento/emitir/botones/abrir.html" %}
+        {% include "tramite/documento/emitir/botones/cerrar.html" %}
+    </div>
+    {% if object.pk %}
+        <div class="d-flex">
+            {% include "tramite/documento/emitir/botones/anular.html" %}
+            {% include "tramite/documento/emitir/botones/generar.html" %}
+            {% include "tramite/documento/emitir/botones/firmas.html" %}
+            {% include "tramite/documento/emitir/botones/recibir.html" %}
+            {% include "tramite/documento/emitir/botones/atender.html" %}
+            {% include "tramite/documento/emitir/botones/archivar.html" %}
+            {% include "tramite/documento/emitir/botones/mensajear.html" %}
+        </div>
+    {% endif %}
+</div>
+{% if cf %}
+    <script>
+        appAlert(
+            "info", "Atención",
+            "Se ha cambiado los datos de su documento, tendrá que volver a elaborarlo."
+        );
+    </script>
+{% endif %}

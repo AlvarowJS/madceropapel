@@ -1,0 +1,36 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    {% if not object.pk %}
+        Registrando Documento Externo
+    {% else %}
+        Editando Documento Externo
+    {% endif %}
+    {% if object.expediente %}
+        <span class="text-black-50 ml-3">Exp:</span>
+        <span class="font-weight-bolder">
+            {{ object.expedientenro }}
+        </span>
+    {% endif %}
+{% endblock modalTitulo %}
+{% block modalBodyTotal %}
+    <div class="modal-body text-sm h-100 flex-grow-1 contenido-registrar-mesapartes">
+        <div class="container p-0 d-flex flex-column h-100">
+            <div id="capa-form-registrar-mesapartes">
+                {% include "tramite/mesapartes/registrar/registrar_form.html" %}
+            </div>
+            <div>
+                <div class="divider divider-primary divider-center mt-2 mb-0">
+                    <div class="divider-text">DESTINOS</div>
+                </div>
+                {% include "tramite/mesapartes/registrar/registrar_tabs.html" with desdetramite=True %}
+            </div>
+        </div>
+    </div>
+    {% include "tramite/mesapartes/registrar/registrar_acciones.html" with formid=form.id object=form.instance %}
+{% endblock modalBodyTotal %}

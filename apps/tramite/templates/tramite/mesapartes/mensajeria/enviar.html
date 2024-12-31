@@ -1,0 +1,161 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% block modalTitulo %}
+    {% if noambito %}
+        Atención!!
+    {% else %}
+        {% if view.kwargs.tipo == "NP" or object %}
+            {% if not object %}
+                Generando Planillado con {{ destinos.count }} Documento{{ destinos.count|pluralize:"s" }}
+            {% else %}
+                Editando Planillado N° {{ object.NumeroFull }}
+            {% endif %}
+            | Distribución {{ mododistribucion.nombre }}
+        {% else %}
+            Agregando {{ destinos.count }} Documento{{ destinos.count|pluralize:"s" }} a un Planillado
+        {% endif %}
+    {% endif %}
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% if not form.instance.pk and not generadook %}
+        {% url 'apptra:mesapartes_planillado_agregar' view.kwargs.modo view.kwargs.tipo view.kwargs.ids %}
+{% else %}
+        {% url 'apptra:mesapartes_planillado_editar' generadook|default:form.instance.pk %}
+    {% endif %}
+{% endblock %}
+{% block modalBody %}
+    {% if generadook %}
+        <script type="text/javascript">
+            appAlert(
+                "success",
+                "¡Generado correctamente!",
+                "<h3>Planillado N° <strong class='text-primary bg-light-primary px-3 py-1 rounded'>{{ generadonumero }}</strong></h3>"
+            );
+            $("#modal-centro-scroll .modal-content").load(
+                "{% url 'apptra:mesapartes_planillado_editar' form.instance.pk %}", null, function () {
+                    {% if view.kwargs.tipo == "NP" %}
+                        refrescar_tablaMensajeriaXE();
+                    {% endif %}
+                }
+            );
+        </script>
+    {% elif agregadook %}
+        <script type="text/javascript">
+            appAlert(
+                "success",
+                "¡Agregado correctamente!",
+                "<h3>Los documentos han sido agregados al Planillado N° <strong class='text-primary bg-light-primary px-3 py-1 rounded'>{{ agregadonumero }}</strong></h3> correctamente."
+            );
+            $("#modal-centro-scroll .modal-content").load(
+                "{% url 'apptra:mesapartes_planillado_editar' agregadook %}", null, function () {
+                    refrescar_tablaMensajeriaXE();
+                }
+            );
+        </script>
+    {% elif editadook %}
+        <script type="text/javascript">
+            appAlert(
+                "success",
+                "¡Actualizado correctamente!",
+                "<h3>El Planillado N° <strong class='text-primary bg-light-primary px-3 py-1 rounded'>{{ editadonro }}</strong></h3> se ha actualizado correctamente."
+            );
+            $("#modal-centro-scroll .modal-content").load(
+                "{% url 'apptra:mesapartes_planillado_editar' editadook %}", null, function () {
+                    $("#id_psplla").trigger("change");
+                }
+            );
+        </script>
+    {% elif noambito %}
+        <div class="col-12 text-center">
+            Para {{ noambito }} un planillado es necesario seleccionar el ámbito.
+        </div>
+    {% else %}
+        {% include "campos/errorform.html" %}
+        {% if object %}
+            {{ form.destinos }}
+        {% endif %}
+        {% include "campos/campoform.html" with campo=form.ambito numcol=2 %}
+        {% include "campos/campoform.html" with campo=form.anio numcol=3 %}
+        {% include "campos/campoform.html" with campo=form.planillado numcol=3 %}
+        {% include "campos/campoform.html" with campo=form.distribuidortipo numcol=2 %}
+        {% include "campos/campoform.html" with campo=form.distribuidor numcol=6 %}
+        {% include "campos/campoform.html" with campo=form.fecha numcol=2 %}
+        {% include "campos/campoform.html" with campo=form.nota numcol=12 %}
+        <div class="col-12">
+            <table class="dt-bootstrap4 table table-bordered table-hover table-striped no-footer table-light-info
+                table-responsive table-xs w-100" id="dt-planillado-detalle">
+                <thead>
+                <tr>
+                    <th>Expediente</th>
+                    <th>Documento</th>
+                    <th>Remitente</th>
+                    <th>Destinatario</th>
+                    <th>Ubigeo</th>
+                    <th>Dirección</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for destino in destinos %}
+                    <tr data-desid="{{ destino.pk }}"
+                        class="{% if destino.pk in destinosyaplanillado %} bg-light-danger{% endif %}">
+                        <td>{{ destino.expedientenro }}</td>
+                        <td>{{ destino.documentonro }}</td>
+                        <td>{{ destino.remitente }}</td>
+                        <td>{{ destino.destinatario }}</td>
+                        <td>{{ destino.ubigeo.RutaDepartamento }}</td>
+                        <td>{{ destino.direccion }}</td>
+                        <td>
+                            <a href="javascript:;" rel="tooltip"
+                               onclick="quitarDetalle('{{ destino.pk }}', this);"
+                               class="btn btn-xs btn-clean btn-hover-danger btn-icon p-1"
+                               title="Quitar"><i class="fas fa-minus-circle"></i>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+{% endblock %}
+{% block modalScriptPost %}
+    <script type="text/javascript">
+        $("#dt-planillado-detalle [rel='tooltip']").tooltip({
+            trigger: 'hover',
+            placement: 'left'
+        });
+
+        function quitarDetalle(id, obj) {
+            if ($("#dt-planillado-detalle tbody tr").length > 1) {
+                $(obj).tooltip("dispose");
+                $(obj).parents("tr").first().remove();
+                let ids = "";
+
+                {% if not form.instance.pk and not generadook %}
+                    $("#dt-planillado-detalle tbody tr").each(function (idx, e) {
+                        ids += $(e).data("desid") + "_";
+                    });
+                    let urlpost = "{% url 'apptra:mesapartes_planillado_agregar' view.kwargs.modo view.kwargs.tipo 'X' %}";
+                    urlpost = urlpost.replace("X", ids);
+                    $("#{{ form.id }}").attr("action", urlpost);
+                {% elif object %}
+                    ids = "[";
+                    $("#dt-planillado-detalle tbody tr").each(function (idx, e) {
+                        ids += $(e).data("desid") + ", ";
+                    });
+                    ids += "]";
+                    $("#{{ form.destinos.auto_id }}").val(ids);
+                {% endif %}
+            } else {
+                appAlert("warning", "Alerta", "Debe dejar almenos un documento!!");
+            }
+        }
+    </script>
+{% endblock modalScriptPost %}

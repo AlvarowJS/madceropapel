@@ -1,0 +1,16 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{
+    "success": {{ success|lower }},
+    "message": "{{ message|default:'' }}",
+    "codigo": {{ persona.pk|default:0 }},
+    "cargo": "{{ persona.ultimocargo|default:'' }}",
+    "ubigeo": {{ persona.ubigeo.pk|default:0 }},
+    "direccion": "{{ persona.direccion|safe|escapejs|default:'' }}",
+    "telefono": "{{ persona.telefono|default:'' }}",
+    "correo": "{{ persona.correo|default:'' }}"
+}

@@ -1,0 +1,347 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static utiles %}
+<script type="text/javascript">
+    {# Tipo de Remitente - Cambio #}
+    $("#{{ form.id }} input[name={{ form.remitentetipo.name }}]").on("change", function (e) {
+        if ($(this).val() === "J") {
+            $("#{{ form.id }} #fila-remitente-ruc").removeClass("d-none");
+            $("#{{ form.id }} #{{ form.personajuridicaruc.auto_id }}").attr("required", true);
+            $("#{{ form.id }} #{{ form.personajuridica.auto_id }}")
+                .attr("required", true)
+                .djangoSelect2("destroy")
+                .data("allow-clear", false)
+                .djangoSelect2();
+            $("#{{ form.id }} #{{ form.ciudadanocargo.auto_id }}")
+                .attr("required", true)
+                .parents(".form-group").first().find("span.text-danger").removeClass("d-none");
+            $("#{{ form.id }} #{{ form.personajuridicatipo.auto_id }}").trigger("change");
+        } else {
+            $("#{{ form.id }} #fila-remitente-ruc").addClass("d-none");
+            $("#{{ form.id }} #{{ form.personajuridicaruc.auto_id }}").attr("required", false);
+            $("#{{ form.id }} #{{ form.personajuridica.auto_id }}")
+                .attr("required", false)
+                .djangoSelect2("destroy")
+                .data("allow-clear", true)
+                .djangoSelect2();
+            $("#{{ form.id }} #{{ form.ciudadanocargo.auto_id }}")
+                .attr("required", false)
+                .parents(".form-group").first().find("span.text-danger").addClass("d-none");
+            $("#{{ form.id }} #{{ form.ciudadanoemisortipo.auto_id }}").trigger("change");
+        }
+    });
+
+    {# Emisor Tipo - Cambio #}
+    $("#{{ form.id }} #{{ form.ciudadanoemisortipo.auto_id }}").on("change", function (e) {
+        let tdcod = $(this).select2('data')[0].codigo || "DNI";
+        let tdest = $("#{{ form.id }} input[name={{ form.remitentetipo.name }}]:checked").val();
+        if (tdcod === "DNI") {
+            $("#{{ form.id }} #ce_nro").addClass("d-none").find("input").attr("required", false);
+            $("#{{ form.id }} #ciudadanoemisor_nombres")
+                .addClass("d-none")
+                .find("#{{ form.ciudadanoemisorpaterno.auto_id }}, #{{ form.ciudadanoemisornombres.auto_id }}")
+                .attr("required", false);
+            $("#{{ form.id }} #ciudadanoemisor_selector")
+                .removeClass("d-none")
+                .find("select")
+                .attr("required", true)
+                .djangoSelect2("destroy")
+                .data("allow-clear", false)
+                .djangoSelect2();
+            $("#{{ form.id }} #ce_dni")
+                .removeClass("d-none")
+                .find("input").attr("required", true);
+            if (tdest === "C") {
+                setTimeout(function () {
+                    $("#{{ form.id }} #{{ form.ciudadanoemisordni.auto_id }}").focus();
+                }, 100);
+            }
+        } else {
+            $("#{{ form.id }} #ce_dni")
+                .addClass("d-none")
+                .find("input").attr("required", false);
+            $("#{{ form.id }} #ciudadanoemisor_selector")
+                .addClass("d-none")
+                .find("select")
+                .attr("required", false)
+                .djangoSelect2("destroy")
+                .data("allow-clear", true)
+                .djangoSelect2();
+            if (tdcod === "OTR") {
+                $("#{{ form.id }} #ce_nro").addClass("d-none").find("input").attr("required", false);
+            } else {
+                $("#{{ form.id }} #ce_nro").removeClass("d-none").find("input").attr("required", true);
+            }
+            $("#{{ form.id }} #ciudadanoemisor_nombres")
+                .removeClass("d-none")
+                .find("#{{ form.ciudadanoemisorpaterno.auto_id }}, #{{ form.ciudadanoemisornombres.auto_id }}")
+                .attr("required", true);
+            if (tdest === "C") {
+                if (tdcod === "OTR") {
+                    setTimeout(function () {
+                        $("#{{ form.id }} #{{ form.ciudadanoemisorpaterno.auto_id }}").focus();
+                    }, 100);
+                } else {
+                    setTimeout(function () {
+                        $("#{{ form.id }} #{{ form.ciudadanoemisornumero.auto_id }}").focus();
+                    }, 100);
+                }
+            }
+        }
+    });
+
+    {# Emisor - Cambio #}
+    $("#{{ form.id }} #{{ form.ciudadanoemisordni.auto_id }}").on("keypress", function (e) {
+        if (e.keyCode === 13) {
+            e.preventDefault();
+            $("#{{ form.id }} #{{ form.ciudadanoemisordni.auto_id }}_btnsearch").trigger("click");
+        }
+    });
+    $("#{{ form.id }} #{{ form.ciudadanoemisordni.auto_id }}_btnsearch").on("click", function (e) {
+        if (!$("#{{ form.ciudadanoemisordni.auto_id }}").inputmask('isComplete')) {
+            Swal.fire("Alerta!!", "Debe completar el DNI", "warning").then(function (result) {
+                setTimeout(function () {
+                    $("#{{ form.ciudadanoemisordni.auto_id }}").focus();
+                }, 300);
+            });
+        } else {
+            let pdni = $("#{{ form.ciudadanoemisordni.auto_id }}").val();
+            $.cargarPagina(
+                "post",
+                "{% url 'apptra:consulta_dni_persona_origen' %}",
+                $("#modal-principal .modal-content"),
+                "Consultando...",
+                {"dni": pdni},
+                null,
+                function (e) {
+                    if (e.success) {
+                        $("#{{ form.id }} #{{ form.ciudadanoemisor.auto_id }}").trigger("select2:sel_id", e.codigo);
+                        if ($("#{{ form.id }} input[name={{ form.remitentetipo.name }}]:checked").val() === "C") {
+                            $("#{{ form.id }} #{{ form.ciudadanocargo.auto_id }}").val(e.cargo);
+                            $("#{{ form.id }} #{{ form.distrito.auto_id }}").trigger("select2:sel_id", e.ubigeo);
+                            $("#{{ form.id }} #{{ form.direccion.auto_id }}").val(e.direccion);
+                            $("#{{ form.id }} #{{ form.telefono.auto_id }}").val(e.telefono);
+                            $("#{{ form.id }} #{{ form.correo.auto_id }}").val(e.correo);
+                        }
+                    }
+                }
+            )
+        }
+    });
+    $("#{{ form.id }}").on("change", "#{{ form.ciudadanoemisor.auto_id }}", function (e) {
+        if ($(this).val()) {
+            $("#{{ form.ciudadanoemisordni.auto_id }}").val($(this).select2('data')[0].dni);
+            setTimeout(function () {
+                $("#{{ form.ciudadanoemisordni.auto_id }}_btnsearch").trigger("click");
+            }, 10);
+        }
+    });
+
+    {# Emisor CE - PASS  #}
+    $("#{{ form.id }} #{{ form.ciudadanoemisornumero.auto_id }}_btnsearch").on("click", function (e) {
+        $.cargarPagina(
+            "post",
+            "{% url 'apptra:consulta_nodni_persona_origen' %}",
+            $("#modal-principal .modal-content"),
+            "Consultando...",
+            {
+                "td": $("#{{ form.id }} #{{ form.ciudadanoemisortipo.auto_id }}").val(),
+                "nro": $("#{{ form.id }} #{{ form.ciudadanoemisornumero.auto_id }}").val()
+            },
+            null,
+            function (e) {
+                if (e.success) {
+                    $("#{{ form.id }} #{{ form.ciudadanoemisorcodigo.auto_id }}").val(e.codigo);
+                    $("#{{ form.id }} #{{ form.ciudadanoemisorpaterno.auto_id }}").val(e.paterno);
+                    $("#{{ form.id }} #{{ form.ciudadanoemisormaterno.auto_id }}").val(e.materno);
+                    $("#{{ form.id }} #{{ form.ciudadanoemisornombres.auto_id }}").val(e.nombres);
+                    $("#{{ form.id }} #{{ form.ciudadanocargo.auto_id }}").val(e.cargo);
+                    $("#{{ form.id }} #{{ form.ciudadanoemisorsexo.auto_id }}").bootstrapSwitch("state", e.sexo === "M");
+                    if ($("#{{ form.id }} input[name={{ form.remitentetipo.name }}]:checked").val() === "C") {
+                        $("#{{ form.id }} #{{ form.distrito.auto_id }}").trigger("select2:sel_id", e.ubigeo);
+                        $("#{{ form.id }} #{{ form.direccion.auto_id }}").val(e.direccion);
+                        $("#{{ form.id }} #{{ form.telefono.auto_id }}").val(e.telefono);
+                        $("#{{ form.id }} #{{ form.correo.auto_id }}").val(e.correo);
+                    }
+                } else {
+                    $("#{{ form.id }} #{{ form.ciudadanoemisorcodigo.auto_id }}").val(0);
+                    $("#{{ form.id }} #{{ form.ciudadanoemisorpaterno.auto_id }}").val("");
+                    $("#{{ form.id }} #{{ form.ciudadanoemisormaterno.auto_id }}").val("");
+                    $("#{{ form.id }} #{{ form.ciudadanoemisornombres.auto_id }}").val("");
+                    $("#{{ form.id }} #{{ form.ciudadanocargo.auto_id }}").val("");
+                    if ($("#{{ form.id }} input[name={{ form.remitentetipo.name }}]:checked").val() === "C") {
+                        $("#{{ form.id }} #{{ form.direccion.auto_id }}").val("");
+                        $("#{{ form.id }} #{{ form.telefono.auto_id }}").val("");
+                        $("#{{ form.id }} #{{ form.correo.auto_id }}").val("");
+                    }
+                }
+            }
+        );
+    });
+
+    {# Tipo de Persona Jurídica - Cambio #}
+    $("#{{ form.id }} #{{ form.personajuridicatipo.auto_id }}").on("change", function () {
+        let pjt = $(this).val();
+        if (pjt === "R") {
+            $("#{{ form.id }} #pj_ruc")
+                .removeClass("d-none")
+                .find("input").attr("required", true);
+            $("#{{ form.id }} #pj_selector")
+                .removeClass("d-none")
+                .find("select").attr("required", true);
+            $("#{{ form.id }} #pj_rz")
+                .addClass("d-none")
+                .find("input").attr("required", false);
+            setTimeout(function () {
+                $("#{{ form.id }} #{{ form.personajuridicaruc.auto_id }}").focus();
+            }, 100);
+        } else {
+            $("#{{ form.id }} #pj_ruc")
+                .addClass("d-none")
+                .find("input").attr("required", false);
+            $("#{{ form.id }} #pj_selector")
+                .addClass("d-none")
+                .find("select").attr("required", false);
+            $("#{{ form.id }} #pj_rz")
+                .removeClass("d-none")
+                .find("input").attr("required", true);
+            setTimeout(function () {
+                $("#{{ form.id }} #{{ form.personajuridicarz.auto_id }}").focus();
+            }, 100);
+        }
+    });
+
+    {# RUC - Buscar #}
+    $("#{{ form.id }} #{{ form.personajuridicaruc.auto_id }}").on("keypress", function (e) {
+        if (e.keyCode === 13) {
+            e.preventDefault();
+            $("#{{ form.id }} #{{ form.personajuridicaruc.auto_id }}_btnsearch").trigger("click");
+        }
+    });
+    $("#{{ form.id }} #{{ form.personajuridicaruc.auto_id }}_btnsearch").on("click", function (e) {
+        if (!$("#{{ form.personajuridicaruc.auto_id }}").inputmask('isComplete')) {
+            Swal.fire("Alerta!!", "Debe completar el RUC", "warning").then(function (result) {
+                setTimeout(function () {
+                    $("#{{ form.personajuridicaruc.auto_id }}").focus();
+                }, 300);
+            });
+        } else {
+            let pruc = $("#{{ form.personajuridicaruc.auto_id }}").val();
+            $.cargarPagina(
+                "post",
+                "{% url 'apptra:consulta_ruc_origen' %}",
+                $("#modal-principal .modal-content"),
+                "Consultando...",
+                {"ruc": pruc},
+                null,
+                function (e) {
+                    if (e.success) {
+                        $("#{{ form.id }} #{{ form.personajuridica.auto_id }}").trigger("select2:sel_id", e.pjcodigo);
+                        $("#{{ form.id }} #{{ form.distrito.auto_id }}").trigger("select2:sel_id", e.distrito);
+                        $("#{{ form.id }} #{{ form.direccion.auto_id }}").val(e.direccion);
+                        $("#{{ form.id }} #{{ form.telefono.auto_id }}").val(e.telefono);
+                        $("#{{ form.id }} #{{ form.correo.auto_id }}").val(e.correo);
+                        $("#{{ form.id }} #{{ form.ciudadanoemisortipo.auto_id }}").trigger("select2:sel_id", e.rep_tipodoc);
+                        $("#{{ form.id }} #{{ form.correo.auto_id }}").val(e.correo);
+                        setTimeout(function () {
+                            $("#{{ form.id }} #{{ form.ciudadanoemisortipo.auto_id }}").trigger("change");
+                            if (e.rep_tipodoccod === "DNI") {
+                                $("#{{ form.id }} #{{ form.ciudadanoemisordni.auto_id }}").val(e.rep_numero);
+                                $("#{{ form.id }} #{{ form.ciudadanoemisordni.auto_id }}_btnsearch").trigger("click");
+                            } else {
+                                if (e.rep_tipodocod === "CET" || e.rep_tipodocod === "PAS") {
+                                    $("#{{ form.id }} #{{ form.ciudadanoemisornumero.auto_id }}").val(e.rep_numero);
+                                    $("#{{ form.id }} #{{ form.ciudadanoemisornumero.auto_id }}_btnsearch").trigger("click");
+                                }
+                            }
+                            $("#{{ form.id }} #{{ form.ciudadanocargo.auto_id }}").val(e.rep_cargo);
+                        }, 800);
+                    }
+                }
+            );
+        }
+    });
+
+    {# Persona Jurídica - Cambio #}
+    $("#{{ form.id }}").on("change", "#{{ form.personajuridica.auto_id }}", function (e) {
+        if ($(this).val()) {
+            $("#{{ form.personajuridicaruc.auto_id }}").val($(this).select2('data')[0].ruc);
+            setTimeout(function () {
+                $("#{{ form.personajuridicaruc.auto_id }}_btnsearch").trigger("click");
+            }, 10);
+        }
+    });
+
+    {# Tramitador - Cambio #}
+    $("#{{ form.id }} #{{ form.ciudadanotramitadordni.auto_id }}").on("keypress", function (e) {
+        if (e.keyCode === 13) {
+            e.preventDefault();
+            $("#{{ form.id }} #{{ form.ciudadanotramitadordni.auto_id }}_btnsearch").trigger("click");
+        }
+    });
+    $("#{{ form.id }} #{{ form.ciudadanotramitadordni.auto_id }}_btnsearch").on("click", function (e) {
+        if (!$("#{{ form.ciudadanotramitadordni.auto_id }}").inputmask('isComplete')) {
+            Swal.fire("Alerta!!", "Debe completar el DNI", "warning").then(function (result) {
+                setTimeout(function () {
+                    $("#{{ form.ciudadanotramitadordni.auto_id }}").focus();
+                }, 300);
+            });
+        } else {
+            let dni = $("#{{ form.ciudadanotramitadordni.auto_id }}").val();
+            $.cargarPagina(
+                "post",
+                "{% url 'apptra:consulta_dni_tramitador_origen' %}",
+                $("#modal-principal .modal-content"),
+                "Consultando...",
+                {"dni": dni},
+                null,
+                function (e) {
+                    $("#{{ form.id }} #{{ form.ciudadanotramitador.auto_id }}").trigger("select2:sel_id", e.codigo);
+                }
+            )
+        }
+    });
+    $("#{{ form.id }}").on("change", "#{{ form.ciudadanotramitador.auto_id }}", function (e) {
+        if ($(this).val()) {
+            let pjSel = $(this).select2('data')[0];
+            $("#{{ form.ciudadanotramitadordni.auto_id }}").val(pjSel.dni);
+            $("#{{ form.ciudadanotramitadordni.auto_id }}_btnsearch").trigger("click");
+        } else {
+            $("#{{ form.ciudadanotramitadordni.auto_id }}").val("");
+        }
+    });
+
+    autosize($('#{{ form.id }} textarea'));
+    {% if request.POST %}
+        $.formatearCampos("#{{ form.id }}");
+    {% else %}
+        $("#{{ form.id }}").enviarForm(
+            $("#capa-form-registrar-mesapartes"),
+            $("#modal-principal .modal-content"),
+            "Guardando...",
+            function () {
+                let cet = $("#{{ form.id }} #{{ form.ciudadanoemisortipo.auto_id }}").select2("data")[0].codigo;
+                let rt = $("#{{ form.id }} input[name={{ form.remitentetipo.name }}]:checked").val();
+                let cecod = parseInt($("#{{ form.id }} #{{ form.ciudadanoemisorcodigo.auto_id }}").val());
+                if ("CET,PAS".indexOf(cet) > -1 && rt === "C" && cecod === -1) {
+                    appAlert("warning", "Atención!!", "Debe buscar el número de documento");
+                    return false;
+                }
+                return true;
+            }
+        );
+    {% endif %}
+
+    funcExec(function () {
+        setTimeout(function () {
+            $("#{{ form.id }} input[name={{ form.remitentetipo.name }}]:checked").trigger("change");
+            {% if form.instance.pk %}
+                $("#{{ form.id }} #{{ form.ciudadanoemisortipo.auto_id }}").trigger("change");
+            {% endif %}
+        }, 100);
+    });
+</script>

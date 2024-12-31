@@ -1,0 +1,115 @@
+{% extends "tramite/base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load table_tags %}
+{% block TramiteScriptsPre %}
+    <script type="text/javascript">
+        $("#tabladbAnexoFirmaVBO").on("click", ".btn-firmar-anx", function (e) {
+            let codanx = $(this).data("codigo");
+            $(this).next().cargarPagina(
+                "post",
+                "{% url 'apptra:documento_anexo_firmarvb' 0 %}".replace("/0", "/" + codanx)
+            );
+        });
+
+        function tabladbFirmaVBO_afterload(settings, me) {
+            let totreg = me.api().ajax.json().iTotalRecords;
+            if (totreg > 0) $("#tabFirmas-o span.badge").html(totreg).removeClass("d-none");
+            else $("#tabFirmas-o span.badge").html("").addClass("d-none");
+        }
+        function tabladbAnexoFirmaVBO_afterload(settings, me) {
+            let totreganx = me.api().ajax.json().iTotalRecords;
+            if (totreganx > 0) $("#tabFirmaAnx-o span.badge").html(totreganx).removeClass("d-none");
+            else $("#tabFirmaAnx-o span.badge").html("").addClass("d-none");
+        }
+        function tabladbFirmaVBO_init(oSettings, json) {
+            let fF = $("#FiltroFirma");
+            fF.appendTo(
+                $("#tabladbFirmaVBO_wrapper .dt-buttons")
+            ).removeClass("d-none");
+        }
+        function tabladbAnexoFirmaVBO_init(oSettings, json) {
+            let fFAnx = $("#FiltroFirmaAnx");
+            fFAnx.appendTo(
+                $("#tabladbAnexoFirmaVBO_wrapper .dt-buttons")
+            ).removeClass("d-none");
+        }
+    </script>
+{% endblock %}
+{% block TramiteContenido %}
+    <div class="col-12 px-0">
+        <div class="card card-custom gutter-b">
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="tabFirmas-o" data-toggle="tab" href="#tabdbFirmaVBO">
+                            <span class="nav-icon">
+                                <i class="far fa-file-alt"></i>
+                            </span>
+                            <span class="nav-text">Documentos</span>
+                            <span class="badge badge-white ml-2 badge-pill border border-primary py-1 px-2 d-none">
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="tabFirmaAnx-o" data-toggle="tab" href="#tabdbFirmaAnxO"
+                           aria-controls="profile">
+                            <span class="nav-icon">
+                                <i class="fas fa-paperclip"></i>
+                            </span>
+                            <span class="nav-text">Anexos</span>
+                            <span class="badge badge-white ml-2 badge-pill border border-primary py-1 px-2 d-none">
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+                <div class="tab-content mt-5" id="myTabContent">
+                    <div class="tab-pane fade active show" id="tabdbFirmaVBO" role="tabpanel" aria-labelledby="tabFirmas-o">
+                        <div id="FiltroFirma" class="d-none radio-inline">
+                            <label class="radio mb-0">
+                                <input type="radio" name="ffp" value="sf" checked />
+                                <span></span>Por Firmar
+                            </label>
+                            <label class="radio mb-0">
+                                <input type="radio" name="ffp" value="fi" />
+                                <span></span>Firmados
+                            </label>
+                        </div>
+                        {% render_table TablaOficinaFirmaVB %}
+                    </div>
+                    <div class="tab-pane fade" id="tabdbFirmaAnxO" role="tabpanel" aria-labelledby="tabFirmaAnx-o">
+                        <div id="FiltroFirmaAnx" class="d-none radio-inline">
+                            <label class="radio mb-0">
+                                <input type="radio" name="ffpanx" value="sf" checked />
+                                <span></span>Por Firmar
+                            </label>
+                            <label class="radio mb-0">
+                                <input type="radio" name="ffpanx" value="fi" />
+                                <span></span>Firmados
+                            </label>
+                        </div>
+                        {% render_table TablaOficinaAnexoFirmaVB %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock TramiteContenido %}
+{% block TramiteScriptsPost %}
+    <script>
+        $("#FiltroFirma").on("change", "input[name=ffp]", function (e) {
+            table_tabladbFirmaVBO.api().ajax.url(
+                "{% url 'apptra:oficina_bandeja_firma_vb_listar' 'X' %}".replace("X", $(this).val())
+            ).load();
+        });
+        $("#FiltroFirmaAnx").on("change", "input[name=ffpanx]", function (e) {
+            table_tabladbAnexoFirmaVBO.api().ajax.url(
+                "{% url 'apptra:oficina_anexo_firma_vb_listar' 'X' %}".replace("X", $(this).val())
+            ).load();
+        });
+    </script>
+{% endblock TramiteScriptsPost %}

@@ -1,0 +1,209 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+<div id='kt_tablero_tmp' class='d-none'></div>
+<div id="kt_tablero" class="row">
+    <div class="col-lg-6 draggable-zone" data-col="1">
+        {% for tabobj in tablero %}
+            {% if tabobj.orden|get_digit:3 == 1 %}
+                {% include "inicio/dashboard/base.html" with tabobj=tabobj only %}
+            {% endif %}
+        {% endfor %}
+    </div>
+    <div class="col-lg-6 draggable-zone" data-col="2">
+        {% for tabobj in tablero %}
+            {% if tabobj.orden|get_digit:3 == 2 %}
+                {% include "inicio/dashboard/base.html" with tabobj=tabobj only %}
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+<script type="text/javascript">
+    var KTTableroOrdenSave = false;
+
+    var KTTableroData = {
+        {% for tabobj in tablero %}
+            "{{ tabobj.tablero.codigo }}": {
+                cantidad: 0,
+                data: []
+            }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    };
+
+    var KTTableroVue;
+
+    function fnSocketReordenarTablero(orden) {
+        if (!KTTableroOrdenSave) {
+            $("#kt_tablero").find(".draggable-zone").each(function (e) {
+                $(this).find(".card").appendTo("#kt_tablero_tmp");
+            });
+            orden.tableroorden.forEach(function (e) {
+                let col = parseInt(e.orden / 100);
+                $("#kt_tablero_tmp .card[data-code=" + e.id + "]").appendTo(
+                    $("#kt_tablero .draggable-zone[data-col=" + col + "]")
+                );
+            });
+        }
+        KTTableroOrdenSave = false;
+    }
+
+    function refrescarTableroTotal() {
+        socketMAD0.send(JSON.stringify({
+            "codigo": "contadores_actualizar"
+        }));
+        {% for tabobj in tablero %}
+            TableroLoadData("{{ tabobj.tablero.codigo }}", false);
+        {% endfor %}
+    }
+
+    function refrescarTableros(codigos, contar) {
+        if (codigos === "all") {
+            refrescarTableroTotal();
+        } else {
+            codigos = codigos.split(",");
+            codigos.forEach(function (e) {
+                TableroLoadData(e);
+            });
+        }
+        {#console.log(codigos);#}
+        {#if (contar) {#}
+        {#    socketMAD0.send(JSON.stringify({#}
+        {#        "codigo": "contadores_actualizar"#}
+        {#    }));#}
+        {# }#}
+    }
+
+    function guardarTableroOrden() {
+        KTTableroOrdenSave = true;
+        let codigos = [];
+        KTCardDraggable.getDraggableElementsForContainer(KTCardDraggable.containers[0]).forEach(function (e, idx) {
+            codigos.push({
+                "id": $(e).data("code"),
+                "orden": 101 + idx
+            });
+        });
+        KTCardDraggable.getDraggableElementsForContainer(KTCardDraggable.containers[1]).forEach(function (e, idx) {
+            codigos.push({
+                "id": $(e).data("code"),
+                "orden": 201 + idx
+            });
+        });
+        socketMAD0.send(JSON.stringify({
+            "codigo": "tablero_orden",
+            "orden": codigos
+        }));
+    }
+
+    function TableroLoadData(codigo, contar) {
+        socketMAD0.send(JSON.stringify({
+            "codigo": "tablero_data",
+            "tablero": codigo
+        }));
+        if (codigo === "dbMiMensajeria") {
+            refrescarTabla("tablaMesaPartesMiMensajeria");
+        } else {
+            refrescarTabla("tabla" + codigo + "O");
+            refrescarTabla("tabla" + codigo + "P");
+        }
+        if (contar === undefined) contar = true;
+        if (contar) {
+            socketMAD0.send(JSON.stringify({
+                "codigo": "contador_actualizar",
+                "keys": "O,P",
+                "menus": codigo
+            }));
+        }
+    }
+
+    function fnSocketTableroData(e) {
+        let data = e.data.data;
+        eval("KTTableroData." + e.data.codigo + "=data;");
+    }
+
+    funcExec(function () {
+        KTTableroVue = new Vue({
+            el: "#kt_tablero",
+            delimiters: ["{$", "$}"],
+            data: KTTableroData,
+            mounted: function () {
+                KTGenerarDraggable();
+                KTCardDraggable.on('drag:stop', (evt) => {
+                    guardarTableroOrden();
+                });
+            },
+            methods: {
+                "viewPDF": function (url, nombre, token, elementdelete, bloquear, lista, urlforma) {
+                    if (urlforma === 0) {
+                        viewPDF(url, nombre, token, elementdelete, bloquear, lista, urlforma);
+                    } else {
+                        $("#modal-pdf-viewer-full .modal-content").load(url);
+                        $("#modal-pdf-viewer-full").modal("show");
+                    }
+                },
+                "getRibbonPosition": function (registro, nameribbon) {
+                    let postop = 4;
+                    if (registro.tienepdf) postop += 32;
+                    if (nameribbon === "fis" && registro.urlanx.length > 0) postop += 32;
+                    return "top: " + postop + "px; height: 24px;"
+                },
+                "getCardMinHeight": function (registro) {
+                    let minh = 35;
+                    if (registro.urlanx.length > 0) minh += 35;
+                    if (registro.urlentfis) minh += 35;
+                    _result = "min-height: " + minh + "px;";
+                    if (registro.confidencial) _result  += " border-left: 16px solid red;";
+                    return _result;
+                },
+                "rechazadoObs": function (restado) {
+                    _resultado = "";
+                    if (restado) {
+                        for (let co = 0; co < restado.length; co++) {
+                            _resultado += "<div>Por: <strong>";
+                            _resultado += restado[co].persona;
+                            _resultado += "</strong></div><div>El: <strong>";
+                            _resultado += restado[co].fecha;
+                            _resultado += "</strong></div><div>NOTA: ";
+                            _resultado += restado[co].observacion;
+                            _resultado += "</div>";
+                        }
+                    }
+                    return _resultado;
+                }
+            },
+            watch: {
+                {% for tabobj in tablero %}
+                    "{{ tabobj.tablero.codigo }}": function (val) {
+                        $('#{{ tabobj.tablero.codigo }} [rel="tooltip"]').tooltip('dispose');
+                        setTimeout(function () {
+                            $('#{{ tabobj.tablero.codigo }} [rel="tooltip"]').tooltip({trigger: 'hover', html: true});
+                        }, 500);
+                    },
+                {% endfor %}
+            }
+        });
+
+        {% for tabobj in tablero %}
+            let card{{ tabobj.tablero.codigo }} = new KTCard("{{ tabobj.tablero.codigo }}");
+            card{{ tabobj.tablero.codigo }}.one("beforeExpand", function (e) {
+                socketMAD0.send(JSON.stringify({
+                    "codigo": "tablero_expandido",
+                    "id": $(e.getSelf()).data("code"),
+                    "expandido": true
+                }));
+            }).one("beforeCollapse", function (e) {
+                socketMAD0.send(JSON.stringify({
+                    "codigo": "tablero_expandido",
+                    "id": $(e.getSelf()).data("code"),
+                    "expandido": false
+                }));
+            });
+        {% endfor %}
+
+        setTimeout(function () {
+            refrescarTableroTotal();
+        }, 1000);
+    });
+</script>

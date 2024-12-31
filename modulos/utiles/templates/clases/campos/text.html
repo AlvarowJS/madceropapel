@@ -1,0 +1,42 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% if widget.flotante %}
+    <div class="form-label-group">
+        <span class="input-group-text">
+            <i class="{{ widget.iconprepend }}"></i>
+        </span>
+        {% include "clases/campos/input.html" %}
+        <label for="{{ widget.attrs.id }}">
+            {{ widget.label }}
+        </label>
+        {#        <input type="text" name="tdusuario" autocapitalize="none" autocomplete="username"#}
+        {#               class="form-control" autofocus="autofocus" required="" id="id_tdusuario" placeholder=" ">#}
+        {#        <label for="id_tdusuario">Usuario</label>#}
+    </div>
+{% else %}
+    {% if widget.buttonappend or widget.textappend %}
+        <div class="input-group">
+    {% endif %}
+{% include "clases/campos/input.html" %}
+{% if widget.placeholderlabel %}
+    <label for="{{ widget.attrs.id }}">{{ widget.attrs.placeholder }}</label>
+{% endif %}
+{% if widget.buttonappend or widget.textappend %}
+    <div class="input-group-append d-block">
+        {% if widget.buttonappend %}
+            <button type="button" class="btn-primary input-group-text">
+                <span class="{{ widget.buttonappend }}"></span>
+            </button>
+        {% elif widget.textappend %}
+            <span class="input-group-text" style="padding: 0.6rem 0.7rem">
+                    {{ widget.textappend }}
+                </span>
+        {% endif %}
+    </div>
+    </div>
+{% endif %}
+{% endif %}

@@ -1,0 +1,452 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% spaceless %}
+    {% load static utiles %}
+    {% block extra_css %}{% endblock extra_css %}
+    {% if table.opts.filter_date %}
+        <div class='input-group d-none' id='{{ table.opts.id }}Fechador'>
+            <input type='text' class="form-control" readonly="readonly" placeholder="Rango de Fechas"/>
+            <div class="input-group-append">
+                <span class="input-group-text"><i class="la la-calendar"></i></span>
+            </div>
+        </div>
+        <script type="text/javascript">
+            $('#{{ table.opts.id }}Fechador').daterangepicker({
+                startDate: "{{ table.opts.filter_date.inicio }}",
+                endDate: "{{ table.opts.filter_date.fin }}"
+            }, function (start, end, label) {
+                if ("personalizado,últimos 30 días,últimos 7 días".indexOf(label.toLowerCase()) > -1) {
+                    $('#{{ table.opts.id }}Fechador .form-control').val(
+                        start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY')
+                    );
+                } else {
+                    $('#{{ table.opts.id }}Fechador .form-control').val(label);
+                }
+                table_{{ table.opts.id }}.api().ajax.reload(null, true);
+            });
+            $('#{{ table.opts.id }}Fechador').data("daterangepicker").calculateChosenLabel();
+            $('#{{ table.opts.id }}Fechador .form-control').val(
+                $('#{{ table.opts.id }}Fechador').data("daterangepicker").chosenLabel
+            );
+        </script>
+    {% endif %}
+    {% if table.opts.filter_tipodoc %}
+        <div class='input-group d-none' id='{{ table.opts.id }}TipoDoc'>
+            {{ table.opts.filter_tipodocform.selector }}
+        </div>
+        <script type="text/javascript">
+            $("#{{ table.opts.filter_tipodocform.selector.field.widget.attrs.id }}").djangoSelect2();
+            $("#{{ table.opts.filter_tipodocform.selector.field.widget.attrs.id }}").on("change", function () {
+                table_{{ table.opts.id }}.api().ajax.reload(null, true);
+            });
+        </script>
+    {% endif %}
+    {% if table.opts.rowreorder %}
+        <input type="hidden" id="{{ table.opts.id }}_sort_url" value="{{ table.opts.rowreorder }}" size="100">
+    {% endif %}
+    <table id={{ table.opts.id }} {{ table.opts.attrs }} {% if table.opts.rowreorder %}table-row-reorder{% endif %}>
+        <thead {% if table.opts.thead_attrs %}{{ table.opts.thead_attrs }}{% endif %}>
+        {% for row in table.header_rows %}
+            <tr>
+                {% for header in row %}
+                    <th {% if header.attrs %}{{ header.attrs }}{% endif %}>
+                        {{ header.text }}
+                    </th>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </thead>
+        {% if not table.opts.ajax %}
+            <tbody {% if table.opts.tbody_attrs %}{{ table.opts.tbody_attrs }}{% endif %}>
+            {% for row in table.rows %}
+                <tr>
+                    {% for column, td in row.items %}
+                        <td {% if column.attrs %}{{ column.attrs }}{% endif %}>
+                            {% if column.safe %}{{ td }}{% else %}{{ td|safe }}{% endif %}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        {% endif %}
+    </table>
+    {% block table_init_js %}
+        <script type="text/javascript" charset="utf-8">
+            $(document).ready(function () {
+                {#var filterFunc = function (sData) {#}
+                {#    return sData.replace(/\n/g, " ").replace(/<.*?>/g, "");#}
+                {# };#}
+                table_{{ table.opts.id }} = $('#{{ table.opts.id }}').dataTable({
+                    {% block table_options %}
+                        {% block table_dom %}
+                            "dom": "{{ table.addons.render_dom }}",
+                        {% endblock table_dom %}
+                        "responsive": true,
+                        {% if table.opts.ajax %}
+                            "processing": true,
+                            "serverSide": true,
+                            "ajaxSource": {% if table.opts.ajax_source %}"{{ table.opts.ajax_source }}"
+                                {% else %}"{% url 'feed_data' table.token %}"{% endif %},
+                            "fnServerParams": function (aoData) {
+                                {% if table.opts.filter_date %}
+                                    let {{ table.opts.id }}drp = $('#{{ table.opts.id }}Fechador').data('daterangepicker');
+                                    aoData.push({
+                                        name: "inicio",
+                                        value: {{ table.opts.id }}drp.startDate.format({{ table.opts.id }}drp.locale.format)
+                                    });
+                                    aoData.push({
+                                        name: "fin",
+                                        value: {{ table.opts.id }}drp.endDate.format({{ table.opts.id }}drp.locale.format)
+                                    });
+                                {% endif %}
+                                {% if table.opts.filter_tipodoc %}
+                                    let {{ table.opts.id }}tipodoc = $('#{{ table.opts.filter_tipodocform.selector.field.widget.attrs.id }}').val() || 0;
+                                    aoData.push({
+                                        name: "tipodoc",
+                                        value: {{ table.opts.id }}tipodoc
+                                    });
+                                {% endif %}
+                                if (typeof {{ table.opts.id }}_preServerParams == "function") {
+                                    {{ table.opts.id }}_preServerParams(aoData);
+                                }
+                            },
+                            "searchDelay": 1000,
+                        {% endif %}
+                        "paging": {% if table.opts.pagination %}true{% else %}false{% endif %},
+                        "pageLength": {{ table.addons.pagination.length }},
+                        {% if table.opts.scrollable %}
+                            "scroller": true,
+                            "scrollY": {{ table.opts.scrolly }},
+                            {#"sScrollXInner": "{{ table.opts.scrollinner }}",#}
+                            "scrollCollapse": true,
+                            "deferRender": true,
+                        {% endif %}
+                        "order": [
+                            {% for index, order in table.opts.sort %}
+                                [{{ index }}, "{{ order }}"]{% if not forloop.last %},{% endif %}
+                            {% endfor %}
+                        ],
+                        {% if table.opts.rowreorder %}
+                            "rowReorder": {
+                                "snapX": 5,
+                                "dataSrc": {{ table.columns|length|restar:1 }},
+                                "update": false
+                            },
+                        {% endif %}
+                        "select": {
+                            style: '{% if table.opts.selectrowcheckbox %}multi{% else %}single{% endif %}',
+                            info: {% if table.opts.selectrowcheckbox %}true{% else %}false{% endif %},
+                            {% if table.opts.selectrowcheckbox %}selector: 'td:first-child .checkable',{% endif %}
+                            {% if not table.opts.selectrowcheckbox %}toggleable: false,{% endif %}
+                        },
+                        {% if table.opts.selectrowcheckbox %}
+                            headerCallback: function (thead, data, start, end, display) {
+                                thead.getElementsByTagName('th')[0].innerHTML =
+                                    '<label class="checkbox checkbox-single checkbox-solid checkbox-primary mb-0">' +
+                                    '<input type="checkbox" value="" class="group-checkable"/>' +
+                                    '<span></span>' +
+                                    '</label>';
+                            },
+                        {% endif %}
+                        "buttons": [
+                            {% for boton in table.opts.toolbar %}
+                                {% if not boton.ocultar %}
+                                    {
+                                        "text": "<i class='{{ boton.icono }}'></i> {{ boton.texto }}",
+                                        "className": "btn btn-rounded btn-sm {{ boton.clase|default:'btn-primary' }}",
+                                        "attr": {
+                                            "href": "{{ boton.url }}",
+                                            "data-toggle": "modal",
+                                            "data-target": "{{ boton.modal }}",
+                                            "id": "{{ boton.id }}"
+                                            {% for key, value in boton.attrs.items %}
+                                                , "{{ key }}": "{{ value }}"
+                                            {% endfor %}
+                                        }
+                                    },
+                                {% endif %}
+                            {% endfor %}
+                        ],
+                        "columns": [
+                            {% for column in table.columns %}
+                                {
+                                    {% if column.space %}
+                                        {% if forloop.first and table.opts.rowreorder %}
+                                            "className": "reorder",
+                                        {% endif %}
+                                        {% if not column.searchable %}"searchable": false,{% endif %}
+                                        {% if not column.sortable %}"orderable": false,{% endif %}
+                                        {% if not column.visible %}"visible": false,{% endif %}
+                                        {% if forloop.last %}
+                                            "responsivePriority": -1,
+                                        {% endif %}
+                                        "class": "{{ column.attrs.class|default:''|safe }}",
+                                        "render": function (data, type, full) {
+                                            let htmldata = $.parseHTML(data);
+                                            if (htmldata.length > 0) {
+                                                if (htmldata[0].data === undefined) {
+                                                    htmldata = data;
+                                                } else {
+                                                    htmldata = htmldata[0].data
+                                                }
+                                            } else {
+                                                htmldata = data;
+                                            }
+                                            return htmldata;
+                                        }
+                                    {% endif %}
+                                },
+                            {% endfor %}
+                        ],
+                        "language": {
+                            "info": "{{ table.addons.info_label.format }}",
+                            "infoEmpty": "{{ table.addons.info_label.format }}",
+                            "zeroRecords": "{{ table.opts.zero_records }}",
+                            "search": "",
+                            "paginate": {
+                                "first": "{{ table.addons.pagination.first|safe }}",
+                                "last": "{{ table.addons.pagination.last|safe }}",
+                                "next": "{{ table.addons.pagination.next|safe }}",
+                                "previous": "{{ table.addons.pagination.prev|safe }}"
+                            },
+                            "lengthMenu": "<span class='d-none d-sm-inline'>Mostrar </span>" +
+                                "_MENU_" +
+                                "<span class='d-none d-sm-inline'> registros</span>",
+                            "infoFiltered": "",
+                            "select": {
+                                "rows": {
+                                    _: '%d filas seleccionadas',
+                                    0: '',
+                                    1: '1 fila seleccionada'
+                                }
+                            }
+                        },
+                        "initComplete": function (oSettings, json) {
+                            table_{{ table.opts.id }}.api().buttons().nodes().each(function (idx, boton) {
+                                let elboton = $(boton);
+                                elboton.removeClass("btn-secondary");
+                            });
+                            $("#{{ table.opts.id }}_wrapper").addClass("px-0");
+                            {% if table.opts.search %}
+                                $("#{{ table.opts.id }}_wrapper .dataTables_filter input")
+                                    .attr("placeholder", "{{ table.addons.search_box.placeholder }}")
+                                    .wrap('<div class="input-group"></div>')
+                                    .unbind()
+                                    .on("keyup.DT search.DT input.DT paste.DT cut.DT", function (e) {
+                                        if (e.keyCode === 13) {
+                                            let texto = $("#{{ table.opts.id }}_wrapper .dataTables_filter input");
+                                            table_{{ table.opts.id }}.api().search(this.value).draw();
+                                            //
+                                            if (texto.val().length > 0) {
+                                                if ($(this).next("div").length === 0) {
+                                                    $(this).after(
+                                                        '<div class="input-group-append apuntador cursor-pointer">' +
+                                                        '<span class="form-control-rounded-right input-group-text p-2">' +
+                                                        '<i class="fas fa-times-circle fa-1x text-danger"></i></span></div>'
+                                                    );
+                                                    $(this).next("div").on("click", function (e) {
+                                                        $(this).prev("input").val("").trigger(
+                                                            $.Event("keyup", {keyCode: 13})
+                                                        );
+                                                    });
+                                                }
+                                            } else {
+                                                if ($(this).next("div").length > 0) {
+                                                    $(this).next("div").remove();
+                                                }
+                                            }
+                                        }
+                                    });
+                                $("#{{ table.opts.id }}_wrapper .dataTables_filter .input-group").unwrap();
+                                $("#{{ table.opts.id }}_wrapper .dataTables_info").addClass(
+                                    "pt-0 ml-1 text-left"
+                                ).parent().prepend(
+                                    '<button class="btn btn-icon btn-xs btn-primary btn-table-refresh btn-circle">' +
+                                    '<i class="la la-sync"></i></button>'
+                                );
+                                $("#{{ table.opts.id }}_wrapper .btn-table-refresh").on(
+                                    "click", function (e) {
+                                        refrescar_{{ table.opts.id }}();
+                                    }
+                                );
+                                $("#{{ table.opts.id }}_wrapper .dataTables_length").addClass(
+                                    "text-right text-lg-left"
+                                );
+                                $("#{{ table.opts.id }}_wrapper .dataTables_length select").addClass(
+                                    "form-custom form-control-rounded"
+                                );
+                                $("#{{ table.opts.id }}_wrapper .dataTables_filter .input-group input").insertBefore(
+                                    $("#{{ table.opts.id }}_wrapper .dataTables_filter .input-group span")
+                                );
+                                $("#{{ table.opts.id }}_wrapper .dataTables_paginate .pagination").addClass(
+                                    "justify-content-center justify-content-lg-end"
+                                );
+                                if (typeof {{ table.opts.id }}_init == "function") {
+                                    {{ table.opts.id }}_init(oSettings, json);
+                                }
+                            {% endif %}
+                            {% if table.opts.filter_date %}
+                                $('#{{ table.opts.id }}Fechador').appendTo(
+                                    $("#{{ table.opts.id }}_wrapper .filter-date")
+                                ).removeClass("d-none");
+                            {% endif %}
+                            {% if table.opts.filter_tipodoc %}
+                                $('#{{ table.opts.id }}TipoDoc').appendTo(
+                                    $("#{{ table.opts.id }}_wrapper .filter-tipodoc")
+                                ).removeClass("d-none");
+                            {% endif %}
+                        },
+                        "preDrawCallback": function (settings) {
+                            {{ table.opts.id }}_cp = ($("#{{ table.opts.id }}_processing"));
+                            {{ table.opts.id }}_wr = ($("#{{ table.opts.id }}_wrapper"));
+                            {{ table.opts.id }}_cp
+                                .css({
+                                    width: {{ table.opts.id }}_wr.outerWidth(),
+                                    height: {{ table.opts.id }}_wr.outerHeight(),
+                                    left: {{ table.opts.id }}_wr.position().left - 4,
+                                    top: {{ table.opts.id }}_wr.position().top - 4,
+                                    zIndex: 1,
+                                    backgroundColor: "rgba(134, 134, 134, 0.69)"
+                                })
+                                .addClass("m-1")
+                                .html(
+                                    "<div class='row h-100'>" +
+                                    "<div class='col-sm-12 my-auto'>" +
+                                    "<div class='card card-block w-75 mx-auto'>" +
+                                    "<div><img src='{% static "table/images/loader.gif" %}' alt=''/></div>" +
+                                    "<div class='font-10 mt-1'>{{ table.opts.processing }}</div>" +
+                                    "</div>" +
+                                    "</div>" +
+                                    "</div>"
+                                );
+                            if (typeof {{ table.opts.id }}_beforeload == "function") {
+                                {{ table.opts.id }}_beforeload(settings);
+                            }
+                        },
+                        "drawCallback": function (settings) {
+                            let me = this;
+                            $('#{{ table.opts.id }} [rel="tooltip"]').tooltip({trigger: "hover"});
+                            $('#{{ table.opts.id }} [data-toggle="popover"]').popover({
+                                {#container: $("#modal-principal .modal-content"),#}
+                                trigger: 'hover'
+                            });
+                            $("#{{ table.opts.id }} tbody tr td").prop("tabIndex", "-1");
+                            me.api().columns.adjust();
+                            me.api().responsive.recalc();
+                            if (typeof {{ table.opts.id }}_afterload == "function") {
+                                {{ table.opts.id }}_afterload(settings, me);
+                            }
+                        },
+                        "rowCallback": function (row, data, index) {
+                            if (typeof {{ table.opts.id }}_rowCallback == "function") {
+                                {{ table.opts.id }}_rowCallback(row, data, index);
+                            }
+                        }
+                    {% endblock table_options %}
+                    {% block table_extra_options %}{% endblock %}
+                });
+                {% if table.opts.scrollable %}
+                    {#new $.fn.dataTable.FixedColumns(table_{{ table.opts.id }}, {#}
+                    {#    {% if table.opts.fixed_columns %}"iLeftColumns": {{ table.opts.fixed_columns }},{% endif %}#}
+                    {#    {% if table.opts.fixed_columns_width %}"iLeftWidth": {{ table.opts.fixed_columns_width }}{% endif %}#}
+                    {# });#}
+                {% endif %}
+                table_{{ table.opts.id }}.api().on('select', function (e, dt, type, indexes) {
+                    let aReg = table_{{ table.opts.id }}.api().row(indexes[0]).data();
+                    if (table_{{ table.opts.id }}.api().rows({selected: true}).data().length === table_{{ table.opts.id }}.api().rows().data().length) {
+                        let chgchk = table_{{ table.opts.id }};
+                        {% if table.opts.scrollable %}
+                            chgchk = chgchk.parents(".dataTables_scroll").first();
+                        {% endif %}
+                        chgchk = chgchk.find(".group-checkable").first();
+                        if (!chgchk.is(':checked')) chgchk.prop('checked', true);
+                    }
+                    let idx = aReg.slice(-1).pop();
+                    if (typeof {{ table.opts.id }}_select == "function") {
+                        {{ table.opts.id }}_select(indexes[0], idx);
+                    }
+                });
+                table_{{ table.opts.id }}.api().on('deselect', function (e, dt, type, indexes) {
+                    let aReg = table_{{ table.opts.id }}.api().row(indexes[0]).data();
+                    if (table_{{ table.opts.id }}.api().rows({selected: true}).data().length < table_{{ table.opts.id }}.api().rows().data().length) {
+                        let chgchk = table_{{ table.opts.id }};
+                        {% if table.opts.scrollable %}
+                            chgchk = chgchk.parents(".dataTables_scroll").first();
+                        {% endif %}
+                        chgchk = chgchk.find(".group-checkable").first();
+                        if (chgchk.is(':checked')) chgchk.prop('checked', false);
+                    }
+                    let idx = aReg.slice(-1).pop();
+                    if (typeof {{ table.opts.id }}_deselect == "function") {
+                        {{ table.opts.id }}_deselect(indexes[0], idx);
+                    }
+                });
+                {% if table.opts.selectrowcheckbox %}
+                    let chgchk = table_{{ table.opts.id }};
+                    {% if table.opts.scrollable %}
+                        chgchk = chgchk.parents(".dataTables_scroll").first();
+                    {% else %}
+                        chgchk = chgchk.api();
+                    {% endif %}
+                    chgchk.on('change', '.group-checkable', function (e) {
+                        let set = table_{{ table.opts.id }}.find('td:first-child .checkable');
+                        let checked = $(this).is(':checked');
+                        $(set).each(function () {
+                            if (checked) {
+                                if ($(this).prop('checked') !== checked) {
+                                    $(this).prop('checked', true);
+                                    table_{{ table.opts.id }}.api().rows($(this).closest('tr')).select();
+                                }
+                            } else {
+                                if ($(this).prop('checked') !== checked) {
+                                    $(this).prop('checked', false);
+                                    table_{{ table.opts.id }}.api().rows($(this).closest('tr')).deselect();
+                                }
+                            }
+                        });
+                    });
+                {% endif %}
+                {% if table.opts.rowreorder %}
+                    // ------ Reorder
+                    table_{{ table.opts.id }}.api().on('row-reorder', function (e, diff, edit) {
+                        nuevoOrden = '[';
+                        for (var i = 0, ien = diff.length; i < ien; i++) {
+                            oldData = diff[i].oldData;
+                            newPosi = diff[i].newPosition + 1;
+                            nuevoOrden += '(' + oldData + ',' + newPosi + '),';
+                        }
+                        nuevoOrden += ']';
+                        if (nuevoOrden !== '[]') {
+                            $.ajax({
+                                type: 'post',
+                                url: $("#{{ table.opts.id }}_sort_url").val(),
+                                data: {
+                                    csrfmiddlewaretoken: $.getCookie("csrftoken"),
+                                    nuevoorden: nuevoOrden
+                                },
+                                success: function (e) {
+                                    refrescar_{{ table.opts.id }}();
+                                },
+                                error: function (e) {
+                                    {#console.log(e);#}
+                                }
+                            });
+                        }
+                    });
+                {% endif %}
+            });
+
+            function refrescar_{{ table.opts.id }}() {
+                if (table_{{ table.opts.id }}) {
+                    if ({{ table.opts.id }}_wr.position().top > 0) {
+                        table_{{ table.opts.id }}.api().ajax.reload(null, false);
+                    }
+                }
+            }
+
+        </script>
+    {% endblock table_init_js %}
+{% endspaceless %}

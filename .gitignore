@@ -1,0 +1,13 @@
+/.idea/*
+*.pyc
+/media/
+*.DS_Store
+/madceropapel/settings.py
+/madceropapel/config.py
+/madceropapel/caching/
+/temp/
+/cert/
+celerybeat-schedule.dat
+celerybeat-schedule.bak
+celerybeat-schedule.dir
+celerybeat.pid

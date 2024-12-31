@@ -1,0 +1,123 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% if object.pk %}
+    <script type="text/javascript">
+        function recargaBotones(cf, funcpost) {
+            $("#kt_registrar_acciones").cargarPagina(
+                "post", "{% url 'apptra:mesapartes_registrar_botones' object.pk %}",
+                false, "", {
+                    "formid": "{{ form.id }}",
+                    "cf": cf,
+                    "tab": "{{ tab|default:'' }}",
+                    "tabid": "{{ tabid|default:'' }}"
+                }, null, funcpost
+            );
+        }
+    </script>
+{% endif %}
+<style>
+    .form-registrar .dataTables_wrapper .dataTable th,
+    .form-registrar .dataTables_wrapper .dataTable td {
+        font-size: .85rem;
+        padding: .6rem;
+    }
+</style>
+{% if okmsg %}
+    <script type="text/javascript">
+        {% if privez %}
+            appAlert(
+                "success", null, "{{ okmsg|escapejs }}", true, true
+            );
+            {#console.log("{{ object.pk|default_if_none:'nada' }}");#}
+{#            {% if not object.pk %}#}
+                $("#modal-principal .modal-content").empty().load(
+                    "{% url 'apptra:mesapartes_registrar' %}"
+                );
+{#            {% endif %}#}
+        {% else %}
+            recargaBotones(false);
+        {% endif %}
+    </script>
+{% endif %}
+{% if not object.pk or object.ultimoestado.estado in "PY,RE" %}
+    <form id="{{ form.id }}" method="post" role="form" autocomplete="off" class="ribbon ribbon-left form-registrar"
+          action="{% if not object.pk %}{% url 'apptra:mesapartes_registrar' %}
+                {% else %}{% url 'apptra:mesapartes_registrar_editar' object.pk %}
+                {% endif %}">
+        {% csrf_token %}
+        <div class="divider divider-primary divider-center mt-0 mb-4">
+            <div class="divider-text">REMITENTE</div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="row mb-2">
+                    {% include "campos/campoform.html" with campo=form.remitentetipo %}
+                </div>
+                <div id="fila-remitente-ruc" class="row{% if form.remitentetipo.value == 'C' %} d-none{% endif %}">
+                    {% include "campos/campoform.html" with campo=form.personajuridicatipo numcol=6 %}
+                    {% include "campos/campoform.html" with campo=form.personajuridicaruc numcol=6 search="button" required=True idfila="pj_ruc" %}
+                    {% include "campos/campoform.html" with campo=form.personajuridica idfila="pj_selector" required=True %}
+                    {% include "campos/campoform.html" with campo=form.personajuridicarz idfila="pj_rz" required=True %}
+                </div>
+                <div class="row">
+                    {% include "campos/campoform.html" with campo=form.ciudadanoemisortipo numcol=6 %}
+                    {% include "campos/campoform.html" with campo=form.ciudadanoemisordni numcol=6 search="button" idfila="ce_dni" required=True %}
+                    {% include "campos/campoform.html" with campo=form.ciudadanoemisornumero numcol=6 idfila="ce_nro" search="button" required=True %}
+                    {{ form.ciudadanoemisorcodigo }}
+                    {% include "campos/campoform.html" with campo=form.ciudadanoemisor idfila="ciudadanoemisor_selector" required=True %}
+                </div>
+                <div id="ciudadanoemisor_nombres" class="row">
+                    {% include "campos/campoform.html" with campo=form.ciudadanoemisorpaterno numcol=3 required=True %}
+                    {% include "campos/campoform.html" with campo=form.ciudadanoemisormaterno numcol=3 %}
+                    {% include "campos/campoform.html" with campo=form.ciudadanoemisornombres numcol=3 required=True %}
+                    {% include "campos/campoform.html" with campo=form.ciudadanoemisorsexo numcol=3 %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="row">
+                    {% include "campos/campoform.html" with campo=form.ciudadanocargo required=True %}
+                </div>
+                <div class="row">
+                    {% include "campos/campoform.html" with campo=form.distrito idfila="distrito_selector" %}
+                    {% include "campos/campoform.html" with campo=form.direccion idfila="direccion_selector" %}
+                    {% include "campos/campoform.html" with campo=form.telefono numcol=3 idfila="telefono_selector" %}
+                    {% include "campos/campoform.html" with campo=form.correo numcol=9 idfila="correo_selector" %}
+                </div>
+            </div>
+        </div>
+        <div class="divider divider-primary divider-center mt-2 mb-5">
+            <div class="divider-text">DOCUMENTO</div>
+        </div>
+        <div class="row">
+            {% include "campos/campoform.html" with campo=form.documentotipoarea numcol=4 %}
+            {% include "campos/campoform.html" with campo=form.numero numcol=2 %}
+            {% include "campos/campoform.html" with campo=form.siglas numcol=4 %}
+            {% include "campos/campoform.html" with campo=form.confidencial numcol=2 %}
+        </div>
+        <div class="row">
+            {% include "campos/campoform.html" with campo=form.fecha numcol=4 %}
+            {% include "campos/campoform.html" with campo=form.folios numcol=2 %}
+            {% include "campos/campoform.html" with campo=form.contenido numcol=6 %}
+        </div>
+        <div class="row">
+            {% include "campos/campoform.html" with campo=form.asunto %}
+        </div>
+        <div class="row">
+            {% include "campos/campoform.html" with campo=form.ciudadanotramitadordni numcol=2 search="button" %}
+            {% include "campos/campoform.html" with campo=form.ciudadanotramitador numcol=4 idfila="ciudadanotramitador_selector" %}
+            {% include "campos/campoform.html" with campo=form.areavirtualdestino numcol=6 %}
+        </div>
+        <div class="row">
+            {% include "campos/campoform.html" with campo=form.observacion %}
+        </div>
+        {{ form.destinos }}
+    </form>
+    {% include "tramite/mesapartes/registrar/registrar_script.html" %}
+{% else %}
+    {% include "tramite/mesapartes/registrar/registrar_info.html" %}
+{% endif %}

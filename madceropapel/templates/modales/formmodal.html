@@ -1,0 +1,73 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static %}
+{% block modalHeader %}
+    <div class="modal-header text-sm px-5 py-2 d-flex align-items-center" style="height: auto">
+        <h5 class="modal-title">
+            {% block modalTitulo %}
+            {% endblock modalTitulo %}
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <i aria-hidden="true" class="ki ki-close"></i>
+        </button>
+    </div>
+{% endblock %}
+{% block modalScriptPre %}
+{% endblock modalScriptPre %}
+{% block modalBodyTotal %}
+    <form id="{{ form.id }}" action="{% block modalAction %}{% endblock modalAction %}"
+          method="post" role="form" autocomplete="off">
+        {% csrf_token %}
+        <div class="modal-body text-sm">
+            <div class="container px-2">
+                {% if request.method == "POST" and not form.is_valid or errordelete %}
+                    <div class="d-none">form_invalid</div>
+                {% endif %}
+                {% if form_redirect %}
+                    <div class="d-none">form_redirect</div>
+                {% endif %}
+                {% block modalBodyVacio %}
+                    <div class="row">
+                        {% block modalBody %}
+                        {% endblock modalBody %}
+                    </div>
+                {% endblock modalBodyVacio %}
+            </div>
+        </div>
+        {% if not noBotonGuardar or not noBotonCancelar %}
+            <div class="modal-footer
+                justify-content-{% if noBotonGuardar or noBotonCancelar %}center{% else %}between{% endif %}">
+                {% if not noBotonCancelar %}
+                    <button type="button" class="btn btn-{% if noBotonGuardar %}primary{% else %}secondary{% endif %}"
+                            data-dismiss="modal">
+                        {{ botoncancelartexto|default:"Cancelar"|safe }}
+                    </button>
+                {% endif %}
+                {% if not noBotonGuardar %}
+                    <button type="submit" class="btn btn-primary"
+                            onclick="modalDialogPost(this, {% block modalPre %}null{% endblock %}, {% block modalPost %}null{% endblock %}, {% block modalCerrar %}true{% endblock %});">
+                        {{ botonguardartexto|default:"Guardar"|safe }}
+                    </button>
+                {% endif %}
+            </div>
+        {% endif %}
+    </form>
+{% endblock modalBodyTotal %}
+{% if form.id %}
+    {% block modalScriptControls %}
+        <script type="text/javascript">
+            $.formatearCampos("#{{ form.id }}");
+            $(document).ready(function () {
+                setTimeout(function () {
+                    $("#{{ form.id }} [autofocus=autofocus]").focus();
+                }, 600);
+            });
+        </script>
+    {% endblock modalScriptControls %}
+{% endif %}
+{% block modalScriptPost %}
+{% endblock modalScriptPost %}

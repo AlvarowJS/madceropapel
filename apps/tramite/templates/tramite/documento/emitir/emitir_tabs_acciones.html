@@ -1,0 +1,185 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+<script>
+    lModos = {
+        {% for modoentrega in ModosEntregas %}
+            "M{{ modoentrega.pk }}":
+                {
+                    "codigo": "{{ modoentrega.pk }}",
+                    "nombre": "{{ modoentrega.nombre }}",
+                    "icono": "{{ modoentrega.icono }}",
+                    "color": "{{ modoentrega.color }}"
+                }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    }
+
+    function ModoEntregaMenu(nombre, icono, color) {
+        htmlMenu = `<div class="text-center"><div class="btn-group">
+            <button type="button" class="btn btn-sm p-1 btn-` + color + `"
+                {% if not editar %} title="` + nombre + `" rel="tooltip"{% endif %}>
+                <i class="` + icono + ` fa-1x{% if not editar %} px-2{% endif %}"></i>
+            </button>`;
+        {% if editar %}
+            let htmlId = "dd" + (-new Date());
+            let htmlzIndex = $("#modal-principal").css("zIndex");
+            htmlMenu += `<button class="btn btn-sm btn-` + color + `
+                dropdown-toggle p-1 dropdown-toggle-split" type="button"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                data-boundary="modal-principal" id="` + htmlId + `" title="` + nombre + `"
+                data-reference="modal-principal" data-offset="0,0">
+            </button>
+            <ul class="modo-entrega dropdown-menu dropdown-menu-right" aria-labelledby="` + htmlId + `"
+                style="z-index: ` + htmlzIndex + `">
+            {% for modoentrega in ModosEntregas %}
+                <li>
+                    <a class="dropdown-item" href="javascript:;" data-codigo="M{{ modoentrega.pk }}">
+                        <i class="{{ modoentrega.icono }} mr-2 text-{{ modoentrega.color }}"></i>
+                        {{ modoentrega.nombre }}
+                    </a>
+                </li>
+            {% endfor %}
+            </ul>`;
+        {% endif %}
+        htmlMenu += `</div></div>`;
+        return htmlMenu;
+    }
+
+    $("body ul.modo-entrega a").unbind();
+    $("body").on("click", "ul.modo-entrega a", function () {
+        let btnMED = $("#" + $(this).parents("ul").attr("aria-labelledby"));
+        let btnMES = btnMED.prev();
+        let _data = dt_destinos_data.datos;
+        let _id = btnMES.parents("tr").data("reg");
+        let _index = _data.findIndex(x => parseInt(x.codigo) === parseInt(_id));
+        let btnMOD = lModos[$(this).data("codigo")];
+        if ([2, 3].indexOf(parseInt(btnMOD["codigo"])) > -1 && (dt_destinos_data.datos[_index].correo || "").length === 0) {
+            appMensaje(
+                "Atención", "flaticon-warning", "El destino no tiene correo, edite el destino e indique un correo.",
+                "warning", "bg-warning"
+            );
+        } else {
+            {% for modoentrega in ModosEntregas %}
+                btnMED.removeClass("btn-{{ modoentrega.color }}");
+                btnMES.removeClass("btn-{{ modoentrega.color }}");
+            {% endfor %}
+            btnMED.addClass("btn-" + btnMOD["color"]);
+            btnMES.addClass("btn-" + btnMOD["color"]);
+            btnMES.find("i").removeClass().addClass(btnMOD["icono"] + " fa-1x");
+            dt_destinos_data.datos[_index].mensajeriamodoentrega = btnMOD["codigo"];
+            dt_destinos_data.datos[_index].modoentrega = ModoEntregaMenu(
+                btnMOD["nombre"], btnMOD["icono"], btnMOD["color"]
+            );
+            $(this).parents("ul").remove();
+        }
+    });
+
+    function cargarFormDetalle(id, action, params, url) {
+        $("#documento-detalle-modal").modal("changesize", "lg").modal("show");
+        params = params || {};
+        params["codigo"] = id;
+        params = _.clone(params);
+        params["acciones"] = null;
+        $("#documento-detalle-modal .modal-content").cargarPagina(
+            action,
+            url || $("#kt_tabs_documento a.active").data("url"),
+            false,
+            "Cargando...",
+            params
+        );
+    }
+
+    function guardarDetalle(modo, lista, nocerrar, sinaction) {
+        let _data = eval("dt_" + modo + "_data.datos");
+        let _index = _data.findIndex(x => x.codigo === parseInt(lista["codigo"]));
+        let _existe = false;
+        if (_index === -1) {
+            {# Validamos si el registro existe #}
+            _existe = existeDetalle(lista, modo);
+            if (!_existe) {
+                lista["codigo"] = -new Date();
+                eval("dt_" + modo + "_data.datos.push(lista);")
+            }
+        } else {
+            {# Validamos que el registro no se repita en otro excepto en el _index #}
+            _existe = existeDetalle(lista, modo, _index);
+            if (!_existe) {
+                $.each(lista, function (key, value) {
+                    eval("dt_" + modo + "_data.datos[_index]." + key + "=value");
+                });
+            }
+        }
+        if (!sinaction) {
+            if (!_existe) {
+                if (!nocerrar) {
+                    $("#documento-detalle-modal").modal("hide").find(".modal-content").html("");
+                } else {
+                    $("#documento-detalle-modal #id_area").empty();
+                    $("#documento-detalle-modal #id_periodotrabajo").empty();
+                    $("#documento-detalle-modal #id_personajuridica").empty();
+                    $("#documento-detalle-modal #id_ubigeo").empty();
+                    $("#documento-detalle-modal #id_persona").empty();
+                    document.getElementById($("#documento-detalle-modal form").attr("id")).reset();
+                    appMensaje(
+                        "Correcto", "flaticon-success", "El destino se agregó correctamente", "success", "bg-success"
+                    );
+                }
+            } else {
+                appMensaje(
+                    "Atención", "flaticon-warning", "El destino ya se ha agregado", "warning", "bg-warning"
+                );
+            }
+        }
+    }
+
+    function existeDetalle(lista, modo, idx) {
+        _result = false;
+        let _data = eval("dt_" + modo + "_data.datos");
+        if (idx === undefined) idx = -1;
+        if (lista.tipodestinatario === "UO") {
+            _data.forEach(function (e, i) {
+                if (e.tipodestinatario === "UO" && i !== idx) {
+                    if (parseInt(e.periodotrabajo) === parseInt(lista.periodotrabajo)) {
+                        _result = true;
+                    }
+                }
+            });
+        } else if (lista.tipodestinatario === "PJ") {
+            _data.forEach(function (e, i) {
+                if (e.tipodestinatario === "PJ" && i !== idx) {
+                    if (parseInt(e.personajuridica) === parseInt(lista.personajuridica) &&
+                        (parseInt(e.persona || 0) === parseInt(lista.persona || 0))) {
+                        _result = true;
+                    }
+                }
+            });
+        } else if (lista.tipodestinatario === "CI") {
+            _data.forEach(function (e, i) {
+                if (e.tipodestinatario === "CI" && i !== idx) {
+                    if (parseInt(e.persona) === parseInt(lista.persona)) {
+                        _result = true;
+                    }
+                }
+            });
+        }
+        return _result;
+    }
+
+    function editarDetalle(modo, id, url) {
+        let _data = eval("dt_" + modo + "_data.datos");
+        let _index = _data.findIndex(x => parseInt(x.codigo) === parseInt(id));
+        let _reg = eval("dt_" + modo + "_data.datos[" + _index + "]");
+        _reg["modo"] = modo;
+        cargarFormDetalle(id, "post", _reg, url);
+    }
+
+    function quitarDetalle(modo, id) {
+        let _data = eval("dt_" + modo + "_data.datos");
+        let _index = _data.findIndex(x => x.codigo === id);
+        eval("dt_" + modo + "_data.datos").splice(_index, 1);
+        $('[rel="tooltip"], .tooltip').tooltip("hide");
+    }
+</script>

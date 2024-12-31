@@ -1,0 +1,294 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles queries %}
+{% if object.pk %}
+    <script type="text/javascript">
+        function recargaBotones(cf, funcpost) {
+            $("#kt_emitir_acciones").cargarPagina(
+                "post", "{% url 'apptra:documento_emitir_botones' object.pk %}",
+                false, "", {
+                    "formid": "{{ form.id }}",
+                    "cf": cf,
+                    "tab": "{{ tab|default:'' }}",
+                    "tabid": "{{ tabid|default:'' }}"
+                }, null, funcpost
+            );
+        }
+    </script>
+{% endif %}
+{% if se_puede_editar %}
+    <form id="{{ form.id }}" method="post" role="form" autocomplete="off"
+          action="{% if not object.pk %}{% url 'apptra:documento_emitir' view.kwargs.tipo %}
+                {% else %}{% url 'apptra:documento_emitir_editar' object.pk tab tabid %}
+                {% endif %}">
+        {% csrf_token %}
+        <div class="row">
+            <input type="hidden" name="modosave" value="normal">
+            {{ form.atenciones }}
+            {% include "campos/errorform.html" %}
+            {% setvar "collin" 6 %}
+            {% if form.expediente %}
+                {% include "campos/campoform.html" with label="Expediente" campo=form.expediente numcol=2 %}
+                {% setvar "collin" 5 %}
+            {% endif %}
+            {% if form.instance.numero %}
+                {% include "campos/info.html" with label="Firmado en" value=object.responsable.area.nombre numcol=collin %}
+            {% else %}
+                {% include "campos/campoform.html" with campo=form.arearesponsable numcol=collin %}
+            {% endif %}
+            {% include "campos/campoform.html" with campo=form.responsable numcol=collin %}
+            {% if form.instance.numero %}
+                {% include "campos/info.html" with label="Tipo de Documento" value=object.obtenerNumeroSiglas numcol=4 clase="font-weight-bolder" %}
+            {% else %}
+                {% include "campos/campoform.html" with campo=form.documentotipoarea numcol=2 %}
+            {% endif %}
+            {% include "campos/campoform.html" with campo=form.forma numcol=2 idfila="formatd" %}
+            {% if configapp.EnDesarrollo %}
+                <script type="text/html" id="{{ form.confidencial.auto_id }}_info">
+                    <a href="{% url 'apptra:privado_info' %}" data-toggle="modal" data-target="#documento-privado-info"
+                       data-modal-size="lg">
+                        <i class="fas fa-question-circle text-warning"></i>
+                    </a>
+                </script>
+            {% endif %}
+            {% include "campos/campoform.html" with campo=form.confidencial numcol=2 info=form.confidencial.auto_id|add:"_info" %}
+            {% if configapp.EnDesarrollo %}
+                <script type="text/javascript">
+                    $("#{{ form.confidencial.auto_id }}").on("switchChange.bootstrapSwitch", function (e, s) {
+                        if (s) {
+                            $("a[data-target='#documento-privado-info']").trigger("click");
+                        }
+                    });
+                </script>
+            {% endif %}
+            {% if form.instance.pk and form.instance.origentipo == "O" %}
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label for="">
+                            {% if form.instance.emisor != form.instance.responsable %}
+                                Proyectado
+                            {% else %}
+                                Elaborado
+                            {% endif %}
+                            por:
+                        </label>
+                        <div class="form-control">
+                            {{ form.instance.emisor.persona.NombreCorto }} - {{ form.instance.emisor.area.nombrecorto }}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            {% include "campos/campoform.html" with campo=form.asunto %}
+            {% include "tramite/documento/emitir/emitir_form_observacion.html" %}
+            {{ form.destinos }}
+            {{ form.anexos }}
+            {% if not form.atenciones %}{{ form.referencias }}{% endif %}
+            {{ form.firmas }}
+        </div>
+    </form>
+    <script type="text/javascript">
+        {% if MESAPARTESMODOENVIO %}
+            msj_io = new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve({
+                        {% for modoenvio in MESAPARTESMODOENVIO %}
+                            '{{ modoenvio.0 }}': '{{ modoenvio.1 }}',
+                        {% endfor %}
+                        {#'1': 'Imprimir los documentos y/o anexos; y entregarlos a mesa de partes.',#}
+                        {#'2': 'Que mesa de partes los imprima y remita.'#}
+                    })
+                }, 100)
+            });
+        {% endif %}
+        {% if request.POST %}
+            refrescarTableros("dbEnProyecto", true);
+            {% if form.non_field_errors %}
+                {% setvar 'EsErrorForm' True %}
+                $.formatearCampos("#{{ form.id }}");
+                recargaBotones(false);
+                $("#modal-principal .modal-content").unblock();
+            {% else %}
+                {% if docids %}
+                    appMensaje(
+                        "Atención",
+                        "icon fas fa-bell",
+                        "Sus documentos se han guardado correctamente", "info", "bg-primary"
+                    );
+                    $("#modal-principal").modal("hide");
+                    $("#modal-principal-centro .modal-content").load(
+                        "{% url 'apptra:oficina_bandeja_despacho_firmamasiva' %}?ids={{ docids }}"
+                    );
+                    $("#modal-principal-centro").modal("changesize", "lg").modal("show");
+                {% else %}
+                    appMensaje(
+                        "Atención",
+                        "icon fas fa-bell",
+                        "Su documento se ha guardado correctamente", "info", "bg-primary"
+                    );
+                    $("#modal-principal .modal-content").load(
+                        "{% url 'apptra:documento_emitir_editar' object.pk tab tabid %}"
+                    );
+                {% endif %}
+            {% endif %}
+        {% endif %}
+        {% if not request.POST or EsErrorForm %}
+            $("#{{ form.id }}").enviarForm(
+                $("#capa-form-emitir"),
+                $("#modal-principal .modal-content"),
+                "Guardando...",
+                function () {
+                    if (dt_destinos_data.datos.length === 0) {
+                        appAlert("warning", "Atención!!", "Debe agregar al menos un destino");
+                        return false;
+                    }
+                    return true;
+                }, true
+            );
+            {% if form.arearesponsable and not EsErrorForm %}
+                $("#{{ form.arearesponsable.auto_id }}").on("change", function () {
+                    $("#{{ form.responsable.auto_id }}").trigger("select2:selectfirst");
+                });
+                {% if not form.instance.pk %}
+                    setTimeout(function () {
+                        $("#{{ form.responsable.auto_id }}").trigger("select2:selectfirst");
+                    }, 300);
+                {% endif %}
+            {% endif %}
+        {% endif %}
+        {% if form.documentotipoarea %}
+            $("#{{ form.documentotipoarea.auto_id }}").on("change", function () {
+                if ($(this).select2('data').length > 0 && ({{ object.documentotipoarea.documentotipo.tieneforma|default:False|lower }} || $(this).select2('data')[0].tieneforma))
+                {
+                    $("#formatd").removeClass("d-none");
+                    $(this).parents(".form-group").first().parent()
+                        .removeClass("col-sm-4")
+                        .addClass("col-sm-2");
+                }
+            else
+                {
+                    $("#formatd").addClass("d-none");
+                    $(this).parents(".form-group").first().parent()
+                        .removeClass("col-sm-2")
+                        .addClass("col-sm-4");
+                }
+            });
+            setTimeout(function () {
+                $("#{{ form.documentotipoarea.auto_id }}").trigger("change");
+            }, 300);
+        {% endif %}
+    </script>
+{% else %}
+    <script type="text/javascript">
+        var formdataoriginal = null;
+    </script>
+    {% if object.origentipo in "O,P" %}
+        {% if object.MensajeriaObservacion %}
+            <div class="divider divider-info divider-center mt-0 mb-2">
+                <div class="divider-text text-info">OBSERVACIÓN DE MENSAJERÍA</div>
+            </div>
+            <div class="row bg-light-info mb-2">
+                {% include "campos/info.html" with label="Creador" value=object.MensajeriaObservacion.creador.persona.apellidocompleto numcol=3 %}
+                {% include "campos/info.html" with label="Fecha" value=object.MensajeriaObservacion.creado|date:"d/m/Y h:i a" numcol=3 %}
+                {% include "campos/info.html" with label="Observación" value=object.MensajeriaObservacion.observacion|safe numcol=6 %}
+            </div>
+        {% endif %}
+        {% if destino.UltimoEstadoObservado.observacion and not destino.UltimoEstadoObservado.estado in "AR" %}
+            <div class="bg-light-info pt-3 pb-2 mb-2">
+                <div class="divider divider-info divider-center mt-0 mb-2">
+                    <div class="divider-text text-info">
+                        OBSERVACIÓN DE ENVÍO
+                    </div>
+                </div>
+                <div class="row px-3">
+                    {% include "campos/info.html" with label="Creador" value=destino.UltimoEstadoObservado.creador.persona.apellidocompleto numcol=3 %}
+                    {% include "campos/info.html" with label="Fecha" value=destino.UltimoEstadoObservado.creado|date:"d/m/Y h:i a" numcol=3 %}
+                    {% include "campos/info.html" with label="Observación" value=destino.UltimoEstadoObservado.observacion|safe numcol=6 %}
+                </div>
+            </div>
+        {% endif %}
+        <div class="row d-flex flex-wrap">
+            {% include "campos/info.html" with label="Firmado en" value=object.responsable.area.nombre numcol=6 %}
+            {% if object.origentipo == "O" and object.responsable.area == user.persona|periodoactual:"area" and object.ultimoestado.estado == "PD" and not object.ultimoestado.firmado %}
+                {% if user.persona|periodoactual:"esjefe" or user.persona|periodoactual:"tipo" in "EP,EN" %}
+                    {% setvar "cambiaresponsable" "chgresp|fas fa-sync fa-1x|Cambiar Responsable" %}
+                {% endif %}
+            {% endif %}
+            {% include "campos/info.html" with label="Firmado por" value=object.responsable.persona.apellidocompleto numcol=6 boton=cambiaresponsable %}
+            {% if cambiaresponsable %}
+                <script type="text/javascript">
+                    $("#chgresp")
+                        .attr("data-toggle", "modal")
+                        .attr("data-target", "#modal-principal-centro")
+                        .attr("href", "{% url 'apptra:documento_emitir_cambiar_responsable' object.pk %}");
+                </script>
+            {% endif %}
+            {% include "campos/info.html" with label="Tipo de Documento" value=object.obtenerNumeroSiglas numcol=4 clase="font-weight-bolder" %}
+            {% include "campos/info.html" with label=form.confidencial.label value=object.confidencial|yesno:"Si,No" numcol=2 %}
+            {% if object.pk and object.origentipo == "O" %}
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label for="">
+                            {% if object.emisor != object.responsable %}
+                                Proyectado
+                            {% else %}
+                                Elaborado
+                            {% endif %}
+                            por:
+                        </label>
+                        <div class="form-control">
+                            {{ object.emisor.persona.NombreCorto }} - {{ object.emisor.area.nombrecorto }}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            {% if destino.entregafisica %}
+                <div class="col-sm-12">
+                    <div class="form-group h-100">
+                        <label>
+                            <label>Entrega Física:</label>
+                        </label>
+                        <div class="bg-light border border-light-dark rounded px-3 py-2 text-left">
+                            {{ destino.entregafisica|saltolinea:", " }}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            {% setvar "asunto" object.asunto %}
+            {% if form.instance.confidencial %}
+                {% if object.creador == request.user or object.responsable.persona.usuario == request.user %}
+                {% else %}
+                    {% setvar "asunto" "CONFIDENCIAL" %}
+                {% endif %}
+            {% endif %}
+            {% include "campos/info.html" with label=form.asunto.label value=asunto|linebreaksbr clase='textarea-info font-weight-bold' %}
+            {% include "tramite/documento/emitir/emitir_form_observacion.html" %}
+            {% if destino.indicacion %}
+                {% include "campos/info.html" with label="Indicación" value=destino.indicacion|linebreaksbr clase='textarea-info' %}
+            {% endif %}
+        </div>
+        {% if destino.ultimoestado.estado == "AR" %}
+            <div class="bg-light-success py-3">
+                <div class="col-12 divider divider-success divider-center mt-0 mb-2  bg-light-success">
+                    <div class="divider-text text-success">ARCHIVADO</div>
+                </div>
+                <div class="row px-4">
+                    {% include "campos/info.html" with label="Fecha" value=destino.ultimoestado.creado|date:"d/m/Y h:i a" numcol=4 %}
+                    {% include "campos/info.html" with label="Archivado por" value=destino.ultimoestado.creador.persona.nombrecompleto numcol=8 %}
+                    {% include "campos/info.html" with label="Observación" value=destino.ultimoestado.observacion|default:"-"|linebreaksbr clase='textarea-info' %}
+                </div>
+            </div>
+        {% endif %}
+        <div class="row">
+            {{ form.destinos }}
+            {{ form.anexos }}
+            {{ form.referencias }}
+            {{ form.firmas }}
+        </div>
+    {% else %}
+        {% include "tramite/mesapartes/registrar/registrar_info.html" %}
+    {% endif %}
+{% endif %}

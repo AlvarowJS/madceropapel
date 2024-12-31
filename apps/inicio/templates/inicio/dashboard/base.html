@@ -1,0 +1,136 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static %}
+<div id="{{ tabobj.tablero.codigo }}" data-card="true"
+     class="card card-custom gutter-b draggable{% if not tabobj.expandido %} card-collapsed{% endif %}"
+     data-code="{{ tabobj.id }}">
+    <div class="card-header px-5" style="min-height: 50px">
+        <div class="card-title d-flex flex-column justify-content-center ">
+            <div class="card-title p-0 mt-1 mb-0">
+                <i class="text-{{ tabobj.tablero.color }} {{ tabobj.tablero.icono }} w-25px text-center mr-4">
+                </i>
+                <div class="d-flex align-items-start flex-column p-0">
+                    <h3 class="card-label font-weight-bolder text-dark">
+                        {{ tabobj.tablero.titulo }}
+                    </h3>
+                    <span class="text-dark-50 mt-0 font-weight-bold font-size-sm text-total">
+                        <span v-html="{{ tabobj.tablero.codigo }}.cantidad"></span>
+                        <span v-text="{{ tabobj.tablero.codigo }}.mas"></span>
+                        Documento<span v-text="{{ tabobj.tablero.codigo }}.cantidad == 1 ? '' : 's'"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="card-toolbar">
+            <a href="javascript:;" class="btn btn-icon btn-sm btn-hover-light-primary mr-1" data-card-tool="toggle">
+                <i class="ki ki-arrow-down icon-nm text-dark-50"></i>
+            </a>
+            <a href="javascript:;" class="btn btn-icon btn-sm btn-hover-light-primary mr-1" data-card-tool="reload"
+               onclick="TableroLoadData('{{ tabobj.tablero.codigo }}');">
+                <i class="ki ki-reload icon-nm text-dark-50"></i>
+            </a>
+            <a href="javascript:;" class="btn btn-icon btn-sm btn-hover-light-primary draggable-handle text-dark-75">
+                <i class="fas fa-arrows-alt text-dark-50"></i>
+            </a>
+        </div>
+    </div>
+    <div class="card-body px-5 pt-4 pb-3" id="{{ tabobj.tablero.codigo }}Body">
+        <div v-for="(registro, index) in {{ tabobj.tablero.codigo }}.data"
+             class="d-flex align-items-center flex-column flex-md-row bg-light  rounded px-3 py-2 mb-2
+            tablero-card bgi-no-repeat bgi-position-x-right bgi-position-y-center"
+             :class="'bg-hover-light-'+registro.color+(registro.verpdf ? ' ribbon ribbon-clip ribbon-right' : '')+(registro.restado ? ' border border-danger border-2': '')"
+             v-bind:style="getCardMinHeight(registro)">
+            <div v-show="registro.confidencial" title="Confidencial" rel="tooltip"
+                 class="rounded-0 rounded-top-right rounded-bottom-right"
+                 :class="'ribbon-target bg-'+registro.color + ' border border-' + registro.color"
+                 style="height: 24px; right: auto; left: -10px; padding: 0 3px;">
+                <span class="ribbon-inner ribbon-inner-left"></span>
+                <i class="fa fa-1x fa-lock text-white"></i>
+            </div>
+            <div v-show="registro.tienepdf" title="Documento" rel="tooltip"
+                 :class="'ribbon-target bg-'+registro.color + ' border border-' + registro.color"
+                 style="top: 4px; height: 24px;"
+                 @click="viewPDF(registro.urldown, registro.urlname, registro.urltoken,
+                 'docnew' + registro.id, false, registro.lista, registro.urlforma)">
+                <span class="ribbon-inner"></span>
+                <i class="fa fa-1x fa-file-pdf text-white"></i>
+            </div>
+            <div v-show="registro.urlanx.length > 0" title="Anexos" rel="tooltip"
+                 :class="'ribbon-target bg-light-' + registro.color +' border border-' + registro.color"
+                 v-bind:style="getRibbonPosition(registro, 'anx')" v-bind:href="registro.urlanx"
+                 data-toggle="modal" data-target="#modal-principal-centro" data-modal-size="xl">
+                <span class="ribbon-inner"></span>
+                <i :class="'fa font-size-sm fas fa-paperclip text-' + registro.color"></i>
+            </div>
+            <div v-show="registro.urlentfis" title="Entrega Física" rel="tooltip"
+                 :class="'ribbon-target bg-light-' + registro.color +' border border-' + registro.color"
+                 v-bind:style="getRibbonPosition(registro, 'fis')" v-bind:href="registro.urlentfis"
+                 data-toggle="modal" data-target="#modal-principal-centro" data-modal-size="md">
+                <span class="ribbon-inner"></span>
+                <i :class="'fa font-size-sm fas fa-mail-bulk text-' + registro.color"></i>
+            </div>
+            <div class="d-flex flex-column flex-grow-1 mr-2 ml-1">
+                <a data-toggle="modal" data-target="#modal-principal" data-modal-size="xl"
+                   :class="'font-weight-bolder text-dark font-size-lg mb-2 text-hover-'+registro.color"
+                   v-bind:href="registro.urledit">
+                    <span :class="'label label-sm mr-1 label-'+registro.color" rel="tooltip"
+                          v-bind:title="registro.modofull" v-html="registro.modo">
+                    </span>
+                    <span v-show="registro.nuevo" v-bind:id="'docnew' + registro.id"
+                          class="label label-sm label-danger label-pill label-inline mr-1 pulse pulse-danger">
+                        Nuevo
+                        <span class="pulse-ring"></span>
+                    </span>
+                    <span v-html="registro.documento + ' :'"></span>
+                    <small class="font-weight-bold" v-html="registro.asunto"></small>
+                </a>
+                <div class="font-size-md text-dark-75 mt-0">
+                    <table>
+                        <tr>
+                            <td class="min-w-50px">
+                                <small>
+                                    Origen:
+                                </small>
+                            </td>
+                            <td>
+                                <span class="font-weight-bold" v-html="registro.area"></span>
+                                -
+                                <span v-html="registro.responsable"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <small>
+                                    Destino<span v-html="registro.destinostotal == 1 ? '' : 's'"></span>:
+                                </small>
+                            </td>
+                            <td v-html="registro.destinos">
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div :class="'py-1 small text-center d-flex flex-row flex-md-column text-dark-75 min-w-120px' + (registro.verpdf ? ' mr-5' : '')">
+                <div v-html="registro.fechaestado" class="mt-2 mt-md-0 mr-3 mr-md-0"></div>
+                <div v-show="registro.vbver" :class="'text-center text-'+registro.color"
+                     v-html="registro.vbestado">
+                </div>
+                <div v-show="registro.creador.length > 0" class="text-center mt-1">
+                    <span :class="'label label-pill label-inline mr-2 label-outline-'+registro.color"
+                          rel="tooltip" v-html="registro.creador"
+                          v-bind:title="'Elaborado por ' + registro.creadorfull">
+                    </span>
+                </div>
+                <div v-show="registro.restado" class="text-center mt-1">
+                    <span rel="tooltip" v-bind:title="rechazadoObs(registro.restado)">
+                        RECHAZADO
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

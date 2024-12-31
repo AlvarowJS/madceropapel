@@ -1,0 +1,25 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% block modalTitulo %}
+    Cerrando Planillado
+{% endblock modalTitulo %}
+{% block modalAction %}{% url 'apptra:mesapartes_planillado_cerrar' object.pk %}{% endblock %}
+{% block modalBody %}
+    {% if enviadook %}
+        <script type="text/javascript">
+            $("#modal-principal-centro").modal("hide");
+            refrescarDetalle();
+        </script>
+    {% else %}
+        <div class="col-12">
+            ¿Desea Cerrar el Planillado N° {{ object.NumeroFull }}?
+        </div>
+        {% include "campos/errorform.html" %}
+    {% endif %}
+{% endblock %}

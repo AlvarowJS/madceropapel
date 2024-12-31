@@ -1,0 +1,20 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    Aprobando Solicitud de Nuevo Presidente
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% url 'apporg:comisionsolicitudes_aprobar' object.pk %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% include "campos/info.html" with value=object.area.nombre label="Comisión" numcol=12 %}
+    {% include "campos/info.html" with value=object.area.jefeactual.persona.nombrecompleto label="Presidente Actual" %}
+    {% include "campos/info.html" with value=object.persona.nombrecompleto label="Nuevo Presidente" %}
+    {% include "campos/errorform.html" %}
+{% endblock modalBody %}
+{% block modalPost %}refrescar_tablaComisionSolicitudes{% endblock modalPost %}

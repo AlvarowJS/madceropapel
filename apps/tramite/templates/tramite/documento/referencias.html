@@ -1,0 +1,33 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    Referencias: {{ oDoc.obtenerNumeroSiglas }}
+{% endblock modalTitulo %}
+{% block modalBodyTotal %}
+    <div class="col-12">
+        {% if visual %}
+            {% include "tramite/documento/emitir/tabla.html" with object=oDoc id="vreferencias" columnas="Origen|Documento|Año|Expediente" anchos="10%|65%|10%|15%" campos="origenfull|descripcionlink|aniodesc|expedientenro" editar=True visual=visual %}
+        {% else %}
+            {% include "tramite/documento/emitir/tabla.html" with object=oDoc id="vreferencias" columnas="Origen|Documento|Año|Expediente|" anchos="10%|63%|10%|10%|7%" campos="origenfull|descripcionlink|aniodesc|expedientenro|acciones" editar=False %}
+        {% endif %}
+    </div>
+{% endblock %}
+{% block modalScriptPost %}
+    <script type="text/javascript">
+        var kt_tabs_data = {"vreferencias": 0};
+        dt_vreferencias_data["datos"] = {{ referencias|safe }};
+
+        {#$("#dt_vreferencias").on("click", ".btn-ref-fvb", function (e) {#}
+        {#    let codanx = $(this).data("codigo");#}
+        {#    $(this).next().cargarPagina(#}
+        {#        "post",#}
+        {#        "{% url 'apptra:documento_anexo_firmarvb' 0 %}".replace("/0", "/" + codanx)#}
+        {#    );#}
+        {# });#}
+    </script>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static utiles %}
+{% if configapp.Test %}
+    <div id="watermark_content">
+        <img src="{% static 'images/grc_mad3_sellodemo.png' %}" alt="">
+    </div>
+{% endif %}
+<table class="bg-primary">
+    <tr>
+        <td colspan="2" style="height: 0.7cm">&nbsp;</td>
+    </tr>
+    <tr>
+        <td style="width: 2cm;">
+            <img src="{% static 'images/grc_mini.png' %}" alt=""/>
+        </td>
+        <td class="text-bold text-center" style="font-size: 12pt">
+            <div>DESTINATARIOS</div>
+            <div style="font-size: 11pt">{{ documento.obtenerNumeroSiglas }}</div>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">&nbsp;</td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <table class="tabla-interna tabla-padding">
+                <tr>
+                    <td class="text-right" style="width: 2.5cm; font-size: 8pt">
+                        EXPEDIENTE:
+                    </td>
+                    <td style="font-size: 9pt">
+                        <strong>{{ documento.expedientenro }}</strong>
+                    </td>
+                    <td style="width: 0.5cm">&nbsp;</td>
+                    <td class="text-center border-1">
+                        FECHA:
+                        <strong>{{ documento.fecha|formatdate:"dd 'de' MMMM 'de' yyyy" }}</strong>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>

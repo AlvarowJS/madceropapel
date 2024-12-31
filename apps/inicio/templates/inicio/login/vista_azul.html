@@ -1,0 +1,88 @@
+{% extends "inicio/login/base_login.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static utiles %}
+{% block BaseTitulo %}
+    Iniciar Sesión
+{% endblock BaseTitulo %}
+{% block login_contenido %}
+    {% if contador %}
+        {% if contador|diasrestantes < 14 %}
+            <h5 class="text-warning text-center mb-2">Solamente faltan ...</h5>
+            <div id="flipdown" class="flipdown mb-6 d-flex justify-content-center"></div>
+            <script>
+                funcExec(function () {
+                    new FlipDown({{ contador|tiemposegundos }}, {
+                        theme: "light",
+                        headings: ["Días", "Horas", "Minutos", "Segundos"],
+                    }).start();
+                });
+            </script>
+        {% endif %}
+        <div>
+            Para mayor información visita:
+            <a href="{% url 'appini:inicio_info' %}" target="_self" class="text-warning ml-1"
+               id="btnInfo">
+                gorecaj.pe/mad3info
+            </a>
+        </div>
+        <div class="text-center my-7">
+            <a id="btnIngresar" class="btn btn-outline-warning" data-toggle="collapse"
+               href="#collapseIniciar"
+               role="button" aria-expanded="false" aria-controls="collapseIniciar">
+                Ingresar
+            </a>
+        </div>
+        <script>
+            funcExec(function () {
+                $("#btnIngresar").on("click", function () {
+                    setTimeout(function () {
+                        $("#id_username").focus();
+                    }, 300)
+                })
+            });
+        </script>
+    {% endif %}
+    <!--begin::Login Sign in form-->
+    {#                    <div class="login-signin px-10" style="max-width: 450px">#}
+    <div class="login-signin px-15 {% if contador %}collapse{% endif %}" id="collapseIniciar">
+        <div class="mb-10">
+            <p class="font-weight-bold pt-3 font-size-h6">
+                Inicie sesión con su cuenta MAD o de Dominio.
+            </p>
+        </div>
+        <div id="capa-login">
+            {% if NoAccess %}
+                <div class="alert alert-danger text-center">
+                    {{ NoAccess }}
+                </div>
+            {% endif %}
+            {% include "inicio/login/formulario.html" %}
+        </div>
+        <div class="form-group mb-1 mt-10">
+            <div class="row">
+                <div class="col-md-6 text-left">
+                    <i class="fas fa-question-circle mr-1 text-white"></i>
+                    <a href="{% url 'appini:inicio_info' %}" target="_blank" class="text-white">
+                        Ayuda
+                    </a>
+                </div>
+                <div class="col-md-6 text-right">
+                    <a href="{% url 'appini:inicio_reset_password' %}" id="kt_login_forgot"
+                       class="text-white">
+                        ¿Olvidó su contraseña?
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="mt-7">
+            <a href="https://tramitedigital.regioncajamarca.gob.pe/" target="_blank" >
+                <img src="{% static 'images/logo_td_mp_grc.svg' %}" alt="Mesa de Partes" class="p-2 rounded" style="width: 200px; background-color: rgba(255,255,255,.75)">
+            </a>
+        </div>
+    </div>
+{% endblock login_contenido %}

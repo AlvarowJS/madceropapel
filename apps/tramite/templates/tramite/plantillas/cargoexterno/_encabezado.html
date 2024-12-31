@@ -1,0 +1,58 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static utiles %}
+{% if configapp.Test %}
+    <div id="watermark_content">
+        <img src="{% static 'images/grc_mad3_sellodemo.png' %}" alt="">
+    </div>
+{% endif %}
+<table>
+    <tr>
+        {% if request.GET.como == "pdf" %}
+            <td style="width: 2cm;">
+                <img src="{% static 'images/escudo_peru.jpg' %}" alt=""/>
+            </td>
+        {% endif %}
+        <td>
+            <div style="font-size: 12pt; text-align: center; line-height: 14px; margin: 0 2mm 2mm 2mm">
+                <strong>
+                    PLANILLADO N°
+                    {{ cargoexterno.NumeroFull }}
+                    - {{ cargoexterno.Dependencia }}
+                </strong>
+            </div>
+            <div style="font-size: 11pt; text-align: center; margin: 0 2mm 2mm 2mm">
+                {{ cargoexterno.fecha }}
+            </div>
+            <table style="font-size: 9pt;">
+                <tr>
+                    <td style="width: 22mm">
+                        <span class="text-bold" style="font-size: 8pt; padding-left: 5mm">
+                            {{ cargoexterno.distribuidor.get_tipo_display|upper }} :
+                        </span>
+                    </td>
+                    <td>
+                        {{ cargoexterno.Nombre }}
+                    </td>
+                </tr>
+                {% if cargoexterno.nota %}
+                    <tr>
+                        <td>
+                            <span class="text-bold" style="font-size: 8pt; padding-left: 5mm">NOTA : </span>
+                        </td>
+                        <td>{{ cargoexterno.nota }}</td>
+                    </tr>
+                {% endif %}
+            </table>
+        </td>
+        {% if request.GET.como == "pdf" %}
+            <td style="width: 2cm;">
+                <img src="{% static 'images/grc_mini.png' %}" alt=""/>
+            </td>
+        {% endif %}
+    </tr>
+</table>

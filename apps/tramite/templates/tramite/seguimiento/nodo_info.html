@@ -1,0 +1,81 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles queries %}
+{
+    "expedientenro": "{{ destino.expedientenro }}",
+    "origentipo": "{{ destino.documento.get_origentipo_display }}",
+    "origent": "{{ destino.documento.origentipo }}",
+    "origencreado": "{% if destino.documento.origentipo in "V" %}{{ destino.documento.creado|date:'d/m/Y h:i a' }}{% endif %}",
+    "documentotipo": "{{ destino.documento.obtenerNumeroSiglas }}",
+    "documentoemision": "{{ destino.documento.FechaEmision|date:'d/m/Y h:i a'|default:'-' }}",
+    "elaboradopor": "{{ destino.documento.emisor.persona.apellidocompleto }}",
+    "emisortipo": "{{ destino.documento.SegEmisorTipo }}",
+    "emisornombre": "{{ destino.documento.SegEmisorNombre }}",
+    "emisordocumento": "{{ destino.documento.SegEmisorDocumento }}",
+    {% setvar "asunto" destino.documento.asunto %}
+    {% if confidencial %}
+        {% setvar "asunto" "CONFIDENCIAL" %}
+    {% endif %}
+    "asunto": "{{ asunto|safe|escapejs }}",
+    "estado": "{{ destino.documento.ultimoestado.get_estado_display|upper }}",
+    "estadonota": {% if destino.documento.ultimoestado.observacion %}"{{ destino.documento.ultimoestado.observacion|safe|escapejs }}"{% else %}false{% endif %},
+    "destinotipo": "{{ destino.get_tipodestinatario_display }}",
+    "destinoarea": "{{ destino.SegDestinoArea }}",
+    "destinonombre": "{{ destino.SegDestinoNombre }}",
+    "destinoest": "{{ destino.ultimoestado.estado }}",
+    "destinoestado": "{{ destino.ultimoestado.get_estado_display|upper }}",
+    "destinohistoria": [
+        {% if destino.ultimoestado.estado == "AN" %}
+
+        {% endif %}
+    ],
+    "destinomodo": "{{ destino.tipotramite|upper }}",
+    "destinoreemision": "{% if destino.destinoemision and destino.documento.estadoemitido.creado != destino.destinoemision %}{{ destino.destinoemision|date:'d/m/Y h:i a' }}{% else %}-{% endif %}",
+    "destinooperaciontitulo": "{{ destino.SegOperacionTitulo|default:'-' }}",
+    "destinooperacionestado": "{{ destino.SegOperacionEstado|upper|default:'-' }}",
+    "destinooperacionnombre": "{{ destino.SegOperacionNombre|default:'-' }}",
+    "destinooperacionfechatitulo": "{{ destino.SegOperacionFechaTitulo|default:'-' }}",
+    "destinooperacionfecha": "{{ destino.SegOperacionFecha|date:'d/m/Y h:i a'|default:'-' }}",
+    "destinoindicacion": "{{ destino.indicacion|default:'-'|safe|escapejs }}",
+    "destinoentregafisica": "{% if destino.entregafisica %}{{ destino.entregafisica|safe|escapejs }}{% else %}-{% endif %}",
+    "destinooperacionnotatitulo": "{{ destino.SegOperacionNotaTitulo|default:'-' }}",
+    "destinooperacionnota": "{{ destino.SegOperacionNota|default:'-'|safe|escapejs }}",
+    "documentourl": "{{ destino.urldoc }}",
+    "documentourl2": "{% if destino.urldoc2 %}{{ destino.urldoc2 }}?csrfmiddlewaretoken={{ user.auth_token.key }}{% endif %}",
+    "documentosize": "{% if destino.urldoc %}{{ destino.pk|querydocdessize }}{% endif %}",
+    "referenciasnro": {{ destino.documento.referencias.count|default:0 }},
+    "archivoexterno": {% if destino.documento.archivoexterno %}"{{ destino.documento.archivoexterno }}"{% else %}false{% endif %},
+    "referencias": [
+        {% if destino %}
+            {% for referencia in destino.documento.referencias.all|querysort:'creado' %}
+                {
+                    "origen": "{{ referencia.origen.codigo }}",
+                    "documento": "{{ referencia.descripcion }}",
+                    "expediente": "{{ referencia.expedientenro }}",
+                    "expedienteemi": "{{ referencia.expedienteemi|default:0 }}",
+                    "destino": "{{ referencia.destino_id|default:0 }}",
+                    "anexos": {% if referencia.origen.codigo == "MCP" and referencia.destino.documento.anexos.count > 0 %}"{% url 'apptra:documento_anexos' referencia.destino.documento.id %}"{% else %}false{% endif %},
+                    "urldown": "{% if referencia.origen.codigo != "EXT" %}{% url 'apptra:documento_referencia_pdfdown' referencia.origen.codigo referencia.expedientenro referencia.expedienteemi|default:0 referencia.destino_id|default:0 1 %}{% endif %}"
+                }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        {% endif %}
+    ],
+    "anexosnro": {{ destino.documento.anexos.count|default:0 }},
+    "anexos": [
+        {% if destino %}
+            {% if confidencial %}{% setvar "verdoc" False %}{% endif %}
+            {% for anexo in destino.documento.anexos.all|querysort:'creado' %}
+                {
+                    "nombre": "{{ anexo.descripcion|safe|charespecials }}",
+                    "url": "{% if verdoc %}{% url "apptra:documento_anexo_descargar" anexo.id %}?csrfmiddlewaretoken={{ user.auth_token.key }}{% endif %}",
+                    "extension": "{{ anexo.archivonombre|get_extension }}",
+                    "tamanio": "{% if verdoc %}{{ anexo.Tamanio|len_in_mb }}{% endif %}"
+                }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        {% endif %}
+    ]
+}

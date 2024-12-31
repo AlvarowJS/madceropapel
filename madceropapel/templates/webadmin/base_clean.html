@@ -1,0 +1,96 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static utiles %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <title>
+        {{ configapp.TituloCorto }}
+        |
+        {% block BaseTitulo %}
+        {% endblock BaseTitulo %}
+    </title>
+    <meta name="description" content="Content width content"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <link rel="canonical" href="https://keenthemes.com/metronic"/>
+    <link rel="stylesheet" href="{% static 'fonts/poppins.css' %}"/>
+    {% include "estilospre.html" %}
+    {% include "scriptspre.html" %}
+    {% include "metas.html" %}
+
+    <style>
+        .header-clean {
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-pack: justify;
+            -ms-flex-pack: justify;
+            justify-content: space-between;
+            -webkit-box-align: center;
+            -ms-flex-align: center;
+            align-items: center;
+            padding: 0 10px;
+            height: 50px;
+            min-height: 50px;
+            background: #FFFFFF;
+        }
+    </style>
+</head>
+<body id="kt_body" class="header-fixed header-mobile-fixed subheader-enabled subheader-fixed
+aside-enabled aside-fixed aside-minimize aside-minimize-hoverable page-loading">
+<div class="preloader">
+    <div style='background: url("{% static 'images/logo_mad3.svg' %}") no-repeat 50%/70% rgba(255, 255, 255, 0.2)'
+         class="bb">
+    </div>
+</div>
+{% block BaseScriptsPre %}
+{% endblock BaseScriptsPre %}
+
+<div class="header-clean">
+    {% block BaseHeaderTitulo %}
+    {% endblock BaseHeaderTitulo %}
+    <a href="javascript:;">
+        <img alt="Logo" src="{% static 'images/logo_mad3.svg' %}" width="110px"/>
+    </a>
+</div>
+{% block BaseBody %}
+{% endblock BaseBody %}
+<footer class="footer bg-white py-2 d-flex flex-lg-column" style="position: absolute; bottom: 0; width: 100%">
+    <!--begin::Container-->
+    <div class="container-fluid d-flex flex-column flex-md-row align-items-center justify-content-between">
+        <!--begin::Copyright-->
+        <div class="text-dark order-2 order-md-1 d-flex">
+            <span class="text-muted mr-2">
+                Copyright © {{ configapp.AnioInicio }}
+            </span>
+            <a href="{{ configapp.WebSite }}" target="_blank"
+               class="text-dark-50 text-hover-primary mr-2 d-none d-sm-block">{{ configapp.Empresa }}.
+            </a>
+            <a href="{{ configapp.WebSite }}" target="_blank"
+               class="text-dark-50 text-hover-primary mr-2 d-block d-sm-none">{{ configapp.Diminutivo }}.
+            </a>
+            <span class="text-muted mr-2">
+            Desarrollo:
+            </span>
+            <span class="text-dark-50">
+                {{ configapp.DesarrolloCorto }}
+            </span>
+        </div>
+        <!--end::Copyright-->
+        <div class="text-dark-50">
+            {{ configapp.TituloMini }} v{{ configapp.Version }}
+        </div>
+    </div>
+    <!--end::Container-->
+</footer>
+{% include "scriptspost.html" with noexec=True %}
+{% include "scriptscomun.html" with noexec=True %}
+{% block BaseScriptsPost %}
+{% endblock BaseScriptsPost %}
+</body>
+</html>

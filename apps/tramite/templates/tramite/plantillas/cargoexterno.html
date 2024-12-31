@@ -1,0 +1,64 @@
+{% extends "tramite/plantillas/cargoexterno/_base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static queries utiles %}
+{% block PlantillaTitulo %}
+    Cargo Externo
+{% endblock %}
+{% block PlantillaEstilo %}
+    {% include "tramite/plantillas/cargoexterno/_estilos.html" %}
+{% endblock PlantillaEstilo %}
+{% block PlantillaEncabezado %}
+    {% include "tramite/plantillas/cargoexterno/_encabezado.html" %}
+{% endblock PlantillaEncabezado %}
+{% block PlantillaContenido %}
+    <table class="table-body" repeat="1">
+        <thead>
+        <tr>
+            <td style="width: .6cm">N°</td>
+            <td style="width: 1.6cm">DETALLE</td>
+            <td style="width: 1.8cm">DOCUMENTO</td>
+            <td style="width: 2.1cm">ORIGEN</td>
+            <td style="width: 4.5cm">DESTINO</td>
+            <td style="width: 4cm">DIRECCION</td>
+            <td>DISTRITO</td>
+            <td>PROVINCIA</td>
+            <td>DEPART</td>
+            <td>PESO</td>
+            <td>MONTO S/</td>
+            <td>FECHA DE ENTREGA</td>
+            <td>FECHA DE NOTIFICACIÓN</td>
+            <td>FECHA DE DEVOLUCIÓN DE CARGO</td>
+        </tr>
+        </thead>
+        <tbody>
+        {% for detalle in cargoexterno.destinosOrdenReporte %}
+            <tr>
+                <td class="text-center">{{ forloop.counter }}</td>
+                <td class="text-center">{{ detalle.detalle|default:"&nbsp;" }}</td>
+                <td class="text-center">{{ detalle.destino.documento.nombreDocumentoNumeroMin }}</td>
+                <td class="text-center">{{ detalle.destino.documento.SiglasDoc }}</td>
+                <td>{{ detalle.destino.obtenerNombreDestinoPersona }}</td>
+                <td>
+                    {{ detalle.direccion|default:detalle.destino.direccion }}
+                    {% if detalle.referencia|default:detalle.destino.referencia %}
+                        <div style="font-size: 5pt">({{ detalle.referencia|default:detalle.destino.referencia }})</div>
+                    {% endif %}
+                </td>
+                <td class="text-center">{{ detalle.Ubigeo.nombre }}</td>
+                <td class="text-center">{{ detalle.Ubigeo.provincia.nombre }}</td>
+                <td class="text-center">{{ detalle.Ubigeo.provincia.departamento.nombre }}</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock PlantillaContenido %}

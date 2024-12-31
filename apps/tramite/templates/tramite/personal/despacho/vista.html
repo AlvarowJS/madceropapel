@@ -1,0 +1,64 @@
+{% extends "tramite/base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load table_tags %}
+{% block TramiteScriptsPre %}
+    <script type="text/javascript">
+        function tabladbDespachoP_rowCallback(row, data, index) {
+            if (data[9]) {
+                row.cells[0].classList.remove("dtr-control");
+                row.cells[0].innerHTML = "";
+            }
+        }
+
+        function tabladbDespachoP_afterload(settings, me) {
+            tabladbDespachoP_deselect(settings, me);
+        }
+
+        function tabladbDespachoP_select(a, b) {
+            $("#btnFirmaMasiva").attr("data-toggle", "modal").removeClass("disabled");
+            $("#btnEmisionMasiva").attr("data-toggle", "modal").removeClass("disabled");
+        }
+
+        function tabladbDespachoP_deselect(a, b) {
+            if (table_tabladbDespachoP.api().rows({selected: true}).data().length === 0) {
+                $("#btnFirmaMasiva").attr("data-toggle", null).addClass("disabled");
+                $("#btnEmisionMasiva").attr("data-toggle", null).addClass("disabled");
+            }
+        }
+    </script>
+{% endblock TramiteScriptsPre %}
+{% block TramiteContenido %}
+      <div class="col-12 px-0">
+        <div class="card card-custom gutter-b">
+            <div class="card-body">
+                {% render_table TablaPersonalDespacho %}
+            </div>
+        </div>
+      </div>
+{% endblock TramiteContenido %}
+{% block TramiteScriptsPost %}
+    <script>
+        funcExec(function () {
+            $("#btnFirmaMasiva").attr("data-toggle", null).addClass("disabled").on("click", function (e) {
+                let idsFM = "";
+                table_tabladbDespachoP.api().rows({selected: true}).data().each(function (e) {
+                    idsFM += $(e).last()[0] + "_";
+                });
+                $(this).attr("href", "{% url 'apptra:personal_bandeja_despacho_firmamasiva' %}" + "?ids=" + idsFM);
+            });
+
+            $("#btnEmisionMasiva").attr("data-toggle", null).addClass("disabled").on("click", function (e) {
+                let idsEM = "";
+                table_tabladbDespachoP.api().rows({selected: true}).data().each(function (e) {
+                    idsEM += $(e).last()[0] + "_";
+                });
+                $(this).attr("href", "{% url 'apptra:personal_bandeja_despacho_emisionmasiva' %}" + "?ids=" + idsEM);
+            });
+        });
+    </script>
+{% endblock TramiteScriptsPost %}

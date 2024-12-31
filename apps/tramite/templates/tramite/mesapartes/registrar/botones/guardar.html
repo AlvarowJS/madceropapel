@@ -1,0 +1,13 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% if object.ultimoestado.estado|default_if_none:"PY" in "PY,RE" %}
+    <button type="submit" class="btn btn-xs btn-primary btn-save" form="{{ formid }}"
+            onclick="$('#{{ formid }} input[name=modosave]').val('normal');">
+        <i class="fas fa-save p-0"></i>
+        <span class="ml-1 d-none d-sm-inline-block">Guardar</span>
+    </button>
+{% endif %}

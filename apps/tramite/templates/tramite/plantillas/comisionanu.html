@@ -1,0 +1,41 @@
+{% extends "tramite/plantillas/encaut/_base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static queries utiles %}
+{% block PlantillaTitulo %}
+    Documento de Anulación de Encargatura
+{% endblock %}
+{% block PlantillaEstilo %}
+    {% include "tramite/plantillas/encaut/_estilos.html" %}
+{% endblock PlantillaEstilo %}
+{% block PlantillaEncabezado %}
+    {% include "tramite/plantillas/encaut/_encabezado.html" %}
+{% endblock PlantillaEncabezado %}
+{% block PlantillaContenido %}
+    <p class="text-center text-bold text-underline">
+        <br>
+        ANULACIÓN DE ENCARGO/DESIGNACIÓN
+    </p>
+    <p class="text-justify">
+        Yo, <span class="text-bold">{{ user.persona.nombrecompleto }}</span>,
+        {{ user.persona|periodoactual:"Cargo()" }} de
+        {{ encargatura.area.nombre }} <span class="text-bold">anulo</span>
+        el <span class="text-underline">encargo de funciones/designación temporal</span>
+        a <span class="text-bold">{{ encargatura.persona.nombrecompleto }}</span>,
+        {{ encargatura.persona|periodoactual:"Cargo()" }} de la
+        {% if encargatura.area == user.persona|periodoactual:"area" %}misma{% endif %}
+        unidad organizacional
+        {% if encargatura.area != user.persona|periodoactual:"area" %}
+            <span class="text-bold">{{ encargatura.area.nombre }}</span>
+        {% endif %}
+        desde el {{ encargatura.inicio|date:"d/m/Y h:i a" }} al {{ encargatura.fin|date:"d/m/Y h:i a" }}.
+    </p>
+    <p class="text-justify">
+        El documento: <span class="text-bold">{{ encargatura.documentosustento.nombreDocumentoNumero }}</span>,
+        queda sin efecto.
+    </p>
+{% endblock PlantillaContenido %}

@@ -1,0 +1,38 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles queries %}
+{% if object.firmas.all|queryfilter:"estado__codigo='SF'"|queryfirmador:user %}
+    <div class="btn-emi-firadd">
+        <button type="button"
+                class="btn btn-xs btn-light-primary btn-hover-primary text-primary btn-icon-primary">
+            <i class="fas fa-pen-nib p-0"></i>
+            <span class="ml-1 d-none d-sm-inline-block">
+                {{ object.firmas.all|queryfirmador:user|querygetvalue:"get_modo_display()" }}
+            </span>
+        </button>
+        <div></div>
+        <script type="text/javascript">
+            $(".btn-emi-firadd button").on("click", function () {
+                $(this).next().cargarPagina(
+                    "post",
+                    "{% url 'apptra:documento_emitir_firmarvb' object.firmas.all|queryfirmador:user|querygetvalue:"pk" %}"
+                );
+            });
+        </script>
+    </div>
+    <div class="btn-emi-firobs ml-2">
+        <button type="button" href="{% url 'apptra:documento_emitir_firmarvb_observar' object.pk %}"
+                data-toggle="modal" data-target="#documento-detalle-modal"
+                class="btn btn-xs btn-light-danger btn-hover-danger text-danger btn-icon-danger">
+            <i class="far fa-eye p-0"></i>
+            <span class="ml-1 d-none d-sm-inline-block">
+                Observar
+            </span>
+        </button>
+        <div></div>
+    </div>
+{% endif %}

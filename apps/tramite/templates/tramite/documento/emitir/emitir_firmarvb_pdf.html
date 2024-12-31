@@ -1,0 +1,56 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% if codigo %}
+    {% load static %}
+    <script type="text/javascript">
+        let capaCarga{{ codigo }} = document.createElement("iframe");
+        capaCarga{{ codigo }}.id = "capaCarga{{ codigo }}";
+        capaCarga{{ codigo }}.style.height = "0%";
+        capaCarga{{ codigo }}.style.width = "0%";
+        capaCarga{{ codigo }}.style.border = "none";
+        capaCarga{{ codigo }}.style.display = "none";
+        capaCarga{{ codigo }}.src = "{{ urldown }}";
+        modalWaitMeOpera(
+            "Firma",
+            "{% static 'images/icono_firmagrc.png' %}", "Añadiendo {{ modo }} {{ forma }}..."
+        );
+
+        function fnSocketDocFirVBOk(data) {
+            $("#capaCarga{{ codigo }}").remove();
+            fnSocketDocFirVBOk = fnSocketDocFirVBError = undefined;
+            $("#modal-principal .modal-content").load(
+                "{% url 'apptra:documento_emitir_editar' docid 'dbFirmaVB' docfirid %}", null,
+                function () {
+                    refrescarTabla("tabladbFirmaVBP");
+                    refrescarTabla("tabladbFirmaVBO");
+                    refrescarTableros("all", true);
+                    modalWaitMeOpera(
+                        "Firma",
+                        "{% static 'images/icono_check.png' %}",
+                        data.mensaje,
+                        3000
+                    );
+                }
+            );
+        }
+
+        function fnSocketDocFirVBError(data) {
+            $("#capaCarga{{ codigo }}").remove();
+            fnSocketDocFirVBOk = fnSocketDocFirVBError = undefined;
+            recargaBotones(false, function () {
+                modalWaitMeOpera(
+                    "Documento",
+                    "{% static 'images/icono_error.png' %}",
+                    "<div>" + data.mensaje + "</div>" +
+                    "<button type='button' class='btn btn-outline-primary mt-2 py-1' data-dismiss='modal'>Cerrar</button>"
+                );
+            });
+        }
+
+        document.body.appendChild(capaCarga{{ codigo }});
+    </script>
+{% endif %}

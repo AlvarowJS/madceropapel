@@ -1,0 +1,68 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load i18n static %}
+<style>
+    .ayuda ul {
+        margin: 5px 0;
+        font-size: .85em;
+        color: #CCC;
+        padding-left: 20px;
+    }
+
+    .errores ul {
+        margin-bottom: 0;
+        padding-left: 15px;
+    }
+
+    .ayuda {
+        font-size: .95em;
+        text-align: left;
+    }
+</style>
+<form id="form-pass-confirmado" class="form-login" autocomplete="off" method="post">
+    {% csrf_token %}
+    <div class="row justify-content-center">
+        <div class="col-12 mb-4">
+            <p>
+                {% translate "Please enter your new password twice so we can verify you typed it in correctly." %}
+            </p>
+        </div>
+        <div class="formulario col-12 px-15 text-left">
+            {{ form.new_password1 }}
+            <div class="ayuda">
+                {{ form.new_password1.help_text }}
+            </div>
+            {{ form.new_password2 }}
+            {% if form.new_password2.errors %}
+                <div class="alert alert-danger col-12 mt-2 p-2 small d-inline-block errores">
+                    {{ form.new_password2.errors }}
+                </div>
+            {% endif %}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger text-justify">
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                        {% if not forloop.last %}<br>{% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-md-12">
+            <button class="btn btn-pill btn-outline-white font-weight-bold opacity-90 px-15 py-3 mt-3" type="submit">
+                Restablecer Contraseña
+            </button>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    funcExec(function () {
+        setTimeout(function () {
+            document.getElementById("form-pass-confirmado").reset();
+            $("#form-pass-confirmado").enviarForm($("#capa-recovery-confirm"));
+        }, 200);
+    });
+</script>

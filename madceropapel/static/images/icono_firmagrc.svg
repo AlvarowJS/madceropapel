@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xml:space="preserve"
+   width="55mm"
+   height="55mm"
+   version="1.1"
+   style="clip-rule:evenodd;fill-rule:evenodd;image-rendering:optimizeQuality;shape-rendering:geometricPrecision;text-rendering:geometricPrecision"
+   viewBox="0 0 5500 5500"
+   id="svg1116"
+   sodipodi:docname="icono_firmagrc.svg"
+   inkscape:version="1.0.2 (e86c870879, 2021-01-15, custom)"><metadata
+   id="metadata1120"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1920"
+   inkscape:window-height="1001"
+   id="namedview1118"
+   showgrid="false"
+   fit-margin-top="0"
+   fit-margin-left="0"
+   fit-margin-right="0"
+   fit-margin-bottom="0"
+   inkscape:zoom="3.5919192"
+   inkscape:cx="89.018671"
+   inkscape:cy="97.521879"
+   inkscape:window-x="2391"
+   inkscape:window-y="-9"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="svg1116"
+   inkscape:document-rotation="0" />
+ <defs
+   id="defs1061">
+  <style
+   type="text/css"
+   id="style1048">
+   <![CDATA[
+    .fil4 {fill:#0350CC;fill-rule:nonzero}
+    .fil3 {fill:#1A73FF;fill-rule:nonzero}
+    .fil7 {fill:#293939;fill-rule:nonzero}
+    .fil6 {fill:#384949;fill-rule:nonzero}
+    .fil5 {fill:#3E5959;fill-rule:nonzero}
+    .fil2 {fill:#EDEDED;fill-rule:nonzero}
+    .fil1 {fill:white;fill-rule:nonzero}
+    .fil0 {fill:url(#id0)}
+   ]]>
+  </style>
+  <linearGradient
+   id="id0"
+   gradientUnits="userSpaceOnUse"
+   x1="9979.5098"
+   y1="13866.2"
+   x2="10299.54"
+   y2="6831.02">
+   <stop
+   offset="0"
+   style="stop-opacity:1; stop-color:#1A73FF"
+   id="stop1050" />
+   <stop
+   offset="0.52549"
+   style="stop-opacity:1; stop-color:#1972FD"
+   id="stop1052" />
+   <stop
+   offset="0.690196"
+   style="stop-opacity:1; stop-color:#1870FB"
+   id="stop1054" />
+   <stop
+   offset="0.811765"
+   style="stop-opacity:1; stop-color:#0C5CDA"
+   id="stop1056" />
+   <stop
+   offset="1"
+   style="stop-opacity:1; stop-color:#0047B8"
+   id="stop1058" />
+  </linearGradient>
+ </defs>
+ <g
+   id="Capa_x0020_1"
+   transform="translate(-7958.0089,-6595.4117)">
+  <metadata
+   id="CorelCorpID_0Corel-Layer" />
+  <path
+   class="fil0"
+   d="m 11873.71,7398.85 c 1619.1,941.24 1647.12,1699.87 798.21,3160.14 -846.04,1455.35 -1529.97,1745.89 -3114.7,824.63 C 7894.99,10417.3 7865.07,9694.52 8737.3,8194.14 9592.98,6722.21 10302.39,6485.38 11873.71,7398.85 Z"
+   id="path1064"
+   style="fill:url(#id0)" />
+  <g
+   id="_2827315055552">
+   <path
+   class="fil1"
+   d="m 11845.69,8752.09 -515.37,-515.35 c -27.32,-29.13 -69.2,-34.6 -103.8,-18.21 l -1154.55,577.27 c -20.03,10.93 -36.42,27.32 -43.71,47.35 l -728.43,1821.05 60.11,60.11 58.27,58.26 1821.06,-728.42 c 20.03,-7.28 36.42,-23.68 47.34,-43.71 l 577.28,-1154.54 c 16.4,-34.61 10.93,-76.5 -18.2,-103.81 z"
+   id="path1066" />
+   <path
+   class="fil2"
+   d="m 11286.61,10010.44 577.28,-1154.55 c 16.39,-34.6 10.93,-76.49 -18.21,-103.8 l -257.68,-257.68 -2228.98,2228.98 0.91,0.91 58.28,58.27 1821.05,-728.43 c 20.04,-7.27 36.43,-23.67 47.35,-43.7 z"
+   id="path1068" />
+   <path
+   class="fil3"
+   d="m 11911.21,9034.33 c -23.12,0 -46.15,-8.71 -63.93,-26.22 l -772.97,-772.98 c -35.12,-35.65 -34.95,-92.92 0.44,-128.31 l 398.14,-398.23 c 34.14,-34.14 94.61,-34.14 128.75,0 l 772.17,772.17 c 17.08,17.08 26.68,40.19 26.68,64.38 0,24.18 -9.6,47.3 -26.68,64.37 l -398.22,398.14 c -17.78,17.79 -41.08,26.68 -64.38,26.68 z"
+   id="path1070" />
+   <path
+   class="fil4"
+   d="m 11847.28,9008.11 c 17.79,17.51 40.82,26.22 63.93,26.22 23.3,0 46.6,-8.89 64.38,-26.67 l 398.22,-398.14 c 17.08,-17.08 26.68,-40.19 26.68,-64.38 0,-24.18 -9.6,-47.3 -26.68,-64.37 l -386.08,-386.09 -526.93,526.94 z"
+   id="path1072" />
+   <path
+   class="fil5"
+   d="m 9383.61,10789.86 c -23.3,0 -46.6,-8.89 -64.38,-26.68 -35.56,-35.56 -35.56,-93.19 0,-128.75 l 1145.99,-1145.99 c 35.56,-35.56 93.19,-35.56 128.75,0 35.57,35.57 35.57,93.19 0,128.76 l -1145.99,1145.99 c -17.78,17.78 -41.08,26.67 -64.37,26.67 z"
+   id="path1074" />
+   <g
+   id="g1080">
+    <path
+   class="fil6"
+   d="m 9383.61,10789.86 c 23.29,0 46.59,-8.89 64.37,-26.68 L 10593.97,9617.2 c 35.56,-35.57 35.56,-93.19 0,-128.76 l -1274.74,1274.74 c 17.78,17.79 41.08,26.68 64.38,26.68 z"
+   id="path1076" />
+    <path
+   class="fil6"
+   d="m 10658.35,9697.22 c -71.94,0 -138.27,-26.94 -191.98,-77.8 -54.24,-57.09 -81.18,-123.42 -81.18,-195.36 0,-150.62 122.53,-273.16 273.16,-273.16 150.63,0 273.16,122.54 273.16,273.16 0,150.63 -122.54,273.16 -273.16,273.16 z"
+   id="path1078" />
+   </g>
+   <path
+   class="fil7"
+   d="m 10466.37,9619.42 c 53.71,50.86 120.04,77.8 191.98,77.8 150.62,0 273.16,-122.53 273.16,-273.15 0,-75.32 -30.63,-143.61 -80.1,-193.07 l -386.65,386.66 c 0.55,0.58 1.06,1.18 1.61,1.76 z"
+   id="path1082" />
+   <g
+   id="g1084">
+   </g>
+   <g
+   id="g1086">
+   </g>
+   <g
+   id="g1088">
+   </g>
+   <g
+   id="g1090">
+   </g>
+   <g
+   id="g1092">
+   </g>
+   <g
+   id="g1094">
+   </g>
+   <g
+   id="g1096">
+   </g>
+   <g
+   id="g1098">
+   </g>
+   <g
+   id="g1100">
+   </g>
+   <g
+   id="g1102">
+   </g>
+   <g
+   id="g1104">
+   </g>
+   <g
+   id="g1106">
+   </g>
+   <g
+   id="g1108">
+   </g>
+   <g
+   id="g1110">
+   </g>
+   <g
+   id="g1112">
+   </g>
+  </g>
+ </g>
+</svg>

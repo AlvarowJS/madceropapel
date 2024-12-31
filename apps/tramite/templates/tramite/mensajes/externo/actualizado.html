@@ -1,0 +1,27 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% if request.GET.estilos %}
+    {% include "estilospre.html" %}
+    {% include "scriptspre.html" %}
+    {% include "scriptspost.html" %}
+{% endif %}
+<div class="text-center">
+    <div class="mb-3">
+        <strong>
+            {{ documento.nombreDocumentoNumero }}
+        </strong>
+        <div class="text-primary font-weight-bold">Registrado Correctamente</div>
+    </div>
+    <div class="mb-3 small">Expediente N°</div>
+    <span class="badge-pill badge-danger h6 text-white px-4 py-2 font-weight-bold">
+        {{ documento.expedientenro }}
+    </span>
+    <div class="mt-3">
+        <span class="small text-dark-50">Clave :</span>
+        <strong class="font-size-sm">{{ documento.clave }}</strong>
+    </div>
+</div>

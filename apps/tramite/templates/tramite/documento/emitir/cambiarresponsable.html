@@ -1,0 +1,31 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    Cambiando Responsable de Firma del Documento
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% url 'apptra:documento_emitir_cambiar_responsable' object.pk %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% if cambio_correcto %}
+        <script type="text/javascript">
+            $("#modal-principal-centro").modal("hide");
+            $("#modal-principal .modal-content").cargarPagina(
+                "GET",
+                "{% url 'apptra:documento_emitir_editar' object.pk 'dbDespacho' object.pk %}",
+                $("#modal-principal .modal-content"), "Cambiando...", null, null,
+                function () {
+                    appMensaje("Ok", "flaticon2-check-mark", "{{ cambio_correcto }}", "success", "bg-success text-white")
+                },
+                true
+            );
+        </script>
+    {% else %}
+        {% include "campos/campoform.html" with campo=form.nuevoresponsable %}
+    {% endif %}
+{% endblock modalBody %}

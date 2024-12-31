@@ -1,0 +1,78 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% if object.documentoplantilla.documentopdf_set.count > 0 %}
+    <div class="btn-pasdes-doc">
+        <button type="button" class="btn btn-xs btn-light-success btn-hover-success text-success mr-2">
+            <i class="fas fa-clipboard p-0"></i>
+            <span class="ml-1 d-none d-sm-inline-block">
+                Pasar a Despacho
+            </span>
+        </button>
+        <div></div>
+        <script>
+            $(".btn-pasdes-doc button").on("click", function () {
+                if (formdataoriginal && !_.isEqual($("#{{ formid }}").serializeArray(), formdataoriginal)) {
+                    appAlert("warning", "Atención!!", "Debe guardar los cambios")
+                } else {
+                    {% if object.DestinosExternosMensajeria > 0 %}
+                        (async () => {
+                            const {value: msj_op} = await Swal.fire({
+                                title: 'Mensajería',
+                                html: "Existe{{ object.DestinosExternosMensajeria|pluralize:'n' }} {{ object.DestinosExternosMensajeria }} " +
+                                    "documento{{ object.DestinosExternosMensajeria|pluralize:'s' }} que " +
+                                    "será{{ object.DestinosExternosMensajeria|pluralize:'n' }} " +
+                                    "entregado{{ object.DestinosExternosMensajeria|pluralize:'s' }} a través de mesa de partes." +
+                                    "<h6 class='mt-4 mb-3 text-primary'>¿Qué desea hacer?</h6>",
+                                input: 'radio',
+                                inputOptions: msj_io,
+                                inputValue:1,
+                                icon: "question",
+                                confirmButtonText: "Aceptar",
+                                cancelButtonText: "Cancelar",
+                                showCancelButton: true,
+                                customClass: {
+                                    confirmButton: "btn-primary"
+                                },
+                                showClass: {
+                                    popup: 'animate__animated animate__fadeInDown'
+                                },
+                                hideClass: {
+                                    popup: 'animate__animated animate__fadeOutUp'
+                                },
+                                allowOutsideClick: false,
+                                inputValidator: (value) => {
+                                    if (!value) {
+                                        return 'Debe seleccionar una opción'
+                                    }
+                                }
+                            })
+                            if (msj_op) {
+                                pasdesED(msj_op);
+                            }
+                        })()
+                    {% else %}
+                        pasdesED(0);
+                    {% endif %}
+                    function pasdesED(modo) {
+                        $(this).next().cargarPagina(
+                            "post",
+                            "{% url 'apptra:documento_emitir_despacho' object.pk %}",
+                            $("#modal-principal .modal-content"),
+                            "Un momento...", {codest: "PD", modoest: modo}, null,
+                            function () {
+                                $("#modal-principal .modal-content").load(
+                                    "{% url 'apptra:documento_emitir_editar' object.pk tab tabid %}"
+                                );
+                            },
+                            true
+                        );
+                    }
+                }
+            });
+        </script>
+    </div>
+{% endif %}

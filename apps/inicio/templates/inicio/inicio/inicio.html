@@ -1,0 +1,19 @@
+{% extends "webadmin/base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static %}
+{% block BaseTitulo %}
+
+{% endblock BaseTitulo %}
+{% block BaseScriptsPre %}
+    {#    {% if not request.user_agent.browser.family|lower in "chrome" %}#}
+    {% include "inicio/inicio/validaclickonce.html" %}
+    {#    {% endif %}#}
+{% endblock BaseScriptsPre %}
+{% block BaseContainerLimpio %}
+    {% include "inicio/dashboard/vista.html" %}
+{% endblock BaseContainerLimpio %}

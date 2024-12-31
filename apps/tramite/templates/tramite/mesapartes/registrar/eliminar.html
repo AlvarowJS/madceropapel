@@ -1,0 +1,22 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    <span class="text-black-50">Eliminando Expediente</span>
+    <span class="font-weight-bolder">
+        {{ object.expedientenro }}
+    </span>
+{% endblock modalTitulo %}
+{% block modalAction %}{% url 'apptra:mesapartes_registrar_eliminar' object.pk %}{% endblock modalAction %}
+{% block modalBody %}
+    <div class="col-12 text-center">
+        <h5 class="mb-3 text-danger">¿Desea Eliminar el Expediente?</h5>
+        <strong>{{ object.documentonrosiglas }}</strong>
+    </div>
+    {% include "campos/errorform.html" %}
+{% endblock modalBody %}
+{% block modalPost %}refrescar_tablaMesaPartesRegistrados{% endblock %}

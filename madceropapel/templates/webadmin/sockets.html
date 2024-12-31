@@ -1,0 +1,177 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static %}
+{% include "modales/bmodal.html" with modalid="modalWaitMe" centrado=True modalsize="md" %}
+<script id="modalWaitMeTpl" type="text/html">
+    <div class="modal-header bg-primary py-2 px-4">
+        <div class="modal-title text-inverse-dark">
+            <i class="glyphicon glyphicon-menu-right"></i>
+            <label for=""></label>
+        </div>
+    </div>
+    <div class="modal-body ">
+        <div class="row mwm-logo" style="display: inherit;">
+            <div class="col-12 d-flex justify-content-center align-items-center">
+                <div class="imagen-animada w-60px h-60px mb-10 mt-4">
+                    <img src="" class="w-100" alt="">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <h5 class=" text-center my-3 mwm-desc"></h5>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/javascript">
+    function modalWaitMeOpera(titulo, icono, mensaje, close) {
+        $("#modalWaitMe .modal-content")
+            .addClass("wave wave-animate-slow wave-primary")
+            .html($("#modalWaitMeTpl").html());
+        $("#modalWaitMe .modal-title label").html(titulo);
+        $("#modalWaitMe .mwm-logo img").attr("src", icono);
+        $("#modalWaitMe .mwm-desc").html(mensaje);
+        if (!$("#modalWaitMe").data('bs.modal')?._isShown) {
+            $("#modalWaitMe").modal("show");
+        } else {
+            close = close || false;
+            if (close) {
+                setTimeout(function () {
+                    $("#modalWaitMe").modal("hide");
+                }, close);
+            }
+        }
+    }
+
+    {#// Ejemplos#}
+    {#modalWaitMeOpera(#}
+    {#    "Documento", "{% static 'images/icono_officegrc.svg' %}", "Generando su documento"#}
+    {#);#}
+    {#setTimeout(function () {#}
+    {#    modalWaitMeOpera(#}
+    {#        "Documento", "{% static 'images/icono_check.svg' %}",#}
+    {#        "Su documento se ha generado correctamente", 3000#}
+    {#    );#}
+    {# }, 4000);#}
+
+    {#modalWaitMeOpera(#}
+    {#    "Documento", "{% static 'images/icono_error.svg' %}",#}
+    {#    "<div>Ocurrió un error al generar su documento</div>" +#}
+    {#    "<button type='button' class='btn btn-bg-light' data-dismiss='modal'>Cerrar</button>"#}
+    {#);#}
+</script>
+<script type="text/javascript">
+    var socketHOST = "ws" + (location.protocol === "https:" ? "s" : "") + "{{ current_domain }}{{ configapp.SOCKETS.URL }}";
+    var socketMAD0;
+    var socketNOTIFY;
+    SocketConnect();
+
+    function SocketConnect() {
+        socketMAD0 = new WebSocket(socketHOST);
+        socketMAD0.onopen = SocketOpen;
+        socketMAD0.onclose = SocketClose;
+        socketMAD0.onerror = SocketError;
+        socketMAD0.onmessage = SocketMessage;
+    }
+
+    function SocketOpen(e) {
+        {#console.log("Socket Open");#}
+        $(".kt_user_status").removeClass("text-danger").addClass("text-primary");
+        $(".kt_logo_status").removeClass("opacity-40");
+        {#socketNOTIFY = setInterval()#}
+        {#$("#modalWaitMe").modal("show");#}
+        {#socket.send("verificar");#}
+    }
+
+    function SocketMessage(e) {
+        {#console.log("Socket Mensaje");#}
+        if (e.data !== undefined) {
+            let data = JSON.parse(e.data);
+            let fnExec = eval("typeof fnSocket" + data.codigo);
+            if (fnExec !== 'undefined') {
+                eval("fnSocket" + data.codigo + "(data)");
+            }
+        } else {
+            {#socket.close();#}
+        }
+    }
+
+    function SocketClose(e) {
+        {#console.log("Socket Close");#}
+        $(".kt_user_status").removeClass("text-primary").addClass("text-danger");
+        $(".kt_logo_status").addClass("opacity-40");
+        setTimeout(function () {
+            SocketConnect();
+        }, 2000);
+    }
+
+    function SocketError(e) {
+        console.log("Socket Error", e);
+    }
+
+    //
+    function fnSocketMsg(data) {
+        if (data["mensaje"].length > 0) {
+            {#console.log(data);#}
+            appMensaje(
+                data["titulo"], data["icono"], data["mensaje"], data["tipo"], data["clase"]
+            );
+        }
+        if ((data["funcpost"] || "").length > 0) {
+            if (typeof eval(data["funcpost"]) == "function") {
+                eval(data["funcpost"] + "()");
+            }
+            {#refrescarTabla("tabla" + data["funcpost"]);#}
+            if (data["funcpost"].indexOf("refrescarTableros") > -1) {
+                let exptab = /(?<=")([a-z,]+)/gi;
+                let txttab = data["funcpost"].match(exptab);
+                if (txttab.length > 0) {
+                    let partab = txttab[0].split(",");
+                    partab.forEach(function (c) {
+                        refrescarTabla("tabla" + c + "O");
+                        refrescarTabla("tabla" + c + "P");
+                    });
+                }
+            }
+        }
+    }
+
+    function refrescarTabla(tabla, ventanacerrar) {
+        if (ventanacerrar !== undefined) {
+            $(ventanacerrar).modal("hide");
+        }
+        if (eval("typeof refrescar_" + tabla) === "function") {
+            eval("typeof refrescar_" + tabla + "();")
+        }
+    }
+
+    function refrescarAnexos(id, cerrarventana, funcpost) {
+        $.cargarPagina(
+            "post",
+            "{% url 'apptra:documento_anexo_listar' 0 %}".replace("/0", "/" + id),
+            false, "", null, null, function (e) {
+                if (typeof dt_anexos_data != "undefined" && typeof dt_anexos_data.datos != "undefined")
+                    dt_anexos_data.datos = e;
+                if (typeof dt_vanexos_data != "undefined" && typeof dt_vanexos_data.datos != "undefined")
+                    dt_vanexos_data.datos = e;
+                if (typeof recargaBotones == "function") recargaBotones(false);
+                if (cerrarventana !== undefined) {
+                    $("#documento-detalle-modal").modal("hide");
+                }
+                if (funcpost !== undefined) {
+                    funcpost();
+                }
+            }
+        );
+    }
+
+    function reloadPage() {
+        window.location = window.location;
+    }
+
+</script>

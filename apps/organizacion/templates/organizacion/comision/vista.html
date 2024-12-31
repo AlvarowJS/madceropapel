@@ -1,0 +1,197 @@
+{% extends "tramite/base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load table_tags utiles %}
+{% block TramiteContenido %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-custom">
+                <div class="card-body">
+                    {% if user.is_staff %}
+                        <ul id="kt_tabs_com" class="nav nav-tabs nav-tabs-line">
+                            <li class="nav-item">
+                                <a class="nav-link active" data-toggle="tab" href="#tb_mis_comisiones">
+                                    <span class="nav-icon"><i class="fas fa-user-friends"></i></span>
+                                    <span class="nav-text">Mis Comisiones</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="tab" href="#tb_comisiones_dir">
+                                    <span class="nav-icon"><i class="fas fa-users"></i></span>
+                                    <span class="nav-text">Comisiones Directas</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="tab" href="#tb_solicitudes">
+                                    <span class="nav-icon"><i class="fas fa-user-check"></i></span>
+                                    <div class="nav-text">
+                                        Cambio de Presidente
+                                        <span class="label label-rounded label-warning px-2 py-1"
+                                              v-html="solicitudes" v-show="solicitudes > 0">
+                                        </span>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="tab" href="#tb_apoyo_comision">
+                                    <span class="nav-icon"><i class="fas fa-user-shield"></i></span>
+                                    <div class="nav-text">
+                                        Apoyos
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="tab-content mt-5" id="myTabContent">
+                        <div class="tab-pane fade show active" id="tb_mis_comisiones" role="tabpanel"
+                             aria-labelledby="tb_mis_comisiones">
+                    {% endif %}
+                    <div class="pb-4">
+                        {% render_table tablaComision %}
+                    </div>
+                    {% render_table tablaIntegrante %}
+                    {% if user.is_staff %}
+                        </div>
+                        <div class="tab-pane fade" id="tb_comisiones_dir" role="tabpanel"
+                             aria-labelledby="tb_comisiones_dir">
+                            <div class="pb-4">
+                                {% render_table tablaComisionDirecta %}
+                            </div>
+                            {% render_table tablaIntegranteDirecta %}
+                        </div>
+                        <div class="tab-pane fade" id="tb_solicitudes" role="tabpanel" aria-labelledby="tb_solicitudes">
+                            {% render_table tablaComisionSolicitudes %}
+                        </div>
+                        <div class="tab-pane fade" id="tb_apoyo_comision" role="tabpanel"
+                             aria-labelledby="tb_apoyo_comision">
+                            <div class="row">
+                                {% include "campos/campoform.html" with campo=formApoyoComision.cbComisionApoyo %}
+                            </div>
+                            {% render_table tablaApoyoComision %}
+                        </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="capa-com" class="d-none"></div>
+{% endblock TramiteContenido %}
+{% block TramiteScriptsPost %}
+    <script type="text/javascript">
+        var idcom = 0;
+        var idcomdir = 0;
+
+        {% if tablaComisionSolicitudes %}
+            var datacom = {
+                "solicitudes": 0
+            }
+            var vdatacom = new Vue({
+                el: '#kt_tabs_com',
+                delimiters: ['{$', '$}'],
+                data: datacom
+            });
+
+            function tablaComisionSolicitudes_afterload(settings, me) {
+                datacom["solicitudes"] = me.api().ajax.json().solicitudes;
+            }
+        {% endif %}
+
+        function tablaComision_select(reg, idx) {
+            idcom = idx;
+            refrescar_tablaIntegrante();
+        }
+
+        function tablaComision_beforeload(s) {
+            idcom = 0;
+            if (typeof table_tablaIntegrante !== "undefined") {
+                refrescar_tablaIntegrante();
+            }
+        }
+
+        function tablaComision_deselect(reg, idx) {
+            idcom = 0;
+            refrescar_tablaIntegrante();
+        }
+
+        function tablaIntegrante_beforeload(s) {
+            if (typeof table_tablaIntegrante !== "undefined") {
+                table_tablaIntegrante.api().ajax.url(
+                    "{% url 'apporg:integrante_listar' 0 %}".replace("0", idcom)
+                );
+                $("#tablaIntegrante_wrapper").find("#btnAddIntegrante").attr("href",
+                    "{% url 'apporg:integrante_agregar' 0 %}".replace("0", idcom)
+                );
+            }
+        }
+
+        $("#{{ tablaComision.opts.id }}").on("click", ".btn-action", function () {
+            $("#capa-com").cargarPagina("post", $(this).data("url"), $("#kt_body"));
+        });
+
+        funcExec(function () {
+            $("#tablaIntegrante_wrapper").on("click", "#btnAddIntegrante", function (e) {
+                let urlAdd = $(this).attr("href");
+                if (urlAdd.indexOf("/0/") > -1) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            });
+        });
+        {% if user.is_staff %}
+            function tablaComisionDirecta_select(reg, idx) {
+                idcomdir = idx;
+                refrescar_tablaIntegranteDirecta();
+            }
+
+            function tablaComisionDirecta_beforeload(s) {
+                idcomdir = 0;
+                if (typeof table_tablaIntegranteDirecta !== "undefined") {
+                    refrescar_tablaIntegranteDirecta();
+                }
+            }
+
+            function tablaComisionDirecta_deselect(reg, idx) {
+                idcomdir = 0;
+                refrescar_tablaIntegranteDirecta();
+            }
+
+            function tablaIntegranteDirecta_beforeload(s) {
+                if (typeof table_tablaIntegranteDirecta !== "undefined") {
+                    table_tablaIntegranteDirecta.api().ajax.url(
+                        "{% url 'apporg:integrantedirecta_listar' 0 %}".replace("0", idcomdir)
+                    );
+                    $("#tablaIntegranteDirecta_wrapper").find("#btnAddDir").attr("href",
+                        "{% url 'apporg:integrantedirecta_agregar' 0 %}".replace("0", idcomdir)
+                    );
+                }
+            }
+
+            $("#{{ tablaComisionDirecta.opts.id }}").on("click", ".btn-action", function () {
+                $("#capa-com").cargarPagina("post", $(this).data("url"), $("#kt_body"));
+            });
+
+            $("#{{ formApoyoComision.cbComisionApoyo.auto_id }}").on("change", function (e) {
+                table_tablaApoyoComision.api().ajax.url(
+                    "{% url 'apporg:comision_apoyo_listar' 0 %}".replace("0", $(this).val())
+                ).load();
+                $("#btnAddApoyo")
+                    .attr("data-target", "#modal-principal-centro")
+                    .attr("href", "{% url 'apporg:comision_apoyo_agregar' 0 %}".replace("0", $(this).val()));
+            });
+
+            funcExec(function () {
+                $("#tablaIntegranteDirecta_wrapper").on("click", "#btnAddDir", function (e) {
+                    let urlAddDir = $(this).attr("href");
+                    if (urlAddDir.indexOf("/0/") > -1) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                });
+            });
+        {% endif %}
+    </script>
+{% endblock TramiteScriptsPost %}

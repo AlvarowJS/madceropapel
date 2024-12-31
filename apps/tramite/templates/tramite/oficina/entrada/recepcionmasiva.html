@@ -1,0 +1,101 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load queries static %}
+{% block modalTitulo %}
+    Recepción Masiva
+{% endblock modalTitulo %}
+{% block modalAction %}{% url 'apptra:oficina_bandeja_entrada_recepcionmasiva' %}?{{ request.GET.ids }}{% endblock %}
+{% block modalScriptPre %}
+    {% if entfis %}
+        <div id="entfis-capa"></div>
+    {% endif %}
+    <script>
+        {% if entfis %}
+            var todoFirmado = false;
+
+            function preFirma() {
+                if (!todoFirmado) {
+                    modalWaitMeOpera(
+                        "Cargo de Recepción Física Masiva", "{% static 'images/icono_firmagrc.png' %}", "{{ forma }}"
+                    );
+                    $("#entfis-capa").cargarPagina(
+                        "post",
+                        "{% url 'apptra:documento_recibirfm_g' entfis %}", $("#modal-principal-centro .modal-content"),
+                        "Cargando...", null, null, function (e) {
+                            if (e.trim().length === 0) {
+                                modalWaitMeOpera("", "", "", 1);
+                            }
+                        }
+                    );
+                    return false;
+                }
+                return true;
+            }
+        {% else %}
+            function preFirma() {
+                return true;
+            }
+        {% endif %}
+    </script>
+{% endblock modalScriptPre %}
+{% block modalBody %}
+    {% if recibirok %}
+        <script type="text/javascript">
+            $("#modal-principal-centro").modal("hide");
+        </script>
+    {% else %}
+        <input type="hidden" id="rec-destinos" name="destinos" value="{{ ids }}">
+        <div id="fm-info" class="col-12">
+            <div class="mb-2">
+                Se procederá a recepcionar la siguiente lista de documentos:
+            </div>
+            {% for destino in destinos %}
+                <div class="d-flex align-items-center flex-grow-1 border rounded px-3 py-2 mb-1">
+                    <div class="d-flex flex-wrap justify-content-between w-100">
+                        <div class="d-flex flex-column" style="width: 85%;">
+                            <div class="text-dark-75">
+                                {{ destino.documento.obtenerNumeroSiglas }}
+                                {% if destino.documento.expediente %}
+                                    <span class="ml-2 small font-weight-bolder badge badge-light badge-primary">
+                                        EXP {{ destino.expedientenro }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                            <p class="text-dark-50 mb-0 font-size-sm">
+                                {{ destino.documento.asuntocorto }}
+                            </p>
+                        </div>
+                        <div class="small text-center" style="width: 15%;">
+                            <div>
+                                {{ destino.documento.ultimoestado.creado|date:"d/m/Y h:i a" }}
+                            </div>
+                            <div>
+                                {% if not destino.entregafisica %}
+                                    <i class="fas fa-check-circle fa-2x text-success"></i>
+                                {% else %}
+                                    <i class="flaticon-file-1 fa-2x text-danger" rel="tooltip"
+                                       data-html="true"
+                                       title="Este documento tiene entrega física: {{ destino.entregafisica }}">
+                                    </i>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}
+{% block modalPre %}preFirma{% endblock %}
+{% block modalScriptPost %}
+    <script type="text/javascript">
+        $("#fm-info [rel='tooltip']").tooltip({
+            trigger: 'hover'
+        });
+    </script>
+{% endblock modalScriptPost %}

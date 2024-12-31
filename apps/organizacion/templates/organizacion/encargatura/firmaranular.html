@@ -1,0 +1,46 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% if encargatura %}
+    {% load static %}
+    <script type="text/javascript">
+        let capaCarga{{ codigo }} = document.createElement("iframe");
+        capaCarga{{ codigo }}.id = "capaCarga{{ codigo }}";
+        capaCarga{{ codigo }}.style.height = "0%";
+        capaCarga{{ codigo }}.style.width = "0%";
+        capaCarga{{ codigo }}.style.border = "none";
+        capaCarga{{ codigo }}.style.display = "none";
+        capaCarga{{ codigo }}.src = "{{ urldown }}";
+        modalWaitMeOpera(
+            "Firma", "{% static 'images/icono_firmagrc.png' %}", "{{ forma }}"
+        );
+
+        function fnSocketDocFirEncOk(data) {
+            $("#capaCarga{{ codigo }}").remove();
+            fnSocketDocFirEncOk = fnSocketDocFirEncError = undefined;
+            refrescar_tablaEncargatura();
+            modalWaitMeOpera(+
+                "Encargatura Anulada",
+                "{% static 'images/icono_check.png' %}",
+                data.mensaje,
+                3000
+            );
+        }
+
+        function fnSocketDocFirEncError(data) {
+            $("#capaCarga{{ codigo }}").remove();
+            fnSocketDocFirEncOk = fnSocketDocFirEncError = undefined;
+            modalWaitMeOpera(
+                "Encargatura Error",
+                "{% static 'images/icono_error.png' %}",
+                "<div>" + data.mensaje + "</div>" +
+                "<button type='button' class='btn btn-outline-primary mt-2 py-1' data-dismiss='modal'>Cerrar</button>"
+            );
+        }
+
+        document.body.appendChild(capaCarga{{ codigo }});
+    </script>
+{% endif %}

@@ -1,0 +1,204 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles static %}
+<table id="dt_{{ id }}"
+       class="table table-bordered table-hover table-checkable text-break bg-white tabla-json tabla-detalles">
+    <thead class="bg-light">
+    <tr>
+        {% for columna in columnas|separar:"|" %}
+            {% if forloop.last and not object.ultimoestado.estado|default:"PY" in "PY,RE" and not editar and not visual %}
+            {% else %}
+                <th>{{ columna }}</th>
+            {% endif %}
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+    <tr v-for="(registro, i) in datos" v-bind:data-reg="registro.codigo">
+        {% for campo in campos|separar:"|" %}
+            {% if forloop.last and not object.ultimoestado.estado|default:"PY" in "PY,RE" and not editar and not visual %}
+            {% else %}
+                {% if not forloop.last or not editar or visual %}
+                    <td v-html="registro.{{ campo }}"></td>
+                {% else %}
+                    <td class="text-center">
+                        <div class="table-actions">
+                            {% if anotacion %}
+                                <a href="#" v-show="registro.ultest=='RH'" rel="tooltip"
+                                   class="btn btn-xs btn-clean btn-hover-warning btn-icon p-1"
+                                   title="Devolución" v-on:click="btnAnotacion(registro.codigo)">
+                                    <i class="fas fa-reply-all"></i>
+                                </a>
+                            {% endif %}
+                            <a v-show="registro.editar && registro.ultest !== 'RH'"
+                               v-bind:href="btnEdit(registro)" rel="tooltip"
+                               data-modal-size="{{ customsize|default:'lg' }}"
+                                    {% if urleditarcustom %}
+                               data-toggle="modal"
+                                        {% if id == "anexos" %}
+                               data-target="#modal-principal-centro" data-remove="True"
+                                        {% else %}
+                               data-target="#documento-detalle-modal"
+                                        {% endif %}
+                                    {% endif %}
+                               class="btn btn-xs btn-clean btn-hover-primary btn-icon p-1" title="Editar">
+                                <i class="fas fa-pen"></i>
+                            </a>
+                            <a v-show="registro.eliminar" v-bind:href="btnDelete(registro.codigo)" rel="tooltip"
+                               data-modal-size="{{ customsize|default:'lg' }}"
+                                    {% if urleliminarcustom %}
+                               data-toggle="modal" data-target="#documento-detalle-modal"
+                                    {% endif %}
+                               class="btn btn-xs btn-clean btn-hover-danger btn-icon p-1" title="Quitar">
+                                <i class="fas fa-minus-circle"></i>
+                            </a>
+                            {% if id == "referencias" and object.ultimoestado.estado|default:"PY" in "PY,RE" %}
+                                <a v-bind:href="btnObtenerAnexos(registro.codigo)" rel="tooltip" data-modal-size="lg"
+                                   data-toggle="modal" data-target="#modal-principal-centro"
+                                   class="btn btn-xs btn-clean btn-hover-success btn-icon p-1"
+                                   title="Importar Anexos" v-show="registro.codigo > 0">
+                                    <i class="fas fa-cloud-download-alt"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    </tr>
+    </tbody>
+</table>
+
+<script type="text/javascript">
+    var dt_{{ id }}_data = {
+        datos: []
+    };
+    var dt_{{ id }}_tabla = new Vue({
+        el: '#dt_{{ id }}',
+        delimiters: ['{$', '$}'],
+        data: dt_{{ id }}_data,
+        methods: {
+            btnEdit: function (registro) {
+                {% if urleditarcustom %}
+                    return "{{ urleditarcustom }}".replace("/0", "/" + registro.codigo);
+                {% elif urleditar %}
+                    return "javascript:editarDetalle('{{ id }}', " + registro.codigo + ", '{% url urleditar %}');";
+                {% else %}
+                    return "javascript:editarDetalle('{{ id }}', " + registro.codigo + ");";
+                {% endif %}
+            },
+            btnDelete: function (codigo) {
+                {% if urleliminarcustom %}
+                    return "{{ urleliminarcustom }}".replace("/0", "/" + codigo);
+                {% else %}
+                    return "javascript:quitarDetalle('{{ id }}', " + codigo + ");";
+                {% endif %}
+            },
+            btnObtenerAnexos: function (codigo) {
+                return "{% url 'apptra:documento_anexo_importar' 0 %}".replace("/0", "/" + codigo);
+            },
+            {% if anotacion %}
+                btnAnotacion: function (codigo) {
+                    let regAnot;
+                    dt_{{ id }}_data["datos"].forEach(function (e, idx) {
+                        if (parseInt(e["codigo"]) === codigo) {
+                            regAnot = idx;
+                        }
+                    });
+                    (async () => {
+                        const {value: textAnot} = await Swal.fire({
+                            title: 'Devolución',
+                            input: 'textarea',
+                            {#inputLabel: 'Observación',#}
+                            inputValue: dt_{{ id }}_data["datos"][regAnot]["obsnew"],
+                            inputPlaceholder: 'Ingrese la observación...',
+                            inputAttributes: {
+                                'aria-label': 'Observación'
+                            },
+                            showCancelButton: true,
+                            cancelButtonText: "Cancelar",
+                            confirmButtonText: "Aceptar",
+                            inputValidator: function (value) {
+                                if (!value) {
+                                    return "Debe indicar un texto";
+                                }
+                            }
+                        });
+                        if (textAnot) {
+                            dt_{{ id }}_data["datos"][regAnot]["obsnew"] = textAnot;
+                        }
+                    })();
+                },
+            {% endif %}
+        },
+        updated: function () {
+            $('#dt_{{ id }} [rel="tooltip"]').tooltip('dispose').tooltip({
+                trigger: "hover"
+            });
+            $('#dt_{{ id }} [data-toggle="popover"]').popover('dispose').popover({
+                trigger: "hover"
+            });
+            {% if id == "destinos" %}
+                $("#dt_destinos dropdown").each(function (idx, e) {
+                    let _dd = $(this);
+                    $(this).parent().html(ModoEntregaMenu(_dd.data("titulo"), _dd.data("icono"), _dd.data("color")));
+                    _dd.remove();
+                });
+            {% endif %}
+        },
+        watch: {
+            "datos": {
+                handler(valnew, valold) {
+                    if (valnew.length === 0) {
+                        $("#dt_{{ id }} .dataTables_empty").parent().show();
+                    } else {
+                        $("#dt_{{ id }} .dataTables_empty").parent().hide();
+                    }
+                    $("#id_{{ id }}").val(JSON.stringify(valnew));
+                    kt_tabs_data.{{ id }}.cantidad = valnew.length;
+                    return valnew;
+                },
+                deep: true
+            },
+        },
+        mounted: function () {
+            jstable_{{ id }} = $("#dt_{{ id }}").DataTable({
+                responsive: true,
+                searching: false,
+                ordering: false,
+                select: 'single',
+                dom: 't',
+                deferRender: true,
+                scrollY: '200px',
+                autoWidth: true,
+                pageLength: 500,
+                columns: [
+                    {% for ancho in anchos|separar:"|" %}
+                        {% if forloop.last and not object.ultimoestado.estado|default:"PY" in "PY,RE" and not editar %}
+                        {% else %}
+                            {
+                                "data": "{{ campos|separar:"|"|elemento:forloop.counter0 }}",
+                                "width": "{{ ancho }}",
+                                "targets": {{ forloop.counter }},
+                                {% if forloop.last %}
+                                    "responsivePriority": -1,
+                                {% endif %}
+                            },
+                        {% endif %}
+                    {% endfor %}
+                ],
+                language: {
+                    "zeroRecords": "Ningún dato disponible en esta tabla",
+                }
+            });
+            setTimeout(function () {
+                jstable_{{ id }}.columns.adjust();
+                jstable_{{ id }}.responsive.recalc();
+            }, 400);
+        },
+    });
+</script>

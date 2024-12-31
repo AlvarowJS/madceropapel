@@ -1,0 +1,18 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% if object.origentipo in "O,P" and object.MensajeriaObservacion %}
+    <div class="btn-nul-doc">
+        <a type="button" class="btn btn-xs btn-light-info btn-hover-info text-info btn-icon-info ml-2"
+           href="{% url 'apptra:mesapartes_mimensajeria_acciones' object.pk %}"
+           data-target="#modal-principal-centro" data-toggle="modal" data-modal-size="md">
+            <i class="fab fa-wpforms p-0"></i>
+            <span class="ml-1 d-none d-sm-inline-block">
+                Mensajería
+            </span>
+        </a>
+    </div>
+{% endif %}

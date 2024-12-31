@@ -1,0 +1,51 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles queries %}
+<table>
+    <tr>
+        <td class="text-center">
+            {% setvar "enelarea" encargatura.area %}
+            {% setvar "desdeelarea" encargatura.creador.persona|periodoactual:"area" %}
+            {% setvar "largo" desdeelarea.jefeactual.persona.nombrecompleto|length %}
+            {% setvar "largo" largo|multiplicar:2|add:6 %}
+            <div>{{ "-"|repetir:largo }}</div>
+            <div>{{ desdeelarea.jefeactual.persona.nombrecompleto }}</div>
+            <div>{{ desdeelarea.jefeactual.Cargo }}</div>
+            <div>{{ desdeelarea.jefeactual.area.nombre }}</div>
+
+            {#            {% if encargatura.creador.persona == encargatura.area.jefeactual.persona %}#}
+            {#                {% setvar "largo" encargatura.area.jefeactual.persona.nombrecompleto|length %}#}
+            {#                {% setvar "largo" largo|multiplicar:2|add:6 %}#}
+            {#                <div>{{ "-"|repetir:largo }}</div>#}
+            {#                <div>{{ encargatura.area.jefeactual.persona.nombrecompleto }}</div>#}
+            {#                <div>{{ encargatura.area.jefeactual.Cargo }}</div>#}
+            {#                <div>{{ encargatura.area.jefeactual.area.nombre }}</div>#}
+            {#            {% else %}#}
+            {#                {% setvar "largo" encargatura.creador.persona.nombrecompleto|length %}#}
+            {#                {% setvar "largo" largo|multiplicar:2|add:6 %}#}
+            {#                <div>{{ "-"|repetir:largo }}</div>#}
+            {#                <div>{{ encargatura.creador.persona.nombrecompleto }}</div>#}
+            {#                <div>{{ encargatura.creador.persona|periodoactual:"Cargo()" }}</div>#}
+            {#                <div>{{ encargatura.creador.persona|periodoactual:"area.nombre" }}</div>#}
+            {#            {% endif %}#}
+        </td>
+    </tr>
+</table>
+
+<table class="footer">
+    <tr>
+        <td style="height: 9cm"></td>
+    </tr>
+    <tr>
+        <td class="text-left border-top" style="width: 40%">
+            {{ configapp.TituloCorto }} v{{ configapp.Version }}
+        </td>
+        <td class="text-right border-top" colspan="2" style="width: 60%">
+{#            Pág. <pdf:pagenumber/> / <pdf:pagecount/>#}
+        </td>
+    </tr>
+</table>

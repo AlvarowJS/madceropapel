@@ -1,0 +1,130 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load queries %}
+{% block modalTitulo %}
+    {% if not object %}
+        Agregando
+    {% else %}
+        Actualizando
+    {% endif %}
+    Comisión
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% if not object %}
+        {% url 'apporg:comision_agregar' %}
+    {% else %}
+        {% url 'apporg:comision_editar' object.pk %}
+    {% endif %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% include "campos/campoform.html" with campo=form.modocrea clase="text-center" nolabel=True %}
+    <div class="col-6 small">
+        <div class="alert alert-custom alert-light-primary px-3 py-2" role="alert" id="msje-ex">
+            <div class="alert-text">
+                <strong>Si Existe</strong> :
+                {% if user.persona|periodoactual:"esapoyo" %}
+                    Se procederá a solicitar el cambio del Presidente de una Comisión Existente,
+                    en la cual deberá elegir al presidente.
+                {% else %}
+                    Se procederá a solicitar el cambio del Presidente de una Comisión Existente,
+                    en la cual Ud. será el presidente.
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-6 small">
+        <div class="alert alert-custom alert-light px-3 py-2" role="alert" id="msje-ne">
+            <div class="alert-text">
+                <strong>No Existe</strong> :
+                {% if user.persona|periodoactual:"esapoyo" %}
+                    Se procederá a crear una Nueva Comisión en la cual deberá elegir al presidente.
+                {% else %}
+                    Se procederá a crear una Nueva Comisión en la cual Ud. será el presidente.
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% include "campos/campoform.html" with campo=form.comision idfila="campo_ex" required=True %}
+    <div class="col-12" id="campo_ne">
+        <div class="row">
+            {% include "campos/campoform.html" with campo=form.nombre required=True %}
+            {% include "campos/campoform.html" with campo=form.nombrecorto numcol=6 required=True %}
+            {% include "campos/campoform.html" with campo=form.siglas numcol=6 required=True %}
+        </div>
+    </div>
+    {% include "campos/campoform.html" with campo=form.cargo numcol=5 %}
+    {% if user.persona|periodoactual:"esapoyo" %}
+        {% include "campos/campoform.html" with campo=form.presidente numcol=7 %}
+    {% else %}
+        {% include "campos/info.html" with value=user.persona.apellidocompleto label="Persona" numcol=7 %}
+    {% endif %}
+    <div class="col-12">
+        <div class="divider divider-primary divider-center mt-3 mb-3">
+            <div class="divider-text">Documento Sustento</div>
+        </div>
+    </div>
+    {% include "campos/campoform.html" with campo=form.documentoanio numcol=3 %}
+    {% include "campos/campoform.html" with campo=form.documentooficina numcol=9 %}
+    {% include "campos/campoform.html" with campo=form.documentotipo numcol=5 %}
+    {% include "campos/campoform.html" with campo=form.documentosustento numcol=5 %}
+    <div class="col-sm-2 text-center">
+        <div class="form-group">
+            <label for="">&nbsp;</label>
+            <div>
+                <button id="enc-ver-doc" type="button" class="btn btn-primary btn-circle btn-icon">
+                    <i class="fas fa-file-pdf"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    {% include "campos/errorform.html" %}
+{% endblock modalBody %}
+{% block modalScriptPost %}
+    <script type="text/javascript">
+        {% if form.modocrea %}
+            $("#{{ form.id }}").on("change", "input[name={{ form.modocrea.name }}]", function () {
+                let modocrea = $(this).val().toLowerCase();
+                $("#{{ form.comision.auto_id }}").attr("required", modocrea === "ex");
+                $("#{{ form.nombre.auto_id }}").attr("required", modocrea === "ne");
+                $("#{{ form.nombrecorto.auto_id }}").attr("required", modocrea === "ne");
+                $("#{{ form.siglas.auto_id }}").attr("required", modocrea === "ne");
+                if (modocrea === "ex") {
+                    $("#campo_ex").show();
+                    $("#campo_ne").hide();
+                    $("#msje-ne").removeClass("alert-light-primary").addClass("alert-light");
+                    $("#msje-ex").addClass("alert-light-primary").removeClass("alert-light");
+                } else {
+                    $("#campo_ex").hide();
+                    $("#campo_ne").show();
+                    $("#msje-ne").addClass("alert-light-primary").removeClass("alert-light");
+                    $("#msje-ex").removeClass("alert-light-primary").addClass("alert-light");
+                    setTimeout(function () {
+                        $("#{{ form.nombre.auto_id }}").focus();
+                    }, 200);
+                }
+            });
+
+            $("#{{ form.id }} input[name={{ form.modocrea.name }}]:checked").trigger("change");
+        {% endif %}
+
+        $("#enc-ver-doc").on("click", function () {
+            let iddoc = $("#{{ form.documentosustento.auto_id }}").val();
+            if (iddoc) {
+                let urldoc = "{% url 'apptra:documento_descargar' 0 %}".replace("0", iddoc);
+                viewPDF(
+                    urldoc,
+                    $("#{{ form.documentosustento.auto_id }}").text(),
+                    "{{ user.auth_token.key }}"
+                );
+            } else {
+                appMensaje("Atención", "flaticon-warning", "Debe seleccionar un documento", "warning", "bg-warning");
+            }
+        });
+    </script>
+{% endblock modalScriptPost %}
+{% block modalPost %}refrescar_tablaComision{% endblock modalPost %}

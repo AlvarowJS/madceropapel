@@ -1,0 +1,110 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    {% if not object %}
+        Agregando
+    {% else %}
+        Actualizando
+    {% endif %}
+    Distribuidor
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% if not object %}
+        {% url 'apptra:distribuidor_agregar' %}
+    {% else %}
+        {% url 'apptra:distribuidor_editar' object.pk %}
+    {% endif %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% include "campos/campoform.html" with campo=form.tipo numcol=12 %}
+    {% include "campos/campoform.html" with campo=form.personadni numcol=3 search="button" clase='d-none' idfila='filaMdoc' %}
+    {% include "campos/campoform.html" with campo=form.persona numcol=9 clase='d-none' idfila='filaMnom' %}
+    {% include "campos/campoform.html" with campo=form.personajuridicaruc numcol=3 search="button" idfila='filaCdoc' %}
+    {% include "campos/campoform.html" with campo=form.personajuridica numcol=9 idfila='filaCnom' %}
+    {% include "campos/campoform.html" with campo=form.inicio numcol=3 %}
+    {% include "campos/campoform.html" with campo=form.fin numcol=3 %}
+    {% include "campos/campoform.html" with campo=form.estado numcol=6 %}
+    {% include "campos/errorform.html" %}
+{% endblock modalBody %}
+{% block modalPost %}
+    refrescar_tablaDistribuidor
+{% endblock modalPost %}
+{% block modalScriptPost %}
+    <script type="text/javascript">
+        $("#{{ form.id }} input[name={{ form.tipo.name }}]").on("change", function (e) {
+            idTipo = $(this).val();
+            $("#{{ form.personajuridicaruc.auto_id }}").attr("required", idTipo === "C");
+            $("#{{ form.personajuridica.auto_id }}").attr("required", idTipo === "C");
+            $("#{{ form.personadni.auto_id }}").attr("required", idTipo === "M");
+            $("#{{ form.persona.auto_id }}").attr("required", idTipo === "M");
+
+            $("#fila" + idTipo + 'doc').removeClass("d-none");
+            $("#fila" + idTipo + 'nom').removeClass("d-none");
+            idTipo = (idTipo === "M") ? 'C' : 'M';
+            $("#fila" + idTipo + 'doc').addClass("d-none");
+            $("#fila" + idTipo + 'nom').addClass("d-none");
+
+            setTimeout(function () {
+                ((idTipo === "C") ? $("#{{ form.personadni.auto_id }}") : $("#{{ form.personajuridicaruc.auto_id }}")).focus();
+            }, 200)
+        });
+
+        $("#{{ form.personajuridicaruc.auto_id }} + div button").on("click", function () {
+            if (!$("#{{ form.personajuridicaruc.auto_id }}").inputmask('isComplete')) {
+                Swal.fire("Alerta!!", "Debe completar el RUC", "warning").then(function (result) {
+                    setTimeout(function () {
+                        $("#{{ form.personajuridicaruc.auto_id }}").focus();
+                    }, 300);
+                });
+            } else {
+                let ruc = $("#{{ form.personajuridicaruc.auto_id }}").val();
+                $("#filaCnom").cargarPagina(
+                    "post",
+                    "{% url 'apptra:distribuidor_consulta_ruc' %}",
+                    $("#modal-principal-centro .modal-content"),
+                    "Consultando...",
+                    {"ruc": ruc}
+                )
+            }
+        });
+
+        $("#{{ form.personadni.auto_id }} + div button").on("click", function () {
+            if (!$("#{{ form.personadni.auto_id }}").inputmask('isComplete')) {
+                Swal.fire("Alerta!!", "Debe completar el DNI", "warning").then(function (result) {
+                    setTimeout(function () {
+                        $("#{{ form.personadni.auto_id }}").focus();
+                    }, 300);
+                });
+            } else {
+                let dni = $("#{{ form.personadni.auto_id }}").val();
+                $("#filaMnom").cargarPagina(
+                    "post",
+                    "{% url 'apptra:distribuidor_consulta_dni' %}",
+                    $("#modal-principal-centro .modal-content"),
+                    "Consultando...",
+                    {"dni": dni}
+                )
+            }
+        });
+
+        $("#{{ form.id }} input[name={{ form.tipo.name }}]:checked").first().trigger("change");
+
+        $("#{{ form.id }}").on("change", "#{{ form.personajuridica.auto_id }}", function (e) {
+            if ($(this).val()) {
+                let pjSel = $(this).select2('data')[0];
+                $("#{{ form.personajuridicaruc.auto_id }}").val(pjSel.ruc);
+            }
+        });
+        $("#{{ form.id }}").on("change", "#{{ form.persona.auto_id }}", function (e) {
+            if ($(this).val()) {
+                let perSel = $(this).select2('data')[0];
+                $("#{{ form.personadni.auto_id }}").val(perSel.dni);
+            }
+        });
+    </script>
+{% endblock modalScriptPost %}

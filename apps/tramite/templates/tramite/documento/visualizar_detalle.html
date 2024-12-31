@@ -1,0 +1,84 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% if destino %}
+    {% setvar "documento" destino.documento %}
+    {% setvar "expedientenro" destino.expedientenro %}
+    {% seturl 'doc_url' 'apptra:documento_descargar' destino.documento.pk destino.pk %}
+{% else %}
+    {% setvar "expedientenro" documento.expedientenro %}
+    {% seturl 'doc_url' 'apptra:documento_descargar' documento.pk %}
+{% endif %}
+<div class="timeline-item docs-item px-3 py-2 rounded mb-2 puntero bg-hover-primary-o-40 d-webkit
+{% if documento.ultimoestado.estado == "AN" %}bg-danger-stripe{% endif %}" data-href="{{ doc_url }}">
+    <div class="timeline-labels w-75px text-dark-65">
+        {% if documento.confidencial %}
+            <span class="position-absolute top-0" style="left: 40px;">
+                <i class="fas fa-lock fa-1x text-danger"></i>
+            </span>
+        {% endif %}
+        {{ documento.estadoemitido.creado|default:documento.creado|date:'d/m/Y h:i a' }}
+        {% if documento.ultimoestado.estado == "AN" %}
+            <div class="mt-1">
+            <span class="label label-danger label-pill label-inline px-2 py-1">
+                Anulado
+            </span>
+            </div>
+        {% endif %}
+    </div>
+    <div class="timeline-badge">
+        <i class="fa fa-genderless icon-xl text-{% if primero %}primary{% else %}warning{% endif %}"></i>
+    </div>
+    <div class="font-weight-mormal timeline-content pl-3">
+        <div class="text-primary">
+            {{ documento.obtenerNumeroSiglas }}
+        </div>
+        <div>
+            <div class="d-inline-block small w-40px">Emisor :</div>
+            <strong class="mr-2">{{ documento.responsable.area.nombrecorto }}</strong>
+            {{ documento.responsable.persona.NombreCorto|default:documento.emisor.persona.NombreCorto }}
+        </div>
+        <div>
+            <div class="d-inline-block small w-40px">Destino :</div>
+            {% if destino.periodotrabajo.area.nombrecorto %}
+                <strong class="mr-2">{{ destino.periodotrabajo.area.nombrecorto }}</strong>
+            {% endif %}
+            {% if destino %}
+                {{ destino.periodotrabajo.persona.NombreCorto }}
+            {% else %}
+                {{ documento.DestinosTableroPersona }}
+            {% endif %}
+        </div>
+
+        {% if documento.anexos.exists or documento.referencias.exists %}
+            <div>
+                {% if documento.anexos.exists %}
+                    <a href="{% url 'apptra:documento_anexos' documento.pk %}"
+                       data-toggle="modal" data-target="#modal-principal-centro" data-modal-size="xl"
+                       class="btn btn-outline-success btn-sm px-2 py-1">
+                        <i class="fas fa-paperclip fa-1x"></i>
+                        <small>
+                            {{ documento.anexos.count }}
+                            anexo{{ documento.anexos.count|pluralize:"s" }}
+                        </small>
+                    </a>
+                {% endif %}
+                {% if documento.referencias.exists %}
+                    <a href="{% url 'apptra:documento_referencias' documento.pk %}"
+                       data-toggle="modal" data-target="#modal-principal-centro" data-modal-size="xl"
+                       class="btn btn-outline-warning btn-sm px-2 py-1 mr-3">
+                        <i class="fas fa-file-import fa-1x"></i>
+                        <small>
+                            {{ documento.referencias.count }}
+                            referencia{{ documento.referencias.count|pluralize:"s" }}
+                        </small>
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>

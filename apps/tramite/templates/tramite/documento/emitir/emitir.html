@@ -1,0 +1,102 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% block modalTitulo %}
+    {% if not object.pk %}
+        Elaborando Documento
+        {% if object.origentipo|default:view.kwargs.tipo == "O" %}
+            de Unidad Organizacional
+        {% else %}
+            Profesional
+        {% endif %}
+    {% else %}
+        {% if object.ultimoestado.estado in "RG,PY,PD" %}
+            {% if object.origentipo == "O" %}
+                {% if object.emisor.area == object.responsable.area %}
+                    Editando Documento de Unidad Organizacional
+                {% else %}
+                    Editando Proyecto de Documento
+                {% endif %}
+            {% else %}
+                Editando Documento Profesional
+            {% endif %}
+        {% else %}
+            Documento
+        {% endif %}
+        {% if object.expedientenro %}
+            <span class="text-black-50 ml-3">Exp:</span>
+            <span class="font-weight-bolder">{{ object.expedientenro }}</span>
+        {% endif %}
+    {% endif %}
+{% endblock modalTitulo %}
+{% block modalBodyTotal %}
+    <style>
+        .contenido-emitir-documento .dataTables_wrapper .dataTable th,
+        .contenido-emitir-documento .dataTables_wrapper .dataTable td {
+            font-size: .85rem;
+            padding: .6rem;
+        }
+    </style>
+    <div class="modal-body text-sm h-100 flex-grow-1 contenido-emitir-documento">
+        <div class="container p-0 d-flex flex-column h-100">
+            {% if object.Rechazados %}
+                    {% for rechazo in object.Rechazados|json_loads %}
+                        <div class="row bg-light-danger mb-3">
+                            <div class="col-12 mt-2"><h5 class="text-danger text-center">RECHAZADO</h5></div>
+                            <div class="col-3">
+                                <div class="form-group h-100">
+                                    <label><label for="id_arearesponsable">Por:</label></label>
+                                    <div class="bg-light border border-light-dark rounded px-3 py-2 text-left ">
+                                        {{ rechazo.persona }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group h-100">
+                                    <label><label for="id_arearesponsable">Fecha:</label></label>
+                                    <div class="bg-light border border-light-dark rounded px-3 py-2 text-left ">
+                                        {{ rechazo.fecha }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group h-100">
+                                    <label>Observación:</label>
+                                    <div class="bg-light border border-light-dark rounded px-3 py-2 text-left ">
+                                        {{ rechazo.observacion }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+            {% endif %}
+            <div id="capa-form-emitir" class="">
+                {% include "tramite/documento/emitir/emitir_form.html" %}
+            </div>
+            {% setvar 'tipo' view.kwargs.tipo %}
+            {% if not tipo %}{% setvar 'tipo' object.origentipo %}{% endif %}
+            {% if tipo in "O,P" %}
+                {% include "tramite/documento/emitir/emitir_tabs.html" %}
+            {% endif %}
+        </div>
+    </div>
+    <script>
+
+        $('#modal-principal .modal-content [rel="tooltip"]').tooltip({
+            trigger: 'hover',
+        });
+        var formdataoriginal;
+        setTimeout(function () {
+            formdataoriginal = $("#{{ form.id }}").serializeArray();
+        }, 1000);
+        {% if docdp_error %}
+            appAlert("warning", "Alerta!!", "{{ docdp_error|safe }}")
+        {% endif %}
+    </script>
+    {% include "tramite/documento/emitir/emitir_acciones.html" with formid=form.id object=form.instance %}
+{% endblock modalBodyTotal %}

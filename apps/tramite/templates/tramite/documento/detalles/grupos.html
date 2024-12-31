@@ -1,0 +1,112 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles table_tags queries %}
+{% block modalTitulo %}
+    Grupo: {{ titulo }}
+{% endblock modalTitulo %}
+{% block modalBodyTotal %}
+    <form id="{{ form.id }}" method="post" role="form" autocomplete="off">
+        <div class="modal-body text-sm">
+            <div class="container px-0">
+                {% render_table TablaDocumentoDestinoGrupo %}
+                <div class="row">
+                    {% include "campos/campoform.html" with campo=form.tipotramite numcol=4 %}
+                    {% if form.diasatencion %}
+                        {% include "campos/campoform.html" with campo=form.proveido numcol=4 %}
+                        {% include "campos/campoform.html" with campo=form.diasatencion numcol=4 %}
+                    {% else %}
+                        {% include "campos/campoform.html" with campo=form.proveido numcol=8 %}
+                    {% endif %}
+                    {% include "campos/campoform.html" with campo=form.indicacion %}
+                    {% include "campos/campoform.html" with campo=form.tieneentregafisica %}
+                    {% setvar 'claseentfis' 'd-none' %}
+                    {% if form.tieneentregafisica.value %}
+                        {% setvar 'claseentfis' '' %}
+                    {% endif %}
+                    {% include "campos/campoform.html" with campo=form.entregafisica clase=claseentfis idfila="entfissel" required=True %}
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                Cerrar
+            </button>
+            <button type="submit" class="btn btn-primary">
+                Agregar
+            </button>
+        </div>
+    </form>
+{% endblock modalBodyTotal %}
+{% block modalScriptPost %}
+    <script type="text/javascript">
+        {% if form.indicacion %}
+            $("#{{ form.indicacion.auto_id }}").on("change", function () {
+                $(this).nextAll("label").remove();
+            });
+        {% endif %}
+        {% if form.tieneentregafisica %}
+            $("#{{ form.id }} #{{ form.tieneentregafisica.auto_id }}").on(
+                "switchChange.bootstrapSwitch", function (e, state) {
+                    if (state) {
+                        $("#{{ form.id }} #entfissel").removeClass("d-none");
+                        $("#{{ form.id }} #{{ form.entregafisica.auto_id }}").attr("required", true);
+                    } else {
+                        $("#{{ form.id }} #entfissel").addClass("d-none");
+                        $("#{{ form.id }} #{{ form.entregafisica.auto_id }}").attr("required", false);
+                    }
+                }
+            );
+        {% endif %}
+
+        funcExec(function () {
+            $.formatearCampos("#{{ form.id }}");
+        });
+
+        $("#{{ form.id }}").on("submit", function (e) {
+            e.preventDefault();
+            if (table_tablaDocumentoDestinoGrupo.api().rows({selected: true}).data().length === 0) {
+                appMensaje("Alerta", "info", "Debe seleccionar al menos 01 destino", "info", "bg-info text-white");
+            } else {
+                let me = $(this);
+                let jqform = document.getElementById("{{ form.id }}");
+                if (jqform.checkValidity()) {
+                    let lista = me.serializeObject();
+                    if (lista.hasOwnProperty('tablaDocumentoDestinoGrupo_length'))
+                        delete lista["tablaDocumentoDestinoGrupo_length"];
+                    lista["tipodestinatario"] = "UO";
+                    lista["cargonombre"] = "";
+                    lista["dependenciasiglas"] = "";
+                    lista["obsnew"] = "";
+                    lista["direccionfull"] = "-";
+                    lista["proveidotexto"] = $("#{{ form.proveido.auto_id }}").select2('data')[0].text;
+                    lista["tramite"] = $("#{{ form.tipotramite.auto_id }} option:selected").text();
+                    lista["editar"] = true;
+                    lista["eliminar"] = true;
+                    table_tablaDocumentoDestinoGrupo.api().rows({selected: true}).data().each(function (datar) {
+                        let lista2 = Object.assign({}, lista);
+                        lista2["dep"] = datar[3];
+                        lista2["area"] = datar[4];
+                        lista2["periodotrabajo"] = datar[6];
+                        lista2["nombre"] = datar[5];
+                        lista2["dirigidoa"] = datar[1];
+                        lista2["cargo"] = datar[2];
+                        guardarDetalle('destinos', lista2, -1, true);
+                    });
+                    $("#documento-detalle-modal").modal("hide");
+                    appMensaje(
+                        "Correcto", "flaticon-success",
+                        "Los destinos se agregaron correctamente", "success", "bg-success"
+                    );
+                } else {
+                    appMensaje("Alerta", "info", "Complete los campos", "info", "bg-info text-white");
+                }
+            }
+            return false;
+        });
+    </script>
+{% endblock modalScriptPost %}

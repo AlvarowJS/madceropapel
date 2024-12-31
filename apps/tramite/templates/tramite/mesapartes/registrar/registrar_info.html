@@ -1,0 +1,121 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static utiles queries %}
+{% if destino.ultimoestado.observacion %}
+    <div class="bg-light-info pt-3 pb-2 mb-2">
+        <div class="divider divider-info divider-center mt-0 mb-2">
+            <div class="divider-text text-info">OBSERVACIÓN DE ENVÍO</div>
+        </div>
+        <div class="row px-3">
+            {% include "campos/info.html" with label="Creador" value=destino.ultimoestado.creador.persona.NombreCorto numcol=3 %}
+            {% include "campos/info.html" with label="Fecha" value=destino.ultimoestado.creado|date:"d/m/Y h:i a" numcol=3 %}
+            {% include "campos/info.html" with label="Observación" value=destino.ultimoestado.observacion|safe numcol=6 %}
+        </div>
+    </div>
+{% endif %}
+<div class="divider divider-primary divider-center mt-0 mb-2">
+    <div class="divider-text">REMITENTE</div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="row">
+            {% include "campos/info.html" with label=form.remitentetipo.label value=object.get_remitentetipo_display %}
+        </div>
+        {% if object.remitentetipo == 'J' %}
+            <div class="row">
+                {% if form.instance.personajuridica.tipo == "R" %}
+                    {% include "campos/info.html" with label=form.personajuridicaruc.label value=object.personajuridica.ruc numcol=4 %}
+                    {% include "campos/info.html" with label=form.personajuridica.label value=object.personajuridica.razonsocial numcol=8 %}
+                {% else %}
+                    {% include "campos/info.html" with label=form.instance.personajuridica.get_tipo_display value=object.personajuridica.razonsocial %}
+                {% endif %}
+            </div>
+        {% endif %}
+        <div class="row">
+            {% include "campos/info.html" with label=form.instance.ciudadanoemisor.tipodocumentoidentidad.nombre value=object.ciudadanoemisor.numero numcol=4 %}
+            {% include "campos/info.html" with label=form.ciudadanoemisor.label value=object.ciudadanoemisor numcol=8 %}
+        </div>
+        <div class="row">
+            {% include "campos/info.html" with label=form.ciudadanocargo.label value=object.ciudadanocargo|default:'-' numcol=8 %}
+            {% include "campos/info.html" with label=form.telefono.label value=object.telefono|default:'-' numcol=4 %}
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="row">
+            {% include "campos/info.html" with label=form.distrito.label value=object.distrito.RutaDepartamento %}
+            {% include "campos/info.html" with label=form.direccion.label value=object.direccion|default:'-' %}
+            {% include "campos/info.html" with label=form.correo.label value=object.correo|default:'-' %}
+            {#            {% include "campos/info.html" with label=form.notificar.label value=object.notificar|yesno:'SI,NO' %}#}
+        </div>
+    </div>
+</div>
+
+<div class="divider divider-primary divider-center my-2">
+    <div class="divider-text">DOCUMENTO</div>
+</div>
+<div class="row">
+    {% include "campos/info.html" with label=form.documentotipoarea.label value=object.documentotipoarea.documentotipo.nombre numcol=4 %}
+    {% include "campos/info.html" with label=form.numero.label value=object.numero numcol=2 %}
+    {% include "campos/info.html" with label=form.siglas.label value=object.siglas numcol=6 %}
+</div>
+<div class="row">
+    {% include "campos/info.html" with label=form.fecha.label value=object.fecha numcol=4 %}
+    {% include "campos/info.html" with label=form.folios.label value=object.folios numcol=2 %}
+    {% include "campos/info.html" with label="Origen" value=object.get_origentipo_display numcol=6 %}
+</div>
+<div class="row">
+    {% include "campos/info.html" with label=form.asunto.label value=object.asunto|linebreaksbr %}
+</div>
+<div class="row">
+    {% include "campos/info.html" with label=form.ciudadanotramitadordni.label value=object.ciudadanotramitador.numero|default:'-' numcol=2 %}
+    {% include "campos/info.html" with label=form.ciudadanotramitador.label value=object.ciudadanotramitador|default:'-' numcol=4 %}
+    {% include "campos/info.html" with label=form.areavirtualdestino.label value=object.areavirtualdestino|default:'-' numcol=6 %}
+</div>
+<div class="row">
+    {% include "campos/info.html" with label=form.observacion.label value=object.observacion|default:'-'|linebreaksbr %}
+</div>
+{% if destino.ultimoestado.estado == "AR" %}
+    <div class="col-12 divider divider-danger divider-center mt-0 mb-2">
+        <div class="divider-text text-danger">ARCHIVADO</div>
+    </div>
+    <div class="row">
+        {% include "campos/info.html" with label="Fecha" value=destino.ultimoestado.creado|date:"d/m/Y h:i a" numcol=4 %}
+        {% include "campos/info.html" with label="Archivado por" value=destino.ultimoestado.creador.persona.nombrecompleto numcol=8 %}
+        {% include "campos/info.html" with label="Observación" value=destino.ultimoestado.observacion|default:"-"|linebreaksbr clase='textarea-info' %}
+    </div>
+{% endif %}
+
+{% if object.archivoexterno %}
+    <div class="row">
+        {% include "campos/enlace.html" with label="Archivo Externo" value=object.archivoexterno %}
+    </div>
+{% endif %}
+{% if object.anexos.count > 0 %}
+    <table id="dt_vanexos"
+           class="table table-bordered table-hover text-break bg-white tabla-json tabla-detalles dataTable no-footer"
+           style="width: 100%;">
+        <thead class="bg-light">
+        <tr role="row">
+            <th>
+                ANEXOS
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for anexo in object.anexos|querysort:"creado" %}
+            <tr>
+                <td>
+                    <a href="{% url "apptra:documento_anexo_descargar" anexo.id %}?csrfmiddlewaretoken={{ user.auth_token.key }}"
+                       target="_blank">
+                        {{ anexo.descripcion }}
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}

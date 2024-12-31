@@ -1,0 +1,139 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% block modalTitulo %}
+    Subiendo Cargo a Planillado N° {{ object.NumeroFull }}
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% url 'apptra:mesapartes_planillado_cargo' object.pk %}
+{% endblock %}
+{% block modalBody %}
+    {% if cargook %}
+        <script type="text/javascript">
+            $("#modal-centro-scroll").modal("hide");
+            refrescarDetalle();
+        </script>
+    {% else %}
+        {% include "campos/errorform.html" %}
+        {{ form.destinos }}
+        {% include "campos/campoform.html" with campo=form.cargoarchivo numcol=12 %}
+        {% include "campos/campoform.html" with campo=form.cargofecha numcol=4 %}
+        {% include "campos/campoform.html" with campo=form.cargoobservacion numcol=8 %}
+        <div class="col-12">
+            <table class="dt-bootstrap4 table table-bordered table-hover table-striped no-footer table-light-info
+                table-responsive table-xs w-100 dataTable dtr-inline" id="dt-planillado-detalle">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th>Expediente</th>
+                    <th>Documento</th>
+                    <th>Remitente</th>
+                    <th>Destinatario</th>
+                    <th>Ubigeo</th>
+                    <th>Dirección</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for destino in destinos %}
+                    <tr data-desid="{{ destino.pk }}"
+                        class="{% if destino.pk in destinosyaplanillado %} bg-light-danger{% endif %}">
+                        <td class="w-60px dtr-control">
+                            <div class="bg-white border border-1 rounded d-flex justify-content-between">
+                                <div class="border-right pr-2 p-1">
+                                    <label class="checkbox checkbox-single checkbox-primary mb-0">
+                                        <input class="checkable" type="checkbox" name="chkdes{{ destino.pk }}"
+                                               id="chkdes{{ destino.pk }}"
+                                        {% if not destino.detallemensajeria.cargocomentario %}checked{% endif %}/>
+                                        <span></span>
+                                    </label>
+                                </div>
+                                <div class="p-1">
+                                    <a class="btn btn-xs btn-light-info btn-icon h-20px w-20px
+                                       {% if not destino.detallemensajeria.cargocomentario %}d-none{% endif %}"
+                                       id="chkdes{{ destino.pk }}cnota">
+                                        <i class="fas fa-comment-dots"></i>
+                                    </a>
+                                    <input type="hidden" id="chkdes{{ destino.pk }}nota"
+                                           name="chkdes{{ destino.pk }}nota"
+                                           value="{{ destino.detallemensajeria.cargocomentario|default:'' }}">
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ destino.expedientenro }}</td>
+                        <td>{{ destino.documentonro }}</td>
+                        <td>{{ destino.remitente }}</td>
+                        <td>{{ destino.destinatario }}</td>
+                        <td>{{ destino.ubigeo.RutaDepartamento }}</td>
+                        <td>{{ destino.direccion }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+{% endblock %}
+{% block modalPre %}validaForm{% endblock %}
+{% block modalScriptPost %}
+    <script type="text/javascript">
+        $("#dt-planillado-detalle [rel='tooltip']").tooltip({
+            trigger: 'hover',
+            placement: 'left'
+        });
+
+        $("#dt-planillado-detalle").on("click", "[id$='cnota']", function (e) {
+            let regMe = $(this);
+            let regAnot = $("#" + regMe.attr("id").replace("cnota", "nota"));
+            (async () => {
+                const {value: textAnot} = await Swal.fire({
+                    input: 'textarea',
+                    inputLabel: 'Observación',
+                    inputValue: regAnot.val() || "",
+                    inputPlaceholder: 'Ingrese la observación...',
+                    inputAttributes: {
+                        'aria-label': 'Observación'
+                    },
+                    showCancelButton: true,
+                    cancelButtonText: "Cancelar",
+                    confirmButtonText: "Aceptar",
+                    inputValidator: function (value) {
+                        if (!value) {
+                            return "Debe indicar un texto";
+                        }
+                    }
+                });
+                if (textAnot) {
+                    regAnot.val(textAnot);
+                    regAnot.parents("tr").first().removeClass("bg-danger");
+                }
+            })();
+        });
+
+        $("#dt-planillado-detalle input[type='checkbox']").on("change", function (e) {
+            let nota = $("#" + $(this).attr("name") + "cnota");
+            if ($(this).is(":checked")) {
+                nota.addClass("d-none");
+                nota.parents("tr").first().removeClass("bg-danger");
+            } else {
+                nota.removeClass("d-none").trigger("click");
+            }
+        });
+
+        function validaForm() {
+            _result = true;
+            {% for destino in destinos %}
+                if (!$("#chkdes{{ destino.pk }}").is(":checked") && !$("#chkdes{{ destino.pk }}nota").val()) {
+                    $("#dt-planillado-detalle tbody tr[data-desid={{ destino.pk }}]").addClass("bg-danger");
+                    _result = false;
+                } else {
+                    $("#dt-planillado-detalle tbody tr[data-desid={{ destino.pk }}]").removeClass("bg-danger");
+                }
+            {% endfor %}
+            return _result;
+        }
+    </script>
+{% endblock modalScriptPost %}

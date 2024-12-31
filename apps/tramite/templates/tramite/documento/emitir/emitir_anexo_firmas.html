@@ -1,0 +1,39 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% if firmas|length > 0 %}
+    {% for firma in firmas %}
+        <div class="{% if not forloop.last %}mb-2{% endif %} d-flex align-items-center">
+            <i class="{{ firma.estadoicono }} text-{{ firma.estadocolor }} w-25px"
+               rel="tooltip" title="{{ firma.estadonombre }}"></i>
+            <span rel="tooltip" title="{{ firma.areafull }}" class="ml-1">{{ firma.areasiglas }} -</span>
+            <span rel="tooltip" title="{{ firma.personafull }}" class="ml-1">{{ firma.personasiglas }} -</span>
+            <span class="ml-1">{{ firma.empleado.CargoCorto }} -</span>
+            <span class="ml-1">({{ firma.modo }})</span>
+            {% if firma.firmar %}
+                <button type="button" class="btn btn-sm btn-light-primary ml-1 px-2 py-1 font-size-xs btn-anx-fvb"
+                        data-codigo="{{ firma.id }}">
+                    <i class="fas fa-pen-nib fa-1x"></i>
+                    Firmar
+                </button>
+                <div></div>
+            {% endif %}
+        </div>
+    {% endfor %}
+    {% if firmas.first.anexo.TieneFirmas > 0 and firmas.first.anexo.documento.ultimoestado.estado in "PY" %}
+        <div class="text-center mt-2">
+            <button type="button" class="btn btn-sm btn-light-primary px-2 py-1 font-size-xs btn-anx-reset"
+                    data-codigo="{{ firmas.first.anexo.id }}" data-nombre="{{ firmas.first.anexo.descripcion|safe }}">
+                <i class="fas fa-pen-nib fa-1x fa-del"></i>
+                Quitar Firmas
+            </button>
+            <div></div>
+        </div>
+    {% endif %}
+{% else %}
+    -
+{% endif %}

@@ -1,0 +1,437 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load i18n static %}
+<script src="{% static 'plugins/jquery.fileDownload.js' %}"></script>
+<script type="text/javascript">
+    toastr.options = {
+        "closeButton": false,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": true,
+        "rtl": false,
+        "positionClass": "toast-top-right",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": 300,
+        "hideDuration": 500,
+        "timeOut": 5000,
+        "extendedTimeOut": 1000,
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    }
+
+    function humanFileSize(bytes, si = false, dp = 1) {
+        const thresh = si ? 1000 : 1024;
+        if (Math.abs(bytes) < thresh) return bytes + ' B';
+        const units = si
+            ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+            : ['KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+        let u = -1;
+        const r = 10 ** dp;
+        do {
+            bytes /= thresh;
+            ++u;
+        } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
+        return bytes.toFixed(dp) + ' ' + units[u];
+    }
+
+    function DescargarArchivo(ruta, dataAdicional, bloqueo, mensajeerror) {
+        dataPost = {"csrfmiddlewaretoken": "{{ csrf_token }}"};
+        if (dataAdicional) {
+            dataPost = Object.assign({}, dataPost, dataAdicional);
+        }
+        if (!bloqueo) bloqueo = $("body");
+        $.fileDownload(ruta, {
+            httpMethod: 'POST',
+            data: dataPost,
+            prepareCallback: function () {
+                bloqueo.block({
+                    message: "<div class='text-center mt-3'><i class='flaticon-refresh-line-arrow fa-2x fa-spin'>" +
+                        "</i></div><div class='text-center m-3 text-dark'>" +
+                        "Descargando Archivo... Un momento por favor!!!</div>",
+                    baseZ: 20, css: {
+                        width: "80%",
+                        borderRadius: "7px",
+                        border: '0',
+                    }
+                });
+            },
+            successCallback: function (url) {
+                bloqueo.unblock();
+                toastr["success"]("El archivo se descargó correctamente!!", "Correcto");
+            },
+            failCallback: function (html, url, x, y) {
+                bloqueo.unblock();
+                mensajeerror = mensajeerror || "Error al descargar el archivo!!";
+                toastr["error"](mensajeerror, "Error");
+            }
+        });
+    }
+
+    (function ($) {
+        $.fn.enviarForm = function (capa, capablock, mensaje, beforsend, nodesbloquear, aftersend) {
+            let miform = $(this);
+            capablock = capablock || capa;
+            mensaje = mensaje || "Cargando...";
+            miform.on("submit", function (event) {
+                event.preventDefault();
+                let enviar = true;
+                if (typeof beforsend == "function") {
+                    enviar = beforsend();
+                }
+                if (enviar) {
+                    let jqform = document.getElementById(miform.attr("id"));
+                    Array.from(jqform.elements).forEach((input) => {
+                        let maxs = input.getAttribute("max-size");
+                        let tipo = input.getAttribute("type");
+                        let extensions = input.getAttribute("extensions");
+                        if (tipo === "file") {
+                            if (input.files.length > 0) {
+                                if (extensions) {
+                                    let nomfile = input.files[0].name;
+                                    let typefile = input.files[0].type;
+                                    let extfile = nomfile.substring(nomfile.lastIndexOf('.') + 1).toLowerCase();
+                                    if (extensions.indexOf(extfile) === -1) {
+                                        input.setCustomValidity(
+                                            'Solo se permiten archivos con extensiones "' + extensions + '"'
+                                        );
+                                        input.parentElement.style.boxShadow = "rgba(255, 0, 0, 0.5) 0px 0px 1px 2px";
+                                        input.addEventListener("change", function (e) {
+                                            e.target.parentElement.style.boxShadow = "none";
+                                            input.setCustomValidity("");
+                                        });
+                                    }
+                                }
+                                if (maxs && input.files[0].size > maxs) {
+                                    input.setCustomValidity("El archivo no puede ser mayor a " + humanFileSize(maxs));
+                                    input.parentElement.style.boxShadow = "rgba(255, 0, 0, 0.5) 0px 0px 1px 2px";
+                                    input.addEventListener("change", function (e) {
+                                        e.target.parentElement.style.boxShadow = "none";
+                                        input.setCustomValidity("");
+                                    });
+                                }
+                            }
+                        }
+                    });
+                    if (jqform.checkValidity()) {
+                        let dataForm = new FormData(jqform);
+                        for (let [key, value] of dataForm.entries()) {
+                            let campoE = miform.find("input[name=" + key + "]");
+                            if (campoE.data("crop-image") !== undefined) {
+                                if (eval("typeof " + campoE.attr("id") + "_fileUP") !== "undefined") {
+                                    campoF = eval(campoE.attr("id") + "_fileUP");
+                                    if (campoF) {
+                                        const fd = new FormData();
+                                        fd.set('a', campoF, campoE.val().split("\\").pop());
+                                        let imageE = fd.get('a');
+                                        dataForm.set(key, imageE)
+                                    }
+                                }
+                            }
+                        }
+                        capablock.block({
+                            message: mensaje, baseZ: 20, css: {
+                                width: "80%",
+                                borderRadius: "7px",
+                                border: '0',
+                            }
+                        });
+                        $.ajax({
+                            url: miform.attr('action'),
+                            type: miform.attr('method'),
+                            data: dataForm,
+                            context: this,
+                            processData: false,
+                            contentType: false,
+                            dataType: 'html',
+                            success: function (data, status, xhr) {
+                                capa.html(data);
+                                if (typeof aftersend == "function") {
+                                    aftersend();
+                                }
+                            },
+                            error: function (data, status, xhr) {
+                                capablock.unblock();
+                            }
+                        }).done(function () {
+                        }).always(function () {
+                            if (!nodesbloquear) {
+                                capablock.unblock();
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        $.fn.blockUI2 = function (mensaje, timeout) {
+            mensaje = mensaje || "";
+            if (timeout === null) timeout = 2000;
+            $(this).block({
+                message: '<i class="flaticon-spinner-5 spin"></i>' + mensaje,
+                timeout: timeout,
+                overlayCSS: {
+                    {#backgroundColor: '#4f5163',#}
+                    opacity: 0.9,
+                    cursor: 'wait'
+                },
+                css: {
+                    border: 0,
+                    padding: 0,
+                    color: '#fff',
+                    backgroundColor: 'transparent'
+                }
+            });
+        }
+
+        $.getCookie = function (name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        $.cargarPagina = function (metodo = "post", url, bloquear, mensaje, params, headers, funcpost, nodesbloquear) {
+            if (typeof bloquear === undefined) bloquear = false;
+            if (bloquear !== false) {
+                mensaje = mensaje || "";
+                mensaje = '<span class="fa fa-spinner fa-spin fa-3x"></span><br/>' + mensaje;
+                bloquear.block({
+                    message: mensaje,
+                    baseZ: 20,
+                    css: {
+                        opacity: 0.8,
+                        width: "80%",
+                        borderRadius: "7px",
+                        border: '0',
+                    }
+                });
+            }
+            params = params || {};
+            params["csrfmiddlewaretoken"] = $.getCookie("csrftoken");
+            headers = headers || {};
+            $.ajax({
+                type: metodo,
+                url: url,
+                data: params,
+                headers: headers,
+                success: function (data, status, header) {
+                    if (funcpost) funcpost(data, status, header);
+                    else return data;
+                }
+            }).fail(function (e) {
+                Swal.fire(
+                    'Error!',
+                    'Error al cargar el contenido',
+                    'warning'
+                );
+            }).always(function () {
+                if (!nodesbloquear) {
+                    if (bloquear !== false && bloquear) bloquear.unblock();
+                }
+            });
+            return this;
+        };
+
+        $.formatearCampos = function (contenedor) {
+            $(contenedor + ' [rel="tooltip"]').tooltip({trigger: 'hover', html: true});
+            $(contenedor + ' .selectpicker').selectpicker();
+            $(contenedor + ' select.django-select2').djangoSelect2({
+                "dropdownParent": $(document.body)
+            });
+            $(contenedor + ' input[type=number]').attr("type", "text").TouchSpin();
+            $(contenedor + ' [data-switch=true]').bootstrapSwitch();
+            $(contenedor + ' [data-mask=""]').inputmask();
+            $(contenedor + ' [date-picker=""]').each(function (idx, e) {
+                $(e).parent().datepicker({
+                    rtl: KTUtil.isRTL(),
+                    todayHighlight: true,
+                    templates: KTAppArrows,
+                    format: "dd/mm/yyyy",
+                    todayBtn: "linked",
+                    language: "es",
+                    autoclose: true,
+                    toggleActive: true,
+                    clearBtn: !$(e).attr("required"),
+                    startDate: $(e).data("startdate") ? moment($(e).data("startdate")).toDate() : null,
+                    endDate: $(e).data("enddate") ? moment($(e).data("enddate")).toDate() : null
+                });
+            });
+            $(contenedor + ' [time-picker=""]').each(function (idx, e) {
+                $(e).timepicker({
+                    minuteStep: 1,
+                    {#defaultTime: '',#}
+                    showSeconds: false,
+                    showMeridian: true,
+                    snapToStep: true
+                });
+            });
+            $(contenedor + ' [datetime-picker=""]').each(function (idx, e) {
+                let dtpCtrl = $(e).parent();
+                dtpCtrl.datetimepicker({
+                    locale: 'es',
+                    format: 'DD/MM/YYYY h:mm A',
+                    useCurrent: false,
+                    useStrict: true,
+                    showToday: true,
+                    showClear: true,
+                    showClose: false,
+                    sideBySide: $(e).data("sidebyside")
+                    {#inline: true#}
+                });
+                dtpCtrl.on("show.datetimepicker", function (ele) {
+                    if ($(e).data("sidebyside")) {
+                        $($(ele.target).data("datetimepicker").widget).find(".picker-switch.accordion-toggle").hide();
+                    }
+                });
+            });
+            $(contenedor + ' [typeahead]').each(function (idx, e) {
+                $(e).parent().addClass("typeahead");
+                {#$(e).addClass("max-h-150px overflow-auto");#}
+                $(e).typeahead({
+                    hint: true,
+                    highlight: true,
+                    minLength: 1
+                }, {
+                    limit: 10,
+                    async: true,
+                    templates: {
+                        header: '<h6 class="opacity-50 py-2">Sugerencias</h6>'
+                    },
+                    source: function (query, processSync, processAsync) {
+                        return $.ajax({
+                            url: $(e).attr("typeahead"),
+                            type: 'POST',
+                            data: {query: query, csrfmiddlewaretoken: "{{ csrf_token }}"},
+                            dataType: 'json',
+                            success: function (json) {
+                                return processAsync(json);
+                            }
+                        });
+                    },
+                    display: "label"
+                });
+            });
+        }
+
+        $.fn.cargarPagina = function (metodo = "post", url, bloquear, mensaje, params, headers, funcpost, nodesbloquear) {
+            let meCP = $(this);
+            if (typeof bloquear === "undefined") bloquear = false;
+            if (bloquear !== false) {
+                mensaje = mensaje || "Cargando...";
+                mensaje = "<div class='font-11 m-1'>" + mensaje + "</div>";
+                bloquear.block({
+                    message: mensaje, baseZ: 20, css: {
+                        width: "80%",
+                        borderRadius: "7px",
+                        border: '0',
+                    }
+                });
+            }
+            params = params || {};
+            params["csrfmiddlewaretoken"] = $.getCookie("csrftoken");
+            headers = headers || {};
+            $.ajax({
+                type: metodo,
+                url: url,
+                data: params,
+                headers: headers,
+                success: function (data, status, header) {
+                    if (meCP) meCP.empty().append(data);
+                    if (funcpost) funcpost(data, status, header);
+                }
+            }).fail(function () {
+                Swal.fire(
+                    'Error!',
+                    'Error al cargar el contenido',
+                    'warning'
+                );
+            }).always(function () {
+                if (!nodesbloquear) {
+                    if (bloquear !== false) bloquear.unblock();
+                }
+            });
+            return this;
+        };
+
+        $('html').on('click', function (e) {
+            if ($(e.target).data('toggle') !== 'popover'
+                && $(e.target).parents('[data-toggle="popover"]').length === 0
+                && $(e.target).parents('.popover.in').length === 0) {
+                $('[data-toggle="popover"]').popover('hide');
+            }
+        });
+
+        $.fn.serializeObject = function () {
+            let o = {};
+            let a = this.serializeArray();
+            $.each(a, function () {
+                if (o[this.name]) {
+                    if (!o[this.name].push) {
+                        o[this.name] = [o[this.name]];
+                    }
+                    o[this.name].push(this.value);
+                } else {
+                    o[this.name] = this.value;
+                }
+            });
+            return o;
+        };
+    })(jQuery);
+
+    function daterangepicker_locale(lenguaje, formato) {
+        _result = {
+            format: formato
+        };
+        if (lenguaje === 'es') {
+            _result = Object.assign({}, _result, {
+                "separator": "/",
+                "applyLabel": "Aplicar",
+                "cancelLabel": "Limpiar",
+                "fromLabel": "Desde",
+                "toLabel": "Hasta",
+                "customRangeLabel": "Personalizado",
+                "daysOfWeek": [
+                    "Do",
+                    "Lu",
+                    "Ma",
+                    "Mi",
+                    "Ju",
+                    "Vi",
+                    "Sa"
+                ],
+                "monthNames": [
+                    "Enero",
+                    "Febrero",
+                    "Marzo",
+                    "Abril",
+                    "Mayo",
+                    "Junio",
+                    "Julio",
+                    "Agosto",
+                    "Septiembre",
+                    "Octubre",
+                    "Noviembre",
+                    "Diciembre"
+                ],
+                "firstDay": 1
+            });
+        }
+        return _result;
+    }
+</script>

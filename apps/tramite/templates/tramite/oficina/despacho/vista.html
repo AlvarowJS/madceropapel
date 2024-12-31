@@ -1,0 +1,81 @@
+{% extends "tramite/base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load table_tags %}
+{% block TramiteScriptsPre %}
+    <script type="text/javascript">
+        function tabladbDespachoO_preServerParams(aoData) {
+            aoData.push({
+                "name": "origen",
+                "value": $("#{{ FormOficinaDespacho.cbofiorigen.auto_id }}").val()
+            });
+        }
+
+        function tabladbDespachoO_rowCallback(row, data, index) {
+            if (data[10]) {
+                row.cells[0].classList.remove("dtr-control");
+                row.cells[0].innerHTML = "";
+            }
+        }
+
+        function tabladbDespachoO_afterload(settings, me) {
+            tabladbDespachoO_deselect(settings, me);
+        }
+
+        function tabladbDespachoO_select(a, b) {
+            $("#btnFirmaMasiva").attr("data-toggle", "modal").removeClass("disabled");
+            $("#btnEmisionMasiva").attr("data-toggle", "modal").removeClass("disabled");
+        }
+
+        function tabladbDespachoO_deselect(a, b) {
+            if (table_tabladbDespachoO.api().rows({selected: true}).data().length === 0) {
+                $("#btnFirmaMasiva").attr("data-toggle", null).addClass("disabled");
+                $("#btnEmisionMasiva").attr("data-toggle", null).addClass("disabled");
+            }
+        }
+    </script>
+{% endblock TramiteScriptsPre %}
+{% block TramiteContenido %}
+    <div class="col-12 px-0">
+        <div class="card card-custom gutter-b">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        {{ FormOficinaDespacho.cbofiorigen }}
+                        <script>
+                            $("#{{ FormOficinaDespacho.cbofiorigen.auto_id }}").on("change", function (e) {
+                                refrescarTabla("tabladbDespachoO");
+                            });
+                        </script>
+                    </div>
+                </div>
+                {% render_table TablaOficinaDespacho %}
+            </div>
+        </div>
+    </div>
+{% endblock TramiteContenido %}
+{% block TramiteScriptsPost %}
+    <script>
+        funcExec(function () {
+            $("#btnFirmaMasiva").attr("data-toggle", null).addClass("disabled").on("click", function (e) {
+                let idsFM = "";
+                table_tabladbDespachoO.api().rows({selected: true}).data().each(function (e) {
+                    idsFM += $(e).last()[0] + "_";
+                });
+                $(this).attr("href", "{% url 'apptra:oficina_bandeja_despacho_firmamasiva' %}" + "?ids=" + idsFM);
+            });
+
+            $("#btnEmisionMasiva").attr("data-toggle", null).addClass("disabled").on("click", function (e) {
+                let idsEM = "";
+                table_tabladbDespachoO.api().rows({selected: true}).data().each(function (e) {
+                    idsEM += $(e).last()[0] + "_";
+                });
+                $(this).attr("href", "{% url 'apptra:oficina_bandeja_despacho_emisionmasiva' %}" + "?ids=" + idsEM);
+            });
+        });
+    </script>
+{% endblock TramiteScriptsPost %}

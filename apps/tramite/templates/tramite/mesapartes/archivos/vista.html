@@ -1,0 +1,253 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static queries %}
+{% block modalTitulo %}
+    Archivo{% if doc.documentotipoarea.documentotipo.esmultiple and not doc.documentotipoarea.documentotipo.esmultipledestino and doc.forma == "I" %}s{% endif %} del
+    Expediente: {{ doc.expedientenro }}
+{% endblock modalTitulo %}
+{% block modalBodyVacio %}
+    <div class="col-12 text-center">
+        <div class="alert alert-primary">
+            {{ doc.documentonrosiglas }}
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="file-loading">
+            <input id="docarchivos" type="file" accept="application/pdf" name="docarchivos"
+                   {% if maxfiles > 1 %}multiple{% endif %}>
+        </div>
+    </div>
+{% endblock modalBodyVacio %}
+{% block modalScriptPost %}
+    <style>
+        {% if doc.documentotipoarea.documentotipo.esmultiple and not doc.documentotipoarea.documentotipo.esmultipledestino and doc.forma == "I" %}
+            .theme-explorer .explorer-frame .kv-file-content {
+                width: 60px;
+            }
+            .btn.btn-kv i {
+                padding-right: 0;
+            }
+            .progress {
+                line-height: unset;
+            }
+        {% else %}
+            .file-drop-zone,
+            .file-drop-zone .krajee-default.file-preview-frame .kv-file-content,
+            .file-drop-zone .krajee-default.file-preview-frame .kv-file-content object {
+                min-height: 380px;
+            }
+            .kv-preview-thumb {
+                width: calc(100% - 16px);
+            }
+            .kv-file-content {
+                width: 100% !important;
+            }
+        {% endif %}
+    </style>
+    <script type="text/javascript">
+        $.fn.fileinputBsVersion = '4.4.6';
+        {% if doc.documentotipoarea.documentotipo.esmultiple and not doc.documentotipoarea.documentotipo.esmultipledestino and doc.forma == "I" %}
+            var destinatarios = [
+                {% for destino in doc.des_documento|queryexclude:"ultimoestado__estado='AN'"|querysort:"pk" %}
+                    {
+                        "id": {{ destino.pk }},
+                        "nombre": "{{ forloop.counter }}. {{ destino.obtenerNombreDestinoPersona }}",
+                        "orden": -1
+                    }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ]
+            $("#docarchivos").fileinput({
+                language: "es",
+                theme: "explorer",
+                uploadUrl: "{% url 'apptra:mesapartes_registrar_archivos_subir' doc.pk %}",
+                minFileCount: {{ maxfiles }},
+                maxFileCount: {{ maxfiles }},
+                {#maxFiledescription: "This is a representative placeholder description for this image.",#}
+                {#size: 10000,#}
+                removeFromPreviewOnError: true,
+                showUpload: true,
+                previewFileIconSettings: {
+                    "pdf": "<i class='fas fa-file-pdf text-danger'></i>"
+                },
+                previewFileExtSettings: {
+                    "pdf": function (ext) {
+                        return ext.match(/(pdf)$/i);
+                    },
+                },
+                preferIconicPreview: true,
+                overwriteInitial: true,
+                previewFileIcon: '<i class="fas fa-file-pdf"></i>',
+                browseOnZoneClick: true,
+                allowedPreviewTypes: ["pdf"],
+                allowedFileExtensions: ["pdf"],
+                msgProcessing: "Cargando...",
+                uploadLabel: "Subir archivos",
+                layoutTemplates: {
+                    btnDefault: '<button type="{type}" title="{title}" rel="tooltip" ' +
+                        'class="{css} pr-3"{status} {tabIndexConfig}>{icon}</button>',
+                    btnBrowse: '<div class="{css} pr-3"{status} {tabIndexConfig}>{icon}</div>',
+                    fileIcon: '',
+                    footer: '<div class="file-details-cell">' +
+                        '<div class="explorer-dest">{destinatario}</div>' +
+                        '<div class="explorer-caption" title="{caption}">{caption}</div> ' + '{size}{progress}' +
+                        '</div>' +
+                        '<div class="file-actions-cell">{indicator} {actions}</div>',
+                },
+                initialPreviewFileType: "pdf",
+                initialPreviewAsData: true,
+                initialPreview: [{% for destino in doc.des_documento|queryexclude:"ultimoestado__estado='AN'"|querysort:"pk" %}
+                    "{% url 'apptra:mesapartes_ver_documento' destino.pk %}"{% if not forloop.last %},{% endif %}
+                {% endfor %}],
+                initialPreviewConfig: [{% for destino in doc.des_documento|queryexclude:"ultimoestado__estado='AN'"|querysort:"pk" %}
+                    {
+                        "filetype": "pdf",
+                        "type": "pdf",
+                        "description": "{{ forloop.counter }}. {{ destino.obtenerNombreDestinoPersona }}",
+                        "caption": "{{ doc.nombreDocumentoNumero }}_{{ forloop.counter }}.pdf",
+                        "size": {{ destino.documentopdf.pdf|length }},
+                        "showRemove": false,
+                        "key": {{ destino.pk }}
+                    },
+                {% endfor %}],
+                initialPreviewThumbTags: [{% for destino in doc.des_documento|queryexclude:"ultimoestado__estado='AN'"|querysort:"pk" %}
+                    {
+                        "{destinatario}": "{{ forloop.counter }}. {{ destino.obtenerNombreDestinoPersona }}",
+                    },
+                {% endfor %}],
+                fileActionSettings: {
+                    showUpload: false,
+                    showDrag: false
+                },
+                uploadExtraData: function (fileId, index) {
+                    let _result = {
+                        "csrfmiddlewaretoken": "{{ csrf_token }}"
+                    }
+                    if (fileId) {
+                        let idx = parseInt(document.getElementById("thumb-docarchivos-" + fileId).getAttribute("idx"));
+                        _result["destino"] = destinatarios[idx].id;
+                    }
+                    return _result;
+                }
+            }).on('fileloaded', function (event, file, previewId, index, reader) {
+                let prw = document.getElementById(previewId);
+                let idx = -1, pos = -1;
+                let frms = $('#docarchivos').fileinput('getFrames');
+                for (let [key, obj] of Object.entries(frms)) {
+                    if (obj.id === previewId) {
+                        idx = key;
+                        break;
+                    }
+                }
+                for (let desi = 0; desi < destinatarios.length; desi++) {
+                    if (destinatarios[desi].orden === -1) {
+                        destinatarios[desi].orden = idx;
+                        pos = desi;
+                        break
+                    }
+                }
+                prw.setAttribute("idx", String(pos));
+                let odest = prw.getElementsByClassName("explorer-dest");
+                for (let dest of odest) {
+                    dest.innerHTML = destinatarios[pos].nombre;
+                }
+            }).on('filepreremove', function (event, previewId, index) {
+                let prw = document.getElementById(previewId);
+                let idx = parseInt(prw.getAttribute("idx"));
+                destinatarios[idx].orden = -1;
+            }).on('fileclear', function (event) {
+                for (let cdest = 0; cdest < destinatarios.length; cdest++) {
+                    destinatarios[cdest].orden = -1;
+                }
+            }).on('filebatchselected', function (event, files) {
+                let frms = $('#docarchivos').fileinput('getFrames');
+                let frmtmp = document.createDocumentFragment();
+                let ptn = null;
+                for (let idxp = 0; idxp < frms.length; idxp++) {
+                    for (let idxh = 0; idxh < frms.length; idxh++) {
+                        if (!ptn) ptn = frms[idxh].parentElement;
+                        if (frms[idxh].getAttribute("idx") === String(idxp)) {
+                            frmtmp.append(frms[idxh]);
+                            break;
+                        }
+                    }
+                }
+                ptn.appendChild(frmtmp);
+            }).on("filebatchuploadcomplete", function(event, preview, config, tags, extraData) {
+                refrescar_tablaMesaPartesRegistrados();
+            });
+        {% else %}
+            $("#docarchivos").fileinput({
+                language: "es",
+                uploadUrl: "{% url 'apptra:mesapartes_registrar_archivos_subir' doc.pk %}",
+                minFileCount: {{ maxfiles }},
+                maxFileCount: {{ maxfiles }},
+                removeFromPreviewOnError: true,
+                showUpload: true,
+                previewFileIconSettings: {
+                    "pdf": "<i class='fas fa-file-pdf text-danger'></i>"
+                },
+                previewFileExtSettings: {
+                    "pdf": function (ext) {
+                        return ext.match(/(pdf)$/i);
+                    },
+                },
+                overwriteInitial: true,
+                previewFileIcon: '<i class="fas fa-file-pdf"></i>',
+                browseOnZoneClick: true,
+                allowedPreviewTypes: ["pdf"],
+                allowedFileExtensions: ["pdf"],
+                msgProcessing: "Cargando...",
+                layoutTemplates: {
+                    btnDefault: '<button type="{type}" title="{title}" rel="tooltip" ' +
+                        'class="{css} pr-3"{status} {tabIndexConfig}>{icon}</button>',
+                    btnBrowse: '<div class="{css} pr-3"{status} {tabIndexConfig}>{icon}</div>',
+                    fileIcon: '',
+                    footer: '<div class="file-details-cell">' +
+                        '<div class="explorer-caption" title="{caption}">{caption}</div> ' + '{size}{progress}' +
+                        '</div>' +
+                        '<div class="file-actions-cell">{indicator} {actions}</div>',
+                },
+                initialPreviewFileType: "pdf",
+                initialPreviewAsData: true,
+                {% if doc.documentoplantilla.contenido %}
+                    initialPreview: [
+                        "{% url 'apptra:mesapartes_ver_documento' doc.des_documento|queryexclude:"ultimoestado__estado='AN'"|queryfirst:"pk" %}"
+                    ],
+                    initialPreviewConfig: [
+                        {
+                            "filetype": "pdf",
+                            "type": "pdf",
+                            "caption": "{{ doc.nombreDocumentoNumero }}.pdf",
+                            "size": {{ doc.documentoplantilla.contenido|length }},
+                            "key": {{ doc.pk }},
+                            "showRemove": false,
+                            "extra": {
+                                "csrfmiddlewaretoken": "{{ csrf_token }}"
+                            }
+                        },
+                    ],
+                {% endif %}
+                fileActionSettings: {
+                    showZoom: false,
+                    showUpload: false,
+                    showDownload: false,
+                    showDrag: false,
+                    showRemove: false,
+                },
+                uploadExtraData: function (fileId, index) {
+                    let _result = {
+                        "csrfmiddlewaretoken": "{{ csrf_token }}"
+                    }
+                    return _result;
+                }
+            }).on("filebatchuploadcomplete", function(event, preview, config, tags, extraData) {
+                refrescar_tablaMesaPartesRegistrados();
+            });
+        {% endif %}
+    </script>
+{% endblock modalScriptPost %}

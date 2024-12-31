@@ -1,0 +1,29 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% if destino.ultimoestado.estado == "RE" %}
+    <div class="btn-doc-archivar">
+        <button type="button" data-target="#modal-principal-centro" data-toggle="modal"
+                href="{% url 'apptra:documento_archivar' destino.pk %}"
+                class="btn btn-xs btn-light-success btn-hover-success text-success btn-icon-success ml-2">
+            <i class="far fa-file-archive p-0"></i>
+            <span class="ml-1 d-none d-sm-inline-block">
+                Archivar
+            </span>
+        </button>
+    </div>
+{% elif destino.ultimoestado.estado == "AR" %}
+    <div class="btn-doc-desarchivar">
+        <button type="button" data-target="#modal-principal-centro" data-toggle="modal"
+                href="{% url 'apptra:documento_desarchivar' destino.pk %}"
+                class="btn btn-xs btn-light-success btn-hover-success text-success btn-icon-success ml-2">
+            <i class="fas fa-box-open p-0"></i>
+            <span class="ml-1 d-none d-sm-inline-block">
+                Desarchivar
+            </span>
+        </button>
+    </div>
+{% endif %}

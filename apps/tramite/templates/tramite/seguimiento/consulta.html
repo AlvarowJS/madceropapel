@@ -1,0 +1,322 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% block modalTitulo %}
+    {% if documento %}
+        Seguimiento Expediente: {{ documento.expedientenro }}
+    {% else %}
+        Error
+    {% endif %}
+{% endblock modalTitulo %}
+{% block modalScriptPre %}
+    {% if documento %}
+        <style>
+            #seguimiento-tree {
+                font-size: .82em;
+                max-height: 200px;
+                border: solid 1px #EAEAEA !important;
+                padding: 3px 3px 3px 0;
+            }
+
+            #seguimiento-detalle {
+                font-size: .85em;
+            }
+
+            #seguimiento-detalle small {
+                font-size: .9em;
+            }
+
+            .jstree-initial-node.jstree-loading.jstree-leaf.jstree-last {
+                text-align: center;
+                margin-top: 10px;
+            }
+        </style>
+    {% endif %}
+{% endblock modalScriptPre %}
+{% block modalBodyTotal %}
+    <div class="modal-body text-sm">
+        <div class="container px-0">
+            {% if documento %}
+                <div class="row px-3 mb-2">
+                    {% if not verdoc %}
+                        <div class="col-12 bg-light-danger text-danger p-2 text-center mb-3 font-weight-bolder">
+                            Consulta de Seguimiento SOLO INFORMATIVA. Los archivos no se podrán abrir.
+                        </div>
+                    {% endif %}
+                    <div id="seguimiento-tree" class="col-12 pb-3 mb-1 overflow-auto">
+                    </div>
+                    <div id="seguimiento-detalle" class="col-12 min-h-100px border border-1 rounded mt-2">
+                        <div class="row" v-show="data.documentotipo===undefined">
+                            <div class="col-12">
+                                &nbsp;
+                            </div>
+                        </div>
+                        <div class="row my-3" v-show="data.documentotipo!==undefined">
+                            <div class="col-md-6">
+                                <div class="bg-light-primary rounded text-center p-1 mb-2 font-weight-bold">REMITENTE</div>
+                                <div class="row">
+                                    {% include "tramite/seguimiento/consulta_info.html" with titulo="Origen" textov="data.origentipo" %}
+                                    {% include "tramite/seguimiento/consulta_info.html" with titulo="Expediente" textov="data.expedientenro" numcol=6 alineacion="center" %}
+                                    {% include "tramite/seguimiento/consulta_info.html" with titulo="Fecha Emisión" textov="data.documentoemision" numcol=6 alineacion="center" %}
+                                    {% include "tramite/seguimiento/consulta_info.html" with titulo="Documento" textov="data.documentotipo" %}
+                                    {% include "tramite/seguimiento/consulta_info.html" with titulo="Emisor" textov="data.emisornombre" %}
+                                    {% include "tramite/seguimiento/consulta_info.html" with titulo="Elaborado" textov="data.elaboradopor" %}
+                                    {% include "tramite/seguimiento/consulta_info.html" with titulo="Asunto" textov="data.asunto" clase="font-weight-bold" %}
+                                    {% include "tramite/seguimiento/consulta_info.html" with titulo="Estado" textov="data.estado" numcol=5 clase="font-weight-bolder" alineacion="center" %}
+                                    {% include "tramite/seguimiento/consulta_info.html" with titulo="Observación" textov="data.estadonota" show="data.estadonota" clase="bg-light-danger" %}
+                                    <div class="col-7" v-show="data.destinoest!=='AN'">
+                                        {% if verdoc %}
+                                            <div class="mt-3" v-show="data.documentourl !== ''"
+                                                :class="data.documentourl2 !== '' ? 'btn-group': ''">
+                                                <button type="button"
+                                                        class="btn btn-sm btn-light-primary py-1"
+                                                        v-on:click="verPDF(data.documentourl, data.documentotipo)">
+                                                    Abrir Documento
+                                                    <span v-html="data.documentosize"
+                                                          class="badge bg-light text-primary ml-1 px-1"
+                                                          style="font-size: .8em">
+                                                    </span>
+                                                </button>
+                                                <button type="button" v-show="data.documentourl2 !== ''"
+                                                        class="btn btn-sm btn-light-primary font-weight-bold
+                                                            dropdown-toggle dropdown-toggle-split"
+                                                        data-reference="parent"
+                                                        data-toggle="dropdown" aria-haspopup="true"
+                                                        aria-expanded="false">
+                                                    <span class="sr-only">Toggle Dropdown</span>
+                                                </button>
+                                                <div class="dropdown-menu" v-show="data.documentourl2 !== ''"
+                                                     style="box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3)">
+                                                    <a class="dropdown-item py-1" v-bind:href="data.documentourl2"
+                                                       target="_blank">
+                                                        <i class="icon-1x text-dark-75 mr-2 flaticon-download"></i>
+                                                        <span class="pt-1"
+                                                              style="font-size: .9em">Descargar Documento</span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    {% if verdoc %}
+                                        <div class="offset-md-5 col-md-7 pt-2" v-show="data.archivoexterno">
+                                            <a v-bind:href="data.archivoexterno" target="_blank"
+                                               class="btn btn-sm btn-light-secondary text-dark-65 py-1 btn-block mb-2 mb-md-2">
+                                                <i class="fas fa-external-link-alt text-dark-50 mr-1 fa-1x"></i> Abrir
+                                                Archivo Externo
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="bg-light-primary rounded text-center p-1 mb-2 mt-4 mt-md-0 font-weight-bold">DESTINO</div>
+                                <div class="row">
+                                    {% include "tramite/seguimiento/consulta_info.html" with titulo="Trámite" textov="data.destinomodo" numcol=6 %}
+                                    {% include "tramite/seguimiento/consulta_info.html" with titulo="Fecha de Re-Emisión" textov="data.destinoreemision" numcol=6 alineacion="center" %}
+                                    {% include "tramite/seguimiento/consulta_info.html" with titulov="data.destinotipo" textov="data.destinoarea + ' - ' + data.destinonombre" %}
+                                    {% include "tramite/seguimiento/consulta_info.html" with titulo="Indicaciones" textov="data.destinoindicacion" %}
+                                    {% include "tramite/seguimiento/consulta_info.html" with titulo="Entrega Física" textov="data.destinoentregafisica" %}
+                                    {% include "tramite/seguimiento/consulta_info.html" with titulo="Estado" textov="data.destinooperacionestado" numcol=6 clase="font-weight-bolder" alineacion="center" tieneinfo="data.destinoest==='AN'" %}
+                                    {% include "tramite/seguimiento/consulta_info.html" with titulov="data.destinooperacionfechatitulo" textov="data.destinooperacionfecha" numcol=6 show="data.destinooperacionfecha!=='-'" alineacion="center" %}
+                                    {% include "tramite/seguimiento/consulta_info.html" with titulov="data.destinooperaciontitulo" textov="data.destinooperacionnombre" show="data.destinooperacionfecha!=='-'" %}
+                                    {% include "tramite/seguimiento/consulta_info.html" with titulov="data.destinooperacionnotatitulo" textov="data.destinooperacionnota" show="data.destinooperacionnota!=='-'" %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2" v-show="data.documentotipo!==undefined && data.destinoest!=='AN'">
+                            <div class="col-12">
+                                <div class="bg-light-primary rounded text-center p-1 mb-2">
+                                    REFERENCIAS
+                                    <span class="badge bg-primary text-white ml-1 py-1 px-2"
+                                          v-html="data.referenciasnro"></span>
+                                </div>
+                                <div class="navi navi-bold navi-hover navi-active navi-link-rounded mb-3"
+                                     v-show="data.referenciasnro>0">
+                                    <div class="navi-item mb-1" v-for="(ref, index) in data.referencias">
+                                        <div class="row w-100 align-items-center">
+                                            <div class="col-2 col-md-1 text-primary text-center px-2"
+                                                 v-html="ref.origen">
+                                                MAD
+                                            </div>
+                                            <div class="col-10 col-md-8 small px-2 d-flex">
+                                                {% if verdoc %}
+                                                    <a class="navi-link py-1 px-2 mr-2" v-bind:href="ref.urldown"
+                                                       target="_blank" v-show="ref.origen !== 'EXT'">
+                                                        <i class="flaticon-download fa-1x"></i>
+                                                    </a>
+                                                {% endif %}
+                                                <a href="javascript:;" class="navi-link py-1 px-2"
+                                                   v-show="ref.origen !== 'EXT'"
+                                                        {% if verdoc %}
+                                                   v-on:click="verREF(ref.origen, ref.expediente, ref.expedienteemi, ref.destino)"
+                                                        {% endif %}
+                                                >
+                                                    <span v-html="ref.documento" class="small mr-2"></span>
+                                                </a>
+                                                <div class="navi-link py-1 px-2"
+                                                   v-show="ref.origen == 'EXT'">
+                                                    <span v-html="ref.documento" class="small mr-2">
+                                                    </span>
+                                                </div>
+                                                <a class='btn btn-xs btn-icon w-20px h-20px btn-primary ml-2'
+                                                   v-bind:href='ref.anexos' v-show="ref.anexos"
+                                                   title='Anexos' rel='tooltip' data-toggle='modal'
+                                                   data-target='#modal-principal-centro' data-modal-size='xl'>
+                                                    <i class='fa fas fa-paperclip' style="font-size: .8em"></i>
+                                                </a>
+                                            </div>
+                                            <div class="offset-2 offset-md-0 col-10 col-md-3 text-primary
+                                                    text-left text-md-right pl-2 pr-1"
+                                                 v-html="'EXP. ' + (ref.origen == 'EXT' ? 'EXTERNO' : ref.expediente)">
+                                                Exp. 2022-3665
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="bg-light-primary rounded text-center p-1 mb-2">
+                                    ANEXOS
+                                    <span class="badge bg-primary text-white ml-1 py-1 px-2"
+                                          v-html="data.anexosnro">
+                                    </span>
+                                </div>
+                                <div class="navi navi-bold navi-hover navi-active navi-link-rounded"
+                                     v-show="data.anexosnro>0">
+                                    <div class="navi-item mb-1" v-for="(anx, index) in data.anexos">
+                                        <div class="row w-100 align-items-center">
+                                            <div class="col-2 col-md-1 text-primary text-center px-2"
+                                                 v-html="anx.extension">
+                                                PDF
+                                            </div>
+                                            {% if verdoc %}
+                                                <div class="col-10 col-md-8">
+                                                    <a v-bind:href="anx.url" class="navi-link py-1 px-2" target="_blank" v-show="anx.url">
+                                                        <div class="small" v-html="anx.nombre"></div>
+                                                    </a>
+                                                    <div v-show="!anx.url" class="small" v-html="anx.nombre"></div>
+                                                </div>
+                                                <div class="offset-2 offset-md-0 col-10 col-md-3 text-primary
+                                                    text-left text-md-right pl-2 pr-1"
+                                                     v-html="anx.tamanio">
+                                                    80 MB
+                                                </div>
+                                            {% else %}
+                                                <div class="col-10 col-md-8">
+                                                    <div class="navi-link py-1 px-2">
+                                                        <div class="small" v-html="anx.nombre"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="offset-2 offset-md-0 col-10 col-md-3 text-primary
+                                                    text-left text-md-right pl-2 pr-1">
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                El expediente no existe
+            {% endif %}
+        </div>
+    </div>
+{% endblock modalBodyTotal %}
+{% block modalScriptPost %}
+    {% if documento %}
+        <script type="text/javascript">
+            $("#seguimiento-tree").jstree({
+                "core": {
+                    "multiple": false,
+                    "themes": {
+                        "responsive": false
+                    },
+                    "strings": {
+                        "Loading ...": "Cargando ..."
+                    },
+                    "check_callback": true,
+                    "data": {
+                        "type": "post",
+                        "data": function (node) {
+                            return {
+                                'padre': (node.id === "#" ? 0 : node.id),
+                                'modo': node.id === "#" ? '{{ modo }}' : node.original.modo,
+                                'modoreal': "{{ modoreal|default:'' }}",
+                                'modoid': {{ modoid|default:0 }},
+                                'origen': '{{ origen }}',
+                                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                                'expnro': '{{ expnro }}'
+                            };
+                        },
+                        "url": "{% url 'apptra:seguimiento_nodo' documento.pk %}"
+                    }
+                },
+                "types": {
+                    "default": {
+                        "icon": "fa fa-folder"
+                    },
+                    "file": {
+                        "icon": "fa fa-file"
+                    }
+                },
+            }).on("changed.jstree", function (e, data) {
+                if (data.node) {
+                    mostrarData(data.node);
+                }
+            }).on("loaded.jstree", function (e, data) {
+                $('#seguimiento-tree').jstree('select_node', 'SEG{{ nodoprimero }}');
+                $("#seguimiento-tree #SEG{{ nodoprimero }}")[0].scrollIntoView({
+                    behavior: 'auto',
+                    block: 'center',
+                    inline: 'center'
+                });
+            });
+
+            function mostrarData(nodo) {
+                if (!nodo.original.info) {
+                    $.cargarPagina(
+                        "post",
+                        "{% url 'apptra:seguimiento_info' 'X' 0 %}"
+                            .replace("X", nodo.original.modo)
+                            .replace("0", nodo.id.replace("SEG", "")),
+                        $("#seguimiento-detalle"),
+                        "Cargando...", {"origen": "{{ origen|default:'' }}"}, null,
+                        function (e) {
+                            nodo.original.info = e;
+                            segDetalle["data"] = e;
+                        }
+                    )
+                } else {
+                    segDetalle["data"] = nodo.original.info;
+                }
+            }
+
+            var segDetalle = {
+                "data": {}
+            };
+
+            var KTSegDetalle = new Vue({
+                el: "#seguimiento-detalle",
+                delimiters: ["{$", "$}"],
+                data: segDetalle,
+                methods: {
+                    {% if verdoc %}
+                        "verPDF": function (url, nombre) {
+                            viewPDF(url, nombre, "{{ request.user.auth_token.key }}");
+                        },
+                        "verREF": function (modo, expediente, emi, desid) {
+                            verRefPdf(modo, expediente, emi, desid);
+                        },
+                    {% endif %}
+                }
+            });
+        </script>
+    {% endif %}
+{% endblock modalScriptPost %}

@@ -1,0 +1,51 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+<form action="{% url 'apporg:dependencia_guardar' %}" method="post" id="form-dep" autocomplete="off">
+    {% csrf_token %}
+    <div class="row">
+        {% include "campos/campoform.html" with campo=form.direccion %}
+        {% include "campos/campoform.html" with campo=form.telefono numcol=4 %}
+        {% include "campos/campoform.html" with campo=form.correo numcol=4 %}
+        {% include "campos/campoform.html" with campo=form.web numcol=4 %}
+        {% include "campos/campoform.html" with campo=form.sello_firmagrc %}
+        {% include "campos/campoform.html" with campo=form.sello_firma numcol=6 %}
+        {% include "campos/campoform.html" with campo=form.sello_cargo numcol=6 %}
+        {% include "campos/campoform.html" with campo=form.sello_vistobueno numcol=6 %}
+        {% include "campos/campoform.html" with campo=form.sello_firma_adicional numcol=6 %}
+        <div class="col-12 text-center">
+            <button id="form-dep-btn" type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i>
+                Guardar
+            </button>
+        </div>
+    </div>
+</form>
+{% if save_ok %}
+    <script>
+        appMensaje("Ok", "flaticon2-check-mark", "{{ save_ok|safe }}", "success", "bg-success text-white")
+    </script>
+    {#    <div class="row mt-3">#}
+    {#        <div class="col-12">#}
+    {#            <div id="capa-alert" class="alert alert-success text-center alert-shadow">#}
+    {#                {{ save_ok|safe }}#}
+    {#            </div>#}
+    {#            <script>#}
+    {#                $("#capa-alert").fadeTo(2000, 500).slideUp(500, function () {#}
+    {#                    $("#capa-alert").slideUp(500);#}
+    {#                });#}
+    {#            </script>#}
+    {#        </div>#}
+    {#    </div>#}
+{% endif %}
+<script type="text/javascript">
+    funcExec(function () {
+        $.formatearCampos("#form-dep");
+        $("#form-dep").enviarForm(
+            $("#capa-form"), $("#capa-form"), "Guardando..."
+        );
+    });
+</script>

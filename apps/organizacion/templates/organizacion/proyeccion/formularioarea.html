@@ -1,0 +1,18 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    Agregando Trabajador para Proyección
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% url 'apporg:proyeccionarea_agregar' %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% include "campos/campoform.html" with campo=form.trabajadores %}
+    {% include "campos/errorform.html" %}
+{% endblock modalBody %}
+{% block modalPost %}refrescar_tablaProyeccionArea{% endblock modalPost %}

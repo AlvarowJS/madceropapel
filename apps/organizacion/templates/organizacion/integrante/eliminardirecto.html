@@ -1,0 +1,21 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    Quitando Integrante
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% url 'apporg:integrantedirecta_quitar' object.pk %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% include "campos/info.html" with value=object.persona.apellidocompleto label="Nombres" numcol=12 %}
+    {% include "campos/info.html" with value=object.inicio|date:"d/m/Y" label="Inicio" numcol=6 %}
+    {% include "campos/info.html" with value=object.fin|date:"d/m/Y"|default:"-" label="Fin" numcol=6 %}
+    {% include "campos/info.html" with value=object.cargo label="Cargo" %}
+    {% include "campos/errorform.html" %}
+{% endblock modalBody %}
+{% block modalPost %}refrescar_tablaIntegranteDirecta{% endblock modalPost %}

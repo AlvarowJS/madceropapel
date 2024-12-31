@@ -1,0 +1,18 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    Quitando Area de Proyección
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% url 'apporg:proyeccion_eliminar' object.pk %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% include "campos/info.html" with value=object.areaorigen.nombre label="Unidad de Organización de Proyección" %}
+    {% include "campos/errorform.html" %}
+{% endblock modalBody %}
+{% block modalPost %}refrescar_tablaProyeccion{% endblock modalPost %}

@@ -1,0 +1,30 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static %}
+<table class="footer">
+    <tr>
+        <td colspan="2"></td>
+        <td class="text-right bg-primary" style="width: 25%;">
+            <div style="display: inline-block">
+                Pág.&nbsp;<pdf:pagenumber />
+{#                &nbsp;/#}
+{#                &nbsp;<pdf:pagecount />#}
+            </div>
+{#            <div style="display: inline-block"><pdf:pagecount /></div>#}
+        </td>
+    </tr>
+    <tr class="bg-primary">
+        <td class="text-left border-top" style="width: 40%">
+            {{ documento.documentotipoarea.area.dependencia.siglas }}
+            -
+            {{ documento.documentotipoarea.area.nombrecorto }}
+        </td>
+        <td class="text-right border-top" colspan="2" style="width: 60%">
+            {{ configapp.TituloCorto }} v{{ configapp.Version }}
+        </td>
+    </tr>
+</table>

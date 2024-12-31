@@ -1,0 +1,44 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% if codigo %}
+    {% load static %}
+    <script>
+        let capaCarga{{ codigo }} = document.createElement("iframe");
+        capaCarga{{ codigo }}.id = "capaCarga{{ codigo }}";
+        capaCarga{{ codigo }}.style.height = "0%";
+        capaCarga{{ codigo }}.style.width = "0%";
+        capaCarga{{ codigo }}.style.border = "none";
+        capaCarga{{ codigo }}.style.display = "none";
+        capaCarga{{ codigo }}.src = "{{ urldown }}";
+
+        function fnSocketDocFirRecFisMasOk(data) {
+            $("#capaCarga{{ codigo }}").remove();
+            fnSocketDocFirRecFisMasOk = fnSocketDocFirRecFisMasError = undefined;
+            todoFirmado = true;
+            modalWaitMeOpera(
+                "Cargo de Recepción Física Masiva",
+                "{% static 'images/icono_check.png' %}",
+                data.mensaje,
+                500
+            );
+            $("#modal-principal-centro form .modal-footer button[type='submit']").trigger("click");
+        }
+
+        function fnSocketDocFirRecFisMasError(data) {
+            $("#capaCarga{{ codigo }}").remove();
+            fnSocketDocFirRecFisMasOk = fnSocketDocFirRecFisMasError = undefined;
+            modalWaitMeOpera(
+                "Cargo de Entrega Física Masiva",
+                "{% static 'images/icono_error.png' %}",
+                "<div>" + data.mensaje + "</div>" +
+                "<button type='button' class='btn btn-outline-primary mt-2 py-1' data-dismiss='modal'>Cerrar</button>"
+            );
+        }
+
+        document.body.appendChild(capaCarga{{ codigo }});
+    </script>
+{% endif %}

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xml:space="preserve"
+   width="36.606201mm"
+   height="36.606201mm"
+   version="1.1"
+   style="clip-rule:evenodd;fill-rule:evenodd;image-rendering:optimizeQuality;shape-rendering:geometricPrecision;text-rendering:geometricPrecision"
+   viewBox="0 0 3660.6201 3660.6201"
+   id="svg875"
+   sodipodi:docname="icono_error.svg"
+   inkscape:version="1.0.2 (e86c870879, 2021-01-15, custom)"><metadata
+   id="metadata879"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="848"
+   inkscape:window-height="480"
+   id="namedview877"
+   showgrid="false"
+   fit-margin-top="0"
+   fit-margin-left="0"
+   fit-margin-right="0"
+   fit-margin-bottom="0"
+   inkscape:zoom="0.73940797"
+   inkscape:cx="25.311875"
+   inkscape:cy="131.52227"
+   inkscape:window-x="2734"
+   inkscape:window-y="173"
+   inkscape:window-maximized="0"
+   inkscape:current-layer="svg875" />
+ <defs
+   id="defs860">
+  <style
+   type="text/css"
+   id="style858">
+   <![CDATA[
+    .fil3 {fill:#CD0000;fill-rule:nonzero}
+    .fil1 {fill:#DFE7F4;fill-rule:nonzero}
+    .fil0 {fill:#EFF4FF;fill-rule:nonzero}
+    .fil2 {fill:#FF4D4D;fill-rule:nonzero}
+   ]]>
+  </style>
+ </defs>
+ <g
+   id="Capa_x0020_1"
+   transform="translate(-9830.29,-11370.14)">
+  <metadata
+   id="CorelCorpID_0Corel-Layer" />
+  <g
+   id="_2549825587584">
+   <g
+   id="g865">
+    <path
+   class="fil0"
+   d="m 13490.91,13200.45 c 0,488.89 -190.39,948.54 -536.08,1294.23 -345.68,345.68 -805.34,536.08 -1294.23,536.08 -488.89,0 -948.54,-190.4 -1294.23,-536.08 -345.68,-345.69 -536.08,-805.34 -536.08,-1294.23 0,-488.9 190.4,-948.55 536.08,-1294.23 345.69,-345.69 805.34,-536.08 1294.23,-536.08 488.89,0 948.55,190.39 1294.23,536.08 345.69,345.68 536.08,805.33 536.08,1294.23 z"
+   id="path863" />
+   </g>
+   <path
+   class="fil1"
+   d="m 13490.91,13200.45 c 0,488.89 -190.39,948.54 -536.08,1294.23 -345.68,345.68 -805.34,536.08 -1294.23,536.08 v -3660.62 c 488.89,0 948.55,190.39 1294.23,536.08 345.69,345.69 536.08,805.34 536.08,1294.23 z"
+   id="path867" />
+   <path
+   class="fil2"
+   d="m 12474.52,13559.36 c 125.75,125.75 125.54,329.61 0,455 -125.62,125.69 -329.31,125.69 -455,0 l -358.92,-358.91 -358.91,358.91 c -125.75,125.75 -329.6,125.55 -455,0 -125.69,-125.62 -125.69,-329.31 0,-455 l 358.91,-358.91 -358.91,-358.92 c -125.74,-125.74 -125.55,-329.59 0,-455 125.62,-125.69 329.31,-125.69 455,0 l 358.91,358.91 358.92,-358.91 c 125.74,-125.74 329.6,-125.55 455,0 125.69,125.62 125.69,329.31 0,455 l -358.91,358.92 z"
+   id="path869" />
+   <path
+   class="fil3"
+   d="m 12474.52,13559.36 c 125.75,125.75 125.54,329.61 0,455 -125.62,125.69 -329.31,125.69 -455,0 l -358.92,-358.91 v -910.01 l 358.92,-358.91 c 125.74,-125.74 329.6,-125.55 455,0 125.69,125.62 125.69,329.31 0,455 l -358.91,358.92 z"
+   id="path871" />
+  </g>
+ </g>
+</svg>

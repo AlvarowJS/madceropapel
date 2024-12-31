@@ -1,0 +1,35 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% if se_puede_editar %}
+    {% setvar 'editar' True %}
+{% endif %}
+<div class="row">
+    <div class="col-12">
+        {% if not object.pk or object.ultimoestado.estado in "PY,RE" %}
+            <button type="button" class="btn btn-md btn-secondary btn-hover-primary px-3 pt-2 pb-1"s
+                    onclick='cargarFormDetalle(-1, "post", {tipodestinatario: "UO"{% if desdetramite %}, desdetramite: true{% endif %}}, "{% url 'apptra:documento_destinos' %}");'>
+                <i class="fa fa-plus fa-1x"></i>
+                Agregar
+            </button>
+        {% endif %}
+        {% include "tramite/documento/emitir/tabla.html" with object=object id="destinos" columnas="Destino|Dirigido a|Cargo|Dirección|Trámite|Proveido|" anchos="20%|20%|13%|23%|8%|9%|7%" campos="nombre|dirigidoa|cargo|direccionfull|tramite|proveidotexto|acciones" urleditar="apptra:documento_destinos" %}
+    </div>
+</div>
+<script type="text/javascript">
+    kt_tabs_data = {
+        "destinos": 0
+    }
+    {% if request.method == "GET" %}
+        {% if object.pk %}
+            dt_destinos_data.datos = {{ form.destinos.value|safe }};
+        {% endif %}
+    {% endif %}
+</script>
+{% if not object.pk or object.ultimoestado.estado in "PY,RE" %}
+    {% include 'tramite/documento/emitir/emitir_tabs_acciones.html' %}
+{% endif %}

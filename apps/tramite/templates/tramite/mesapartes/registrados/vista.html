@@ -1,0 +1,101 @@
+{% extends "tramite/base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load table_tags %}
+{% block TramiteScriptsPre %}
+    <script type="text/javascript">
+        function tablaMesaPartesRegistrados_rowCallback(row, data, index) {
+            if (!data[13]) {
+                row.cells[0].classList.remove("dtr-control");
+                row.cells[0].innerHTML = "";
+            }
+        }
+
+        function tablaMesaPartesRegistrados_afterload(settings, e) {
+            KTModosData.datos = e.api().ajax.json().modos.data;
+        }
+
+    </script>
+{% endblock TramiteScriptsPre %}
+{% block TramiteContenido %}
+    <div class="col-12 px-0">
+        <div class="card card-custom gutter-b">
+            <div class="card-body">
+                <div class="row mb-5">
+                    <div id="kt_modo_acciones" class="col-12 text-center">
+                        <div id="kt_modo_registro" class="btn-group btn-group-sm btn-group-toggle"
+                             data-toggle="buttons">
+                            <label v-for="(registro, index) in datos" class="btn btn-sm"
+                                   :class="((index === 0) ? 'active' : '') + ' btn-light-' + registro.color">
+                                <input type="radio" name="modoregistro" v-bind:value="registro.id"
+                                       v-bind:checked="(index === 0)"/>
+                                <span v-html="registro.nombre"></span>
+                                <span class="badge badge-white ml-2 badge-pill border border-primary py-1 px-2"
+                                      v-html="registro.cantidad">
+                                </span>
+                            </label>
+                        </div>
+                        <select id="FiltroUsuarios" multiple class="form-control sp w-250px w-sm-200px float-right"
+                                title="Todos">
+                            {% for pt in MesaPartesTrabajadores %}
+                                <option value="{{ pt.persona.usuario.pk }}"{% if pt.persona.usuario == user %}
+                                        selected{% endif %}>
+                                    {{ pt.persona.NombreCorto }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                {% render_table TablaMesaPartesRegistrados %}
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        var KTModosData = {"datos": []}, KTModosVue;
+
+        $("#kt_modo_acciones").on("change", "input[type=radio]", function () {
+            let valor = $(this).val();
+            refrescaRegistrados();
+        });
+
+        $("#FiltroUsuarios").selectpicker({
+            container: 'body'
+        });
+
+        $("#FiltroUsuarios").on("change", function () {
+            refrescaRegistrados();
+        });
+
+        function refrescaRegistrados() {
+            let valor = $("#kt_modo_acciones input[type=radio]:checked").val() || "P";
+            let listau = "_" + $("#FiltroUsuarios").val().join("_");
+            let urlreg = "{% url 'apptra:mesapartes_bandeja_registrados_listar' 'X' 'Y' %}";
+            urlreg = urlreg.replace("X", valor);
+            urlreg = urlreg.replace("Y", listau);
+            table_tablaMesaPartesRegistrados.api().ajax.url(urlreg).load();
+            {#table_tablaMesaPartesRegistrados.api().column(7).visible(valor === "P");#}
+            table_tablaMesaPartesRegistrados.api().column(9).visible(valor === "P");
+            table_tablaMesaPartesRegistrados.api().column(10).visible(valor === "E");
+            if (valor === "P") {
+                $("#btnEmitirMasivo").removeClass("d-none");
+            } else {
+                $("#btnEmitirMasivo").addClass("d-none");
+            }
+        }
+
+        funcExec(function () {
+            KTTableroVue = new Vue({
+                el: "#kt_modo_registro",
+                delimiters: ["{$", "$}"],
+                data: KTModosData,
+                mounted: function () {
+                    refrescaRegistrados();
+                }
+            });
+        });
+    </script>
+{% endblock TramiteContenido %}

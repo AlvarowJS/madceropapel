@@ -1,0 +1,25 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% block modalTitulo %}
+    Eliminando Planillado
+{% endblock modalTitulo %}
+{% block modalAction %}{% url 'apptra:mesapartes_planillado_eliminar' object.pk|default:0 %}{% endblock %}
+{% block modalBody %}
+    {% if anulacionok %}
+        <script type="text/javascript">
+            $("#modal-principal-centro").modal("hide");
+            $("#id_psplla").trigger("select2:selectfirst");
+        </script>
+    {% else %}
+        <div class="col-12">
+            ¿Desea Eliminar este Planillado?
+        </div>
+        {% include "campos/errorform.html" %}
+    {% endif %}
+{% endblock %}

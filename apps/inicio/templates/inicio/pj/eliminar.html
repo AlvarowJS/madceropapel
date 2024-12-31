@@ -1,0 +1,21 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    Eliminando Persona Jurídica
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% url 'appini:pj_eliminar' object.pk %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% include "campos/info.html" with value=object.ruc label="RUC" numcol=4 %}
+    {% include "campos/info.html" with value=object.razonsocial label="Razón Social" numcol=8 %}
+    {% include "campos/info.html" with value=object.pais label="País" numcol=4 %}
+    {% include "campos/info.html" with value=object.ubigeo.RutaDepartamento label="Ubigeo" numcol=8 %}
+    {% include "campos/errorform.html" %}
+{% endblock modalBody %}
+{% block modalPost %}refrescar_tablaPJ{% endblock modalPost %}

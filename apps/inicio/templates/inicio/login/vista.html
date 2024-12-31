@@ -1,0 +1,63 @@
+{% extends "webadmin/base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static %}
+{% block BaseTitulo %}
+    Iniciar Sesión
+{% endblock BaseTitulo %}
+{% block BaseBody %}
+    <style>
+        .login-signin {
+            background: rgba(255, 255, 255, 0.1)  url({% static 'media/bg/bg-blue-caxa.png' %}) center;;
+            padding: 30px 25px;
+            border-radius: 24px;
+            box-shadow: 0 10px 20px 0 rgba(5, 5, 5, .3);
+         }
+
+    </style>
+    <div class="d-flex flex-column flex-root">
+        <!--begin::Login-->
+        <div class="login login-3 login-signin-on d-flex flex-row-fluid" id="kt_login">
+            <div class="d-flex flex-center bgi-size-cover bgi-no-repeat flex-row-fluid"
+                 style="background-image: url({% static 'media/bg/bg-white.jpg' %});">
+                <div class="login-form text-center text-white p-7 position-relative overflow-hidden">
+                    <!--begin::Login Header-->
+                    <div class="d-flex flex-center mb-10">
+                        <a href="javascript:;">
+                            <img src="{% static 'images/logo_mad3.svg' %}" class="max-h-100px" alt=""/>
+                        </a>
+                    </div>
+                    <!--end::Login Header-->
+                    <!--begin::Login Sign in form-->
+                    <div class="login-signin">
+                        <div class="mb-10">
+                            <h3>Iniciar Sesión</h3>
+                            <p class="opacity-60 font-weight-bold pt-3">
+                                 Inicie sesión con su cuenta MAD o de Dominio.
+                            </p>
+                        </div>
+                        <div id="capa-login">
+                            {% include "inicio/login/formulario.html" %}
+                        </div>
+                        <div class="form-group text-right mb-1">
+                            <a href="javascript:;" id="kt_login_forgot" class="text-white">
+                                ¿Olvidaste tu contraseña?
+                            </a>
+                        </div>
+                    </div>
+                    <div class="mt-20 small text-dark-50">
+                        <img src="{% static 'images/grc_mini_dark_50.png' %}" alt="GRC" class="mb-2">
+                        <div>MAD v3.0 - Copyright © 2021 Gobierno Regional Cajamarca. Todos los derechos reservados </div>
+                        <div>Desarrollo : Dirección Regional de Transformación Digital - DRTD</div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end::Login-->
+    </div>
+{% endblock BaseBody %}

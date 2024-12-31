@@ -1,0 +1,60 @@
+{% extends "tramite/base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load table_tags %}
+{% block TramiteScriptsPre %}
+    <div id="modofiltro" class="d-none w-140px">
+        {{ FormTablaOficinaEnProyecto.cbmodo }}
+        <script>
+            $("#{{ FormTablaOficinaEnProyecto.cbmodo.auto_id }}").selectpicker({
+                container: 'body'
+            }).on("change", function (e) {
+                refrescar_tabladbEnProyectoO();
+            });
+        </script>
+    </div>
+    <script type="text/javascript">
+        function tabladbEnProyectoO_init(oSettings, json) {
+            let fM = $("#modofiltro");
+            fM.appendTo(
+                $("#tabladbEnProyectoO_wrapper .dt-buttons")
+            ).removeClass("d-none");
+        }
+
+        function tabladbEnProyectoO_preServerParams(aoData) {
+            aoData.push(
+                {
+                    "name": "modo",
+                    "value": $("#{{ FormTablaOficinaEnProyecto.cbmodo.auto_id }}").val()
+                },
+                {
+                    "name": "origen",
+                    "value": $("#{{ FormTablaOficinaEnProyecto.cbofiorigen.auto_id }}").val()
+                }
+            );
+        }
+    </script>
+{% endblock TramiteScriptsPre %}
+{% block TramiteContenido %}
+    <div class="col-12 px-0">
+        <div class="card card-custom gutter-b">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        {{ FormTablaOficinaEnProyecto.cbofiorigen }}
+                        <script>
+                            $("#{{ FormTablaOficinaEnProyecto.cbofiorigen.auto_id }}").on("change", function (e) {
+                                refrescar_tabladbEnProyectoO();
+                            });
+                        </script>
+                    </div>
+                </div>
+                {% render_table TablaOficinaEnProyecto %}
+            </div>
+        </div>
+    </div>
+{% endblock TramiteContenido %}

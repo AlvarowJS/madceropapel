@@ -1,0 +1,23 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% setvar "descargar" False %}
+{% if anx.documento.confidencial %}
+    {% if anx.creador == request.user or anx.documento.responsable.persona.usuario == request.user %}
+        {% setvar "descargar" True %}
+    {% endif %}
+{% else %}
+    {% setvar "descargar" True %}
+{% endif %}
+{% if descargar %}
+    <a href="{% url "apptra:documento_anexo_descargar" cod %}?csrfmiddlewaretoken={{ user.auth_token.key }}"
+       target="_blank">
+{% endif %}
+{{ nombre }}
+{% if descargar %}
+    </a>
+{% endif %}

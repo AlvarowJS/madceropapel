@@ -1,0 +1,393 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static utiles queries %}
+{% if not user.is_superuser %}
+    <style>
+        .form-seguimiento-mad3 .input-group .input-group input {
+            border: 1px solid var(--primary);
+            margin-right: 23px;
+        }
+    </style>
+    <div class="dropdown" id="seguimiento-expediente">
+        <!--begin::Toggle-->
+        <div class="topbar-item" data-toggle="dropdown" data-offset="10px,0px" aria-expanded="false">
+            <div class="btn btn-icon btn-clean btn-dropdown mr-1">
+                <i class="flaticon2-magnifier-tool text-primary"></i>
+            </div>
+        </div>
+        <!--end::Toggle-->
+        <!--begin::Dropdown-->
+        <div class="dropdown-menu p-0 m-0 dropdown-menu-right dropdown-menu-anim-up dropdown-menu-lg dropdown-menu-top"
+             style="position: absolute; will-change: transform; top: 0; left: 0; transform: translate3d(-292px, 65px, 0px);"
+             x-placement="bottom-end">
+            <div class="quick-search quick-search-dropdown" id="seg-exp-numero">
+                <!--begin:Form-->
+                <form id="form_seg" class="form-seguimiento-mad3" autocomplete="off">
+                    <div class="input-group">
+                        <table>
+                            <tr>
+                                <td>
+                                    <div class="w-75px mr-1">
+                                        <select name="{{ form_seg.seg_anio.name }}" class="form-control"
+                                                id="{{ form_seg.seg_anio.auto_id }}">
+                                            {% for valor, texto in form_seg.seg_anio.field.choices %}
+                                                <option value="{{ valor }}"
+                                                        {% if form_seg.seg_anio.value == valor %} selected{% endif %}>
+                                                    {{ texto }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="">{{ form_seg.seg_num }}</div>
+                                </td>
+                                <td>
+                                    <div class="">
+                                        <a class="btn btn-xs btn-primary">
+                                            <i class="fas fa-search"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </form>
+                <script>
+                    funcExec(function () {
+                        $("#form_seg #{{ form_seg.seg_num.auto_id }}").on("keypress", function (e) {
+                            if (e.keyCode === 13) {
+                                e.preventDefault();
+                                $("#form_seg a.btn").trigger("click");
+                            }
+                        });
+                        $("#form_seg").on("click", "a.btn", function () {
+                            let segAnio = $("#form_seg #{{ form_seg.seg_anio.auto_id }}").val();
+                            let segNum = $("#form_seg #{{ form_seg.seg_num.auto_id }}").val() || 0;
+                            let urlseg = "{% url 'apptra:seguimiento_exp' configapp.Dependencia 9999 8888 %}";
+                            urlseg = urlseg.replace("9999", segAnio);
+                            urlseg = urlseg.replace("8888", segNum);
+                            $.cargarPagina(
+                                "post", urlseg, $("body"), "Consultando", {"origen": "general"}, null, function (e) {
+                                    $("#modal-seguimiento .modal-content").html(e);
+                                    $("#modal-seguimiento").modal("show");
+                                }
+                            )
+                        });
+                    });
+                </script>
+                <!--end::Form-->
+            </div>
+        </div>
+        <script type="text/javascript">
+            funcExec(function () {
+                $("#seguimiento-expediente .topbar-item").on("click", function () {
+                    let metbi = $(this);
+                    setTimeout(function () {
+                        if (metbi.next().hasClass("show")) {
+                            $("#{{ form_seg.seg_num.auto_id }}").focus();
+                        }
+                    }, 250);
+                });
+            });
+        </script>
+        <!--end::Dropdown-->
+    </div>
+{% endif %}
+<div id="kt_config_menu" class="dropdown">
+    <div class="topbar-item" data-toggle="dropdown" data-offset="10px,0px">
+        <div class="btn btn-icon btn-clean btn-dropdown btn-md mr-1">
+            <i class="flaticon2-gear text-primary"></i>
+        </div>
+    </div>
+    <div class="dropdown-menu p-0 m-0 dropdown-menu-anim-up dropdown-menu-sm dropdown-menu-right w-275px dropdown-menu-top">
+        <ul class="navi navi-hover py-4">
+            {% if not user.is_superuser %}
+                {% if user.persona|periodoactual:"esjefe" or user.persona|periodoactual:"esapoyo" or user.is_staff %}
+                    <li class="navi-item">
+                        <a href="{% url 'apporg:encargatura_inicio' %}" class="navi-link menu-into">
+                            <span class="w-20px text-center mr-3"><i class="fas fa-users-cog"></i></span>
+                            <span class="navi-text">Encargaturas</span>
+                        </a>
+                    </li>
+                {% endif %}
+                {% if user.persona|periodoactual:"esjefe" or user.persona|periodoactual:"esapoyo" %}
+                    <li class="navi-item">
+                        <a href="{% url 'apporg:apoyo_inicio' %}" class="navi-link menu-into">
+                            <span class="w-20px text-center mr-3"><i class="fab fa-slideshare"></i></span>
+                            <span class="navi-text">Apoyos</span>
+                        </a>
+                    </li>
+                {% endif %}
+                {% if user.persona|periodoactual:"esjefe" or user.persona|periodoactual:"esapoyo" or user.is_staff %}
+                    <li class="navi-item active">
+                        <a href="{% url 'apporg:proyeccion_inicio' %}" class="navi-link menu-into">
+                            <span class="w-20px text-center mr-3"><i class="fas fa-handshake"></i></span>
+                            <span class="navi-text">Proyecciones</span>
+                        </a>
+                    </li>
+                {% endif %}
+                <li class="navi-item active">
+                    <a href="{% url 'apporg:comision_inicio' %}" class="navi-link menu-into">
+                        <span class="w-20px text-center mr-3"><i class="flaticon2-group"></i></span>
+                        <span class="navi-text">Comisiones</span>
+                    </a>
+                </li>
+                {% if user.persona.Encargaturas.count > 0 %}
+                    <li class="navi-item active">
+                        <a href="{% url 'apptra:misencargaturas_inicio' %}" class="navi-link menu-into">
+                            <span class="w-20px text-center mr-3"><i class="fas fa-file-signature"></i></span>
+                            <span class="navi-text">Docs por Encargatura</span>
+                        </a>
+                    </li>
+                {% endif %}
+            {% endif %}
+            {% if user.persona|periodoactual:"esmensajero" or user.persona|periodoactual:"area.mensajeria" %}
+                <li class="navi-item active">
+                    <a href="{% url 'apptra:distribuidor_inicio' %}" class="navi-link menu-into">
+                        <span class="w-20px text-center mr-3"><i class="fas fa-motorcycle"></i></span>
+                        <span class="navi-text">Distribuidores de Mensajería</span>
+                    </a>
+                </li>
+            {% endif %}
+            {% if user.is_superuser and user.persona|periodoactual:"esjefe" %}
+                {% setvar 'menuadmin' True %}
+            {% endif %}
+            {% if user.is_staff %}
+                {% setvar 'menuadmin' True %}
+            {% endif %}
+            {% if menuadmin %}
+                <li class="separador"></li>
+            {% endif %}
+            {% if user.is_superuser or user.is_staff %}
+                <li class="navi-item">
+                    <a href="{% url 'apporg:dependencia_inicio' %}" class="navi-link menu-into">
+                        <span class="w-20px text-center mr-3"><i class="fa fa-university"></i></span>
+                        <span class="navi-text">Mi Dependencia</span>
+                    </a>
+                </li>
+                <li class="navi-item">
+                    <a href="{% url 'apporg:area_inicio' %}" class="navi-link menu-into">
+                        <span class="w-20px text-center mr-3"><i class="fa fa-sitemap"></i></span>
+                        <span class="navi-text">Unidades Organizacionales</span>
+                    </a>
+                </li>
+                <li class="navi-item active">
+                    <a href="{% url 'apporg:documentotipoarea_inicio' %}" class="navi-link menu-into">
+                        <span class="w-20px text-center mr-3"><i class="far fa-copy"></i></span>
+                        <span class="navi-text">Tipos de Documento por UO</span>
+                    </a>
+                </li>
+                <li class="navi-item active">
+                    <a href="{% url 'apptra:correlativo_inicio' %}" class="navi-link menu-into">
+                        <span class="w-20px text-center mr-3"><i class="fas fa-sort-numeric-down"></i></span>
+                        <span class="navi-text">Correlativos</span>
+                    </a>
+                </li>
+                <li class="navi-item">
+                    <a href="{% url 'apporg:trabajador_inicio' %}" class="navi-link menu-into">
+                        <span class="w-20px text-center mr-3"><i class="fa fa-users"></i></span>
+                        <span class="navi-text">Trabajadores</span>
+                    </a>
+                </li>
+                <li class="navi-item active">
+                    <a href="{% url 'appini:adm_persona' %}" class="navi-link menu-into">
+                        <span class="w-20px text-center mr-3"><i class="far fa-user"></i></span>
+                        <span class="navi-text">Personas</span>
+                    </a>
+                </li>
+                <li class="navi-item active">
+                    <a href="{% url 'appini:pj_vista' %}" class="navi-link menu-into">
+                        <span class="w-20px text-center mr-3"><i class="fas fa-building"></i></span>
+                        <span class="navi-text">Personas Jurídicas</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+{#{% endif %}#}
+{% if user.persona %}
+    <div class="topbar-item">
+        <div class="topbar-item">
+            <a class="btn btn-clean btn-icon h-35px w-auto px-2 mr-2 text-dark-75" rel="tooltip"
+               data-html="true" data-placement="bottom" id="kt_area_change"
+               data-area-change-url="{% url 'appini:area_change' %}"
+               title="<div>{{ user.persona|periodoactual:"area.dependencia.nombre" }}
+                </div><div class='bg-light mt-1 py-1 px-2'>{{ user.persona|periodoactual:"area.nombre" }}</div>">
+                <span>
+                    {{ user.persona|periodoactual:"area.siglas" }}
+                    {% if user.persona|periodoactual:"tipo" in "EN,EP" %}
+                        <div class="small text-primary">
+                            ENCARGADO
+                        </div>
+                    {% elif user.persona|periodoactual:"tipo" == "AP" or user.persona|periodoactual:"esapoyo" %}
+                        <div class="small text-success">
+                            APOYO
+                        </div>
+                    {% endif %}
+                </span>
+                <div id="kt_area_change_result" class="d-none"></div>
+                <script type="text/javascript">
+                    funcExec(function () {
+                        $("#kt_area_change").on("click", function () {
+                            $("#kt_area_change_result").cargarPagina(
+                                "get",
+                                $(this).data("area-change-url"),
+                                $("#kt_area_change"), " "
+                            );
+                        });
+                    });
+                </script>
+            </a>
+        </div>
+        <!--end::Dropdown-->
+    </div>
+{% endif %}
+<div class="topbar-item">
+    <div class="topbar-item" data-toggle="dropdown" data-offset="0px,0px">
+        <div class="btn btn-outline-light btn-icon h-40px w-auto px-2 btn-dropdown symbol-user"
+             style="border-color: transparent">
+            <div class="d-flex flex-column align-items-end mr-2">
+                <small>{{ user.persona.NombreCorto|default:'' }}</small>
+                <span class="font-weight-bold mr-0" style="font-size: 0.95em;">{{ user.username }}</span>
+            </div>
+            <i class="kt_user_status fas fa-user-circle fa-2x text-danger"></i>
+        </div>
+    </div>
+    <!--end::Toggle-->
+    <!--begin::Dropdown-->
+    <div class="dropdown-menu p-0 m-0 dropdown-menu-right dropdown-menu-anim-up dropdown-menu-lg p-0 dropdown-menu-top">
+        <!--begin::Header-->
+        <div class="d-flex align-items-center px-5 pt-5 pb-2 rounded-top">
+            <!--begin::Symbol-->
+            <div class="img-usuario symbol symbol-md bg-light-primary mr-3 flex-shrink-0">
+                {% if user.persona.fotografia %}
+                    <img src="data:image;base64,{{ user.persona.fotografia|bin_2_img }}" alt="foto"/>
+                {% else %}
+                    <i class="icon-3x la la-user text-primary"></i>
+                {% endif %}
+            </div>
+            <!--end::Symbol-->
+            <!--begin::Text-->
+            <div>
+                <div class="text-dark m-0 flex-grow-1 font-size-h6" style="font-size: .9em">
+                    {{ user.persona.nombrecompleto|default:user.username }}
+                </div>
+                <div class="small font-weight-bold">{{ user.persona|periodoactual:"Cargo()" }}</div>
+                <div class="small">{{ user.persona|periodoactual:"area.nombre" }}</div>
+            </div>
+            {#            											<span class="label label-light-success label-lg font-weight-bold label-inline">3 messages</span>#}
+            <!--end::Text-->
+        </div>
+        {% if user.persona.personaconfiguracion.certificadovencimiento %}
+            <a href="javascript:certificadoVencimiento();">
+                <div class="px-5 py-2 bg-light-{{ user.persona.personaconfiguracion.CertificadoVencimientoColor }}">
+                    <label class="text-dark-50 small mb-0">Caducidad del Certificado Digital</label>
+                    <div>
+                        {{ user.persona.personaconfiguracion.certificadovencimiento|date:'d \d\e F \d\e Y' }}
+                        {% if user.persona.personaconfiguracion.CertificadoVencimientoDias < 0 %}
+                            <span class="label label-sm label-danger label-pill label-inline ml-2 small">
+                                Hace {{ user.persona.personaconfiguracion.CertificadoVencimientoDias|absoluto }} días
+                            </span>
+                        {% elif user.persona.personaconfiguracion.CertificadoVencimientoDias < configapp.TramiteCertificado.vencimiento %}
+                            <span class="label label-sm label-warning label-pill label-inline ml-2 small">
+                                Quedan {{ user.persona.personaconfiguracion.CertificadoVencimientoDias }} días
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+        {% endif %}
+        <div class="separator separator-solid"></div>
+        <!--end::Header-->
+        <!--begin::Nav-->
+        <div class="navi navi-spacer-x-0 pt-2">
+            <!--begin::Item-->
+            {#            <a href="javascript:;" class="navi-item px-5">#}
+            {#                <div class="navi-link">#}
+            {#                    <div class="navi-icon mr-2">#}
+            {#                        <i class="flaticon2-calendar-3 text-success"></i>#}
+            {#                    </div>#}
+            {#                    <div class="navi-text">#}
+            {#                        <div class="font-weight-bold">Mis Datos</div>#}
+            {#                        <div class="text-muted">Account settings and more#}
+            {#                            <span class="label label-light-danger label-inline font-weight-bold">update</span>#}
+            {#                        </div>#}
+            {#                    </div>#}
+            {#                </div>#}
+            {#            </a>#}
+            <!--end::Item-->
+            {#											<!--begin::Item-->#}
+            {#											<a href="custom/apps/user/profile-3.html" class="navi-item px-8">#}
+            {#												<div class="navi-link">#}
+            {#													<div class="navi-icon mr-2">#}
+            {#														<i class="flaticon2-mail text-warning"></i>#}
+            {#													</div>#}
+            {#													<div class="navi-text">#}
+            {#														<div class="font-weight-bold">My Messages</div>#}
+            {#														<div class="text-muted">Inbox and tasks</div>#}
+            {#													</div>#}
+            {#												</div>#}
+            {#											</a>#}
+            {#											<!--end::Item-->#}
+            {#											<!--begin::Item-->#}
+            {#											<a href="custom/apps/user/profile-2.html" class="navi-item px-8">#}
+            {#												<div class="navi-link">#}
+            {#													<div class="navi-icon mr-2">#}
+            {#														<i class="flaticon2-rocket-1 text-danger"></i>#}
+            {#													</div>#}
+            {#													<div class="navi-text">#}
+            {#														<div class="font-weight-bold">My Activities</div>#}
+            {#														<div class="text-muted">Logs and notifications</div>#}
+            {#													</div>#}
+            {#												</div>#}
+            {#											</a>#}
+            {#											<!--end::Item-->#}
+            <!--begin::Item-->
+            {% if not request.session.userfromdomain %}
+                <a id="kt_change_password" href="{% url 'appini:inicio_cambiar_password' %}" data-toggle="modal"
+                   data-target="#modal-principal-centro" class="navi-item px-5" data-modal-size="md">
+                    <div class="navi-link">
+                        <div class="navi-icon mr-1s">
+                            <i class="fas fa-key text-primary"></i>
+                        </div>
+                        <div class="navi-text">
+                            <div class="font-weight-bold">
+                                Cambiar Contraseña
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                <div class="navi-separator mt-3"></div>
+            {% endif %}
+            <!--end::Item-->
+            <!--begin::Footer-->
+            <div class="navi-footer px-4 py-3 justify-content-between ">
+                <button id="btnBloquearSesion" class="btn btn-light">
+                    <i class="fas fa-hourglass-end"></i>
+                    Bloquear
+                </button>
+                <a href="{% url 'appini:inicio_logout' %}" onclick="$('html').block({message: 'Cerrando Sesión'});"
+                   id="btnCerrarSesion" class="btn btn-light-primary font-weight-bold">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Cerrar Sesión
+                </a>
+            </div>
+            <!--end::Footer-->
+        </div>
+        <!--end::Nav-->
+    </div>
+    <!--end::Dropdown-->
+</div>
+<script>
+    funcExec(function () {
+        $("#btnBloquearSesion").on("click", function () {
+            socketMAD0.send('{"codigo": "bloquearSesion"}');
+        })
+    });
+</script>

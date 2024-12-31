@@ -1,0 +1,37 @@
+{% extends "tramite/base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load table_tags %}
+{% block TramiteContenido %}
+    <div class="col-12 px-0">
+        <div class="card card-custom gutter-b">
+            <div class="card-body">
+                {% render_table TablaOficinaEntrada %}
+            </div>
+        </div>
+    </div>
+{% endblock TramiteContenido %}
+{% block TramiteScriptsPost %}
+    <script type="text/javascript">
+        funcExec(function () {
+            $("#btnRecepcionar").on("click", function () {
+                let idsDR = "";
+                table_tabladbEntradaO.api().rows({selected: true}).data().each(function (e) {
+                    idsDR += $(e).last()[0] + "_";
+                });
+                if (idsDR.length > 0) {
+                    $(this).attr("data-target", "#modal-principal-centro").attr(
+                        "href", "{% url 'apptra:oficina_bandeja_entrada_recepcionmasiva' %}" + "?ids=" + idsDR
+                    );
+                } else {
+                    $(this).attr("data-target", null);
+                    appMensaje("Alerta!!", "flaticon-warning", "Debe seleccionar al menos 01 documento", "warning", "bg-warning text-white");
+                }
+            });
+        });
+    </script>
+{% endblock TramiteScriptsPost %}

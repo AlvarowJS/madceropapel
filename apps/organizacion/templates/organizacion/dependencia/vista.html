@@ -1,0 +1,16 @@
+{% extends "tramite/base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block TramiteContenido %}
+    <div class="col-12">
+        <div class="card card-custom gutter-b">
+            <div id="capa-form" class="card-body text-light">
+                {% include "organizacion/dependencia/formulario.html" %}
+            </div>
+        </div>
+    </div>
+{% endblock TramiteContenido %}

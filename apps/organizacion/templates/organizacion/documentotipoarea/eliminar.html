@@ -1,0 +1,18 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    Quitando Tipo de Documento
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% url 'apporg:documentotipoarea_eliminar' object.pk %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% include "campos/info.html" with value=object.documentotipo.nombre label="Tipo de Documento" %}
+    {% include "campos/errorform.html" %}
+{% endblock modalBody %}
+{% block modalPost %}refrescar_tablaDocumentoTipoArea{% endblock modalPost %}

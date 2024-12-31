@@ -1,0 +1,67 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% if expediente %}
+    <div class="col-12 mt-3">
+    <div class="card card-custom card-border shadow">
+        <div class="card-header bg-gray-100 d-block p-2 text-center" style="min-height: unset">
+            <span class="label label-outline-primary label-inline my-2">
+                Expediente {{ origen.siglas }}:
+                <strong class="ml-2">{{ expediente.expedientenro }}</strong>
+            </span>
+            <h6 class="text-center mt-2">{{ expediente.numdoc }}</h6>
+            <div class="text-center">{{ expediente.remitente }}</div>
+            <div class="small text-center text-dark-50 mt-1">
+                <span class="pr-4 border-right">Fecha Doc : {{ expediente.fechadocumento }}</span>
+                {% if expediente.folios > 0 %}
+                    <span class="pl-4">{{ expediente.folios }} folio{{ expediente.folios|pluralize:"s" }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-body p-4 text-justify max-h-275px overflow-auto">
+            {{ expediente.asunto|linebreaksbr }}
+        </div>
+        <div class="card-footer p-3 pr-4">
+            <div class="row">
+                <div class="col-4">
+                    {% if origen.tienepdf %}
+                        {% include "tramite/consulta/expedienterefpdf.html" with ori=origen.codigo nro=expediente.expedientenro emi=expediente.nuemi dest=0 %}
+                    {% endif %}
+                </div>
+                <div class="col-8 text-right">
+                    <div class="mb-0">
+                        <small class="text-muted mr-2">
+                            {{ expediente.firmatitulo }} en :
+                        </small>
+                        {{ expediente.oficina }}
+                    </div>
+                    <div class="mb-0">
+                        <small class="text-muted mr-2">
+                            {{ expediente.firmatitulo }} por :
+                        </small>
+                        {{ expediente.firma }}
+                    </div>
+                    <small>{{ expediente.cargo }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="col-12">
+        <div class="alert alert-custom alert-light-danger p-2 justify-content-center">
+            {% if mensaje %}
+                {{ mensaje|safe }}
+            {% else %}
+                No se encontró el número de expediente {{ origen }}
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+<script type="text/javascript">
+    $("#{{ ctrlnro }}").val("{{ expediente.expedientenro|default:'' }}");
+    $("#{{ ctrlemi }}").val("{{ expediente.nuemi|default:'0' }}");
+    $("#{{ ctrldes }}").val("{{ expediente.numdoc|default:'' }}");
+</script>

@@ -1,0 +1,34 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+<form class="form text-left" id="kt_login_signin_form" method="post" autocomplete="off">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger text-justify">
+            {% for error in form.non_field_errors %}
+                {{ error|safe }}
+                {% if not forloop.last %}<br>{% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    {{ form.username }}
+    {{ form.password }}
+    <div class="form-group text-center mt-10">
+        <button id="kt_login_signin_submit" type="submit"
+                class="btn btn-pill btn-outline-white font-weight-bold opacity-90 px-15 py-3">
+            INICIAR SESIÓN
+        </button>
+    </div>
+</form>
+<script>
+    funcExec(
+        function () {
+            $("#kt_login_signin_form").enviarForm(
+                $("#capa-login"), $("#kt_body"), "Validando..."
+            );
+        }
+    );
+</script>

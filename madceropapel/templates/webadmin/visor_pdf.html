@@ -1,0 +1,235 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static utiles %}
+<style>
+    #docs-lista .docs-item.active {
+        border: 1px solid var(--primary) !important;
+    }
+
+    #docs-lista .docs-item {
+        border: 1px solid transparent;
+    }
+
+    #docs-lista .docs-item h6 {
+        font-size: .9em;
+        margin-bottom: 3px;
+    }
+
+    #docs-lista .docs-item p {
+        font-size: .85em;
+    }
+
+    #docs-lista .docs-item .ribbon-target {
+        top: 5px;
+        right: -1px;
+        font-size: .75em;
+        padding: 1px 4px;
+        background-color: transparent !important;
+    }
+</style>
+<script id="modal-pdf-viewer-content" type="text/html">
+    <div class="modal-header px-3 py-1">
+        <h6 class="modal-title"></h6>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <i aria-hidden="true" class="ki ki-close"></i>
+        </button>
+    </div>
+    <div class="modal-body racing p-0" style="height: calc(100vh - 120px)">
+        <div class="row h-100 docs-contenedor" style="display: none">
+            <div id="docs-lista" class="col-4 h-100 docs-lista pr-0" style="display: none">
+                <div class="ml-5 mt-3 pr-3 overflow-auto" style="max-height: calc(100vh - 145px)">
+                    <div v-for="(registro, index) in datos"
+                         class="px-4 py-3 rounded mb-2 bg-hover-light-primary docs-item ribbon ribbon-right"
+                         v-bind:data-codigo="registro.descodigo"
+                         @click="seleccionardocumento(registro.descodigo, registro.descodigopadre)"
+                         :class="(index == 0) ? 'bg-light-primary active' : 'bg-light'">
+                        <h6 class="font-weight-bolder" v-html="registro.desnombreofi"
+                            :class="(registro.desformacodigo == '0') ? 'pr-14' : 'pr-10'"></h6>
+                        <p class="mb-0" v-html="registro.desnombreper"></p>
+                        <div class="ribbon-target"
+                             v-html="registro.desforma"
+                             :class="(registro.desformacodigo == '0') ? 'ribbon-outline-primary' : 'ribbon-outline-info'"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="modal-pdf-viewer-file-content" class="col-8 h-100 docs-visor">
+                <iframe id="modal-pdf-viewer-file" class="w-100 h-100 p-0 m-0"></iframe>
+            </div>
+        </div>
+    </div>
+</script>
+{% include "modales/bmodal.html" with modalid="modal-pdf-viewer" centrado=True modalsize="xl" modalcontent='modal-pdf-viewer-content' remove=False %}
+{% include "modales/bmodal.html" with modalid="modal-pdf-viewer-full" centrado=True modalsize="xl" modalauto=False %}
+<script type="text/javascript">
+    var KTVisorPdf;
+    var KTVisorPdfData = {
+        'datos': []
+    };
+    funcExec(function () {
+        $("#modal-pdf-viewer-full").on('hidden.bs.modal', function (e) {
+            $(this).find(".modal-content").html(`
+                <div class="modal-body racing p-3" style="height: calc(100vh - 120px)">
+                    <div class="row h-100 docs-contenedor d-flex align-items-center justify-content-center">
+                        <div class="col-12 text-center">
+                            <div><i class="fas fa-spinner fa-2x fa-spin"></i></div>
+                            <div>Cargando...</div>
+                        </div>
+                    </div>
+                </div>
+            `);
+        });
+
+        KTVisorPdf = new Vue({
+            el: '#modal-pdf-viewer #docs-lista',
+            delimiters: ['{$', '$}'],
+            data: KTVisorPdfData,
+            methods: {
+                seleccionardocumento: function (codigo, cp) {
+                    let docSel = $("#modal-pdf-viewer #docs-lista .docs-item[data-codigo=" + codigo + "]");
+                    $.cargarPagina(
+                        "get",
+                        "{% url 'apptra:documento_descargar' 0 0 %}"
+                            .replace("/0/", "/" + cp + "/")
+                            .replace("/0", "/" + codigo),
+                        $("#modal-pdf-viewer .modal-content"),
+                        '',
+                        null,
+                        {
+                            Authorization: "Token {{ user.auth_token.key }}",
+                            "Base64": true
+                        },
+                        function (e, s, h) {
+                            PDFObject.embed(
+                                "data:application/pdf;base64," + e,
+                                "#modal-pdf-viewer-file-content",
+                                PDFObjectOptions
+                            );
+                            {#$("#modal-pdf-viewer-file").attr("src", "data:application/pdf;base64," + e);#}
+                        }
+                    );
+                    docs = $("#modal-pdf-viewer #docs-lista .docs-item");
+                    docs.removeClass("bg-light-primary active").addClass("bg-light");
+                    docSel.removeClass("bg-light").addClass("bg-light-primary active");
+                }
+            },
+            updated: function (val) {
+                let docs = $("#modal-pdf-viewer #docs-lista .docs-item");
+                docs
+                    .removeClass("bg-light-primary active")
+                    .addClass("bg-light")
+                    .first().removeClass("bg-light").addClass("bg-light-primary active");
+            }
+        });
+    });
+
+    function verRefPdf(modoref, expediente, emi, desid) {
+        var urlref = "{% url 'apptra:documento_referencia_pdf' 'A' 'B' 'C' 0 %}";
+        urlref = urlref.replace("/0", "/" + desid);
+        urlref = urlref.replace("/C/", "/" + emi + "/");
+        urlref = urlref.replace("/B/", "/" + expediente + "/");
+        urlref = urlref.replace("/A/", "/" + modoref + "/");
+        viewPDF(
+            urlref,
+            "", "{{ user.auth_token.key }}",
+            null, $("#documento-detalle-modal .modal-content")
+        );
+    }
+
+    function viewPDF(url, nombre, token, elementdelete, bloquear, lista, forma) {
+        if (bloquear === undefined) bloquear = false;
+        if (window.AdobeDC === undefined) {
+            KTVisorPdfData["datos"] = lista || [];
+            $("#modal-pdf-viewer .docs-contenedor").hide();
+            $("#modal-pdf-viewer .modal-body").append(
+                '<div class="opacity-80 h-100 w-100 d-flex align-items-center justify-content-center ' +
+                'bg-white docs-loading position-absolute">' +
+                '<span class="fa fa-spinner fa-spin fa-3x"></span>' +
+                '</div>'
+            );
+            $("#modal-pdf-viewer").modal("show");
+            $.cargarPagina("get", url, bloquear, '', null, {
+                Authorization: "Token " + token,
+                "Base64": true
+            }, function (e, s, h) {
+                if (h.getResponseHeader("content-type") === "text/html") {
+                    visorHTML(e);
+                } else {
+                    let filename = h.getResponseHeader("content-disposition").split("=")[1]
+                    visorPDF(filename, e, lista);
+                    if (elementdelete) $("#" + elementdelete).slideUp();
+                }
+            });
+        } else {
+            let adobeDCView = new AdobeDC.View({
+                clientId: "{{ configapp.ACROBAT.CLIENTID }}",
+                locale: "es-ES"
+            });
+            adobeDCView.previewFile({
+                content: {location: {url: url, headers: [{key: "Authorization", value: "Token " + token}]}},
+                metaData: {fileName: nombre}
+            }, {
+                showAnnotationTools: false,
+                showLeftHandPanel: false,
+                dockPageControls: false,
+                embedMode: "LIGHT_BOX"
+                {#defaultViewMode: "FIT_WIDTH"#}
+            });
+        }
+    }
+
+    function visorPDF(filename, data64, lista) {
+        if (lista) {
+            $("#modal-pdf-viewer .docs-lista").show();
+            $("#modal-pdf-viewer .docs-visor").removeClass("col-12").addClass("col-8");
+        } else {
+            $("#modal-pdf-viewer .docs-lista").hide();
+            $("#modal-pdf-viewer .docs-visor").removeClass("col-8").addClass("col-12");
+        }
+        if (typeof filename !== "undefined") {
+            $("#modal-pdf-viewer .modal-title").html(filename);
+
+            PDFObject.embed(
+                "data:application/pdf;base64," + data64,
+                "#modal-pdf-viewer-file-content",
+                PDFObjectOptions
+            );
+            {#$("#modal-pdf-viewer-file").attr("src", "data:application/pdf;base64," + data64);#}
+
+            $("#modal-pdf-viewer .docs-contenedor").show();
+            $("#modal-pdf-viewer .docs-loading").remove();
+        }
+    }
+
+    function visorHTML(dataHTML) {
+        $("#modal-pdf-viewer .docs-lista").hide();
+        $("#modal-pdf-viewer .docs-visor").removeClass("col-8").addClass("col-12");
+        $("#modal-pdf-viewer .modal-title").html("Documento Protegido");
+        try {
+            docHtml = document.getElementById("modal-pdf-viewer-file").contentWindow.document;
+        } catch (e) {
+            $("#modal-pdf-viewer .modal-content").html($("#modal-pdf-viewer-content").html());
+            docHtml = document.getElementById("modal-pdf-viewer-file").contentWindow.document;
+            visorPDF(null, null, false);
+        }
+        docHtml.open();
+        docHtml.write(dataHTML);
+        docHtml.close();
+        $("#modal-pdf-viewer .docs-contenedor").show();
+        $("#modal-pdf-viewer .docs-loading").remove();
+    }
+
+    function base64ToBlob(b64) {
+        const byteCharacters = atob(b64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        return new Blob([byteArray], {type: 'application/pdf'});
+    }
+
+</script>

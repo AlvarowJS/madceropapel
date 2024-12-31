@@ -1,0 +1,25 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+<div id="{{ modalid }}" class="modal fade{% if lateral %} modal-lateral{% endif %}"
+        {% if not modalescape %} data-keyboard="false"{% endif %}
+     tabindex="-1" role="dialog" aria-hidden="true" {% if not autoclose %}data-backdrop="static"{% endif %}
+     aria-labelledby="{{ modalid }}" data-remove="{{ remove|default_if_none:True }}"
+     {% if modalauto %}data-auto="true"{% endif %}>
+    <div class="modal-dialog{% if lateral %} modal-dialog-slideout{% endif %}{% if centrado %}
+        modal-dialog-centered{% endif %} modal-{{ modalsize|default:'md' }}
+        {% if scroll %}modal-dialog-scrollable{% endif %}"
+         role="document">
+        <div class="modal-content"></div>
+    </div>
+</div>
+{% if modalcontent %}
+    <script type="text/javascript">
+        $("#{{ modalid }} .modal-content").html($("#{{ modalcontent }}").html());
+        {#$("#{{ modalcontent }}").html("");#}
+        {#$("#{{ modalcontent }}").remove();#}
+    </script>
+{% endif %}

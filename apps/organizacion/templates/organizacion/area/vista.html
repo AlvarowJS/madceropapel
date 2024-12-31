@@ -1,0 +1,214 @@
+{% extends "tramite/base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block TramiteContenido %}
+    <div class="row">
+        <div class="col-md-6 col-12">
+            <div class="card card-custom gutter-b">
+                <div class="card-body text-light">
+                    <fieldset class="border px-2 pt-0 pb-2 text-dark-65 mb-4 text-center">
+                        <legend class="w-auto text-dark-75 small px-2 mb-0">LEYENDA</legend>
+                        <span class="mr-5 small">
+                            <i class="fas fa-sitemap fa-1x mr-1"></i> Unidad Orgánica
+                        </span>
+                        <span class="mr-5 small">
+                            <i class="fas fa-building fa-1x mr-1"></i> Unidad Funcional
+                        </span>
+                        <span class="mr-5 small">
+                            <i class="fas fa-cubes fa-1x mr-1"></i> Unidad Rindente
+                        </span>
+                        <span class="label label-outline-primary label-sm mr-1">#</span> <spand class="small">Nivel</spand>
+                    </fieldset>
+                    <div id="lista-areas" class="tree-demo overflow-auto" style="overflow-y: hidden !important;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="area-detalle" class="col-md-6 col-12"></div>
+    </div>
+    <script type="text/javascript">
+        var nodosel = null;
+        var nodomod = null;
+        var menuLista = $('#lista-areas');
+        var nodepresel = null;
+
+        function customMenu(node) {
+            menuContext = {
+                menuRel: {
+                    label: "Refrescar",
+                    icon: "flaticon2-refresh",
+                    action: function () {
+                        nodosel = node;
+                        nodomod = "ref";
+                        recargaNodo();
+                    }
+                },
+                menuAdd: {
+                    label: "Agregar",
+                    icon: "flaticon2-plus-1",
+                    action: function () {
+                        nodosel = node;
+                        nodomod = "add";
+                        $('#modal-principal-centro').modal('changesize', 'lg').modal('show').find(
+                            '.modal-content'
+                        ).load(
+                            "{% url 'apporg:area_agregar' 0 %}".replace("/0", "/" + node.id)
+                        );
+                    }
+                },
+                menuEdt: {
+                    label: "Editar",
+                    icon: "flaticon-edit-1",
+                    action: function () {
+                        nodosel = node;
+                        nodomod = "edt";
+                        $('#modal-principal-centro').modal('changesize', 'lg').modal('show').find(
+                            '.modal-content'
+                        ).load(
+                            "{% url 'apporg:area_editar' 0 %}".replace("/0", "/" + node.id)
+                        );
+                    }
+                },
+                menuDel: {
+                    label: "Eliminar",
+                    icon: "flaticon-close",
+                    action: function () {
+                        nodosel = node;
+                        nodomod = "del";
+                        $('#modal-principal-centro').modal('changesize', 'lg').modal('show').find(
+                            '.modal-content'
+                        ).load(
+                            "{% url 'apporg:area_eliminar' 0 %}".replace("/0", "/" + node.id)
+                        );
+                    }
+                },
+                menuAct: {
+                    label: "Activar/Inactivar",
+                    icon: "fab fa-nintendo-switch",
+                    action: function () {
+                        nodosel = node;
+                        nodomod = "actina";
+                        $('#modal-principal-centro').modal('changesize', 'lg').modal('show').find(
+                            '.modal-content'
+                        ).load(
+                            "{% url 'apporg:area_activar' 0 %}".replace("/0", "/" + node.id)
+                        );
+                    }
+                }
+            }
+            if (node.parents.length === 1 || node.original.activo === "0") {
+                menuContext.menuDel = null;
+            }
+            return menuContext;
+        }
+
+        funcExec(function () {
+            menuLista.jstree({
+                "core": {
+                    "multiple": false,
+                    "themes": {
+                        "responsive": false,
+                    },
+                    "check_callback": CheckOperation,
+                    "strings": {
+                        "Loading ...": "Cargando ..."
+                    },
+                    "data": {
+                        "type": "post",
+                        "url": "{% url 'apporg:area_listar' %}",
+                        "data": function (node) {
+                            return {
+                                "parent": node.id,
+                                "csrfmiddlewaretoken": "{{ csrf_token }}"
+                            };
+                        },
+                        "success": function (result_) {
+                            for (cr = 0; cr < result_.length; cr++) {
+                                if (result_[cr].activo === "0") {
+                                    result_[cr].text = "<del class='text-muted'>" + result_[cr].text + "</del>";
+                                }
+                            }
+                            return result_;
+                        }
+                    }
+                },
+                "types": {
+                    {% for tipo in tipos %}
+                        "{{ tipo.codigo }}": {
+                            "icon": "{{ tipo.icono }} text-primary"
+                        }{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                },
+                "state": {
+                    "key": "demo3"
+                },
+                "plugins": ["contextmenu", "themes", "ui", "changed", "dnd"],
+                "contextmenu": {items: customMenu}
+            }).on("changed.jstree", function (e, data) {
+                if (data.node.id !== nodepresel) {
+                    nodepresel = data.node.id;
+                    verInfoNodo(data.node.id);
+                }
+            }).on("move_node.jstree", function (e, data) {
+                return false;
+            });
+        });
+
+        function CheckOperation(op, node, par, pos, more) {
+            if (op === "move_node") {
+                if (node.parents.length === 1) {
+                    return false;
+                } else if (more && more.core) {
+                    if (confirm('¿Desea mover la Unidad Organizacional?')) {
+                        _result = false;
+                        urlMove = "{% url 'apporg:area_mover' 0 %}".replace("0", node.id);
+                        $.ajax({
+                            type: 'post',
+                            url: urlMove,
+                            async: false,
+                            data: {
+                                csrfmiddlewaretoken: "{{ csrf_token }}",
+                                apadre: par.id,
+                                aposicion: pos
+                            },
+                            success: function (e) {
+                                _result = e.success;
+                            },
+                            error: function (e) {
+                                console.log("error", e);
+                            }
+                        });
+                        return _result;
+                    } else {
+                        return false;
+                    }
+                }
+            } else if (op === "copy_node") {
+                return false;
+            }
+            return true;
+        }
+
+        function recargaNodo() {
+            nodepresel = null;
+            if (nodomod === "del" || nodomod === "edt" || nodomod === "actina") {
+                menuLista.jstree(true).refresh_node(nodosel.parent);
+            } else {
+                menuLista.jstree(true).refresh_node(nodosel);
+                verInfoNodo(nodosel.id);
+            }
+        }
+
+        function verInfoNodo(nodo) {
+            $("#area-detalle").cargarPagina(
+                "post", "{% url 'apporg:area_detalle' 0 %}".replace("0", nodo),
+                $("#kt_body")
+            );
+        }
+
+    </script>
+{% endblock TramiteContenido %}

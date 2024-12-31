@@ -1,0 +1,48 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% if destino %}
+    {% load static %}
+    <script type="text/javascript">
+        let capaCarga{{ codigo }} = document.createElement("iframe");
+        capaCarga{{ codigo }}.id = "capaCarga{{ codigo }}";
+        capaCarga{{ codigo }}.style.height = "0%";
+        capaCarga{{ codigo }}.style.width = "0%";
+        capaCarga{{ codigo }}.style.border = "none";
+        capaCarga{{ codigo }}.style.display = "none";
+        capaCarga{{ codigo }}.src = "{{ urldown }}";
+        modalWaitMeOpera(
+            "Cargo de Recepción Físico", "{% static 'images/icono_firmagrc.png' %}", "{{ forma }}"
+        );
+
+        function fnSocketDocFirRecFisOk(data) {
+            $("#capaCarga{{ codigo }}").remove();
+            fnSocketDocFirRecFisOk = fnSocketDocFirRecFisError = undefined;
+            $("#modal-principal .modal-content").load(
+                "{% url 'apptra:documento_emitir_editar' destino.documento.pk 'dbEntrada' destino.pk %}"
+            );
+            modalWaitMeOpera(
+                "Cargo de Recepción Físico",
+                "{% static 'images/icono_check.png' %}",
+                data.mensaje,
+                1000
+            );
+        }
+
+        function fnSocketDocFirRecFisError(data) {
+            $("#capaCarga{{ codigo }}").remove();
+            fnSocketDocFirRecFisOk = fnSocketDocFirRecFisError = undefined;
+            modalWaitMeOpera(
+                "Cargo de Entrega Física",
+                "{% static 'images/icono_error.png' %}",
+                "<div>" + data.mensaje + "</div>" +
+                "<button type='button' class='btn btn-outline-primary mt-2 py-1' data-dismiss='modal'>Cerrar</button>"
+            );
+        }
+
+        document.body.appendChild(capaCarga{{ codigo }});
+    </script>
+{% endif %}

@@ -1,0 +1,254 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% block modalTitulo %}
+    Referencia
+{% endblock modalTitulo %}
+{% block modalBodyTotal %}
+    <form id="{{ form.id }}" autocomplete="off">
+        <div class="modal-body text-sm">
+            <div class="container p-0">
+                <div class="row">
+                    {{ form.codigo }}
+                    {% include "campos/campoform.html" with campo=form.origen numcol=6 %}
+                    {% include "campos/campoform.html" with campo=form.modoref numcol=6 clase="d-none" idfila="filmodo" %}
+                    {% include "campos/campoform.html" with campo=form.dependencia numcol=6 clase="d-none" idfila="fildep" %}
+                    {% include "campos/campoform.html" with campo=form.oficinasgd numcol=6 clase="d-none" idfila="filofisgd" %}
+                    {% include "campos/campoform.html" with campo=form.documentotiposgd numcol=6 clase="d-none" idfila="filtiposgd" %}
+                    {% include "campos/campoform.html" with campo=form.oficinamcp numcol=6 clase="d-none" idfila="filofimcp" %}
+                    {% include "campos/campoform.html" with campo=form.documentotipomcp numcol=6 clase="d-none" idfila="filtipomcp" %}
+                    {% include "campos/campoform.html" with campo=form.anio numcol=6 clase="d-none" idfila="filanio" %}
+                    {% include "campos/campoform.html" with campo=form.numero numcol=6 search="button" idfila="filnum" %}
+                    {% include "campos/campoform.html" with campo=form.documentoorigenmcp numcol=4 idfila="filorimcp" %}
+                    {% include "campos/campoform.html" with campo=form.documentoorigenpermcp numcol=8 idfila="filoripermcp" %}
+                    {% include "campos/campoform.html" with campo=form.refereciaexterna numcol=12 idfila="filrefext" required=True %}
+                    {{ form.expedientenro }}
+                    {{ form.expedienteemi }}
+                    {{ form.descripcion }}
+                </div>
+                <div id="filexpres" class="row">
+                    {% if form.descripcion.value and form.instance.origen.codigo != "EXT" %}
+                        <div class="col-12 mt-3">
+                            <div class="card card-custom card-border shadow">
+                                <div class="card-header bg-gray-100 d-block p-2 text-center" style="min-height: unset">
+                                    <span class="label label-outline-primary label-inline my-2">
+                                        Expediente {{ form.instance.origen }}:
+                                        <strong class="ml-2">{{ form.instance.expedientenro }}</strong>
+                                    </span>
+                                    <h6 class="text-center mt-2">{{ form.descripcion.value }}</h6>
+                                </div>
+                                {% if form.instance.origen.tienepdf %}
+                                    {% include "tramite/consulta/expedienterefpdf.html" with ori=form.instance.origen.codigo nro=form.instance.expedientenro emi=form.instance.expedienteemi dest=0 %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                Cerrar
+            </button>
+            <button type="submit" class="btn btn-primary">
+                {% if not form.instance.pk %}
+                    Agregar
+                {% else %}
+                    Actualizar
+                {% endif %}
+            </button>
+        </div>
+    </form>
+{% endblock modalBodyTotal %}
+{% block modalScriptPost %}
+    <script type="text/javascript">
+        var {{ form.id }}pv = true;
+        $("#{{ form.id }} input[name={{ form.origen.name }}]").on("change", function (e) {
+            $(this).parent().parent().nextAll("label").remove();
+            let oricod = $(this).data("codigo").toLowerCase();
+            if (parseInt($(this).data("pideanio")) === 1) $("#{{ form.id }} #filanio").removeClass("d-none");
+            else $("#{{ form.id }} #filanio").addClass("d-none");
+            if (parseInt($(this).data("pidedependencia")) === 1) $("#{{ form.id }} #fildep").removeClass("d-none");
+            else $("#{{ form.id }} #fildep").addClass("d-none");
+            if ($(this).data("codigo") === "EXT") {
+                $("#{{ form.id }} #filnum").addClass("d-none");
+                $("#{{ form.id }} #filmodo").addClass("d-none");
+                $("#{{ form.id }} [id^=filofi]").addClass("d-none");
+                $("#{{ form.id }} [id^=filori]").addClass("d-none");
+                $("#{{ form.id }} [id^=filtipo]").addClass("d-none");
+                $("#{{ form.id }} #{{ form.numero.auto_id }}").attr("required", false);
+                $("#{{ form.id }} #{{ form.refereciaexterna.auto_id }}").attr("required", true);
+                $("#{{ form.id }} #filrefext").removeClass("d-none");
+            } else {
+                $("#{{ form.id }} #{{ form.refereciaexterna.auto_id }}").attr("required", false);
+                $("#{{ form.id }} #{{ form.numero.auto_id }}").attr("required", true);
+                $("#{{ form.id }} #filrefext").addClass("d-none");
+                $("#{{ form.id }} #filnum").removeClass("d-none");
+                if (parseInt($(this).data("tienemodos")) === 1) {
+                    if ($(this).data("codigo") === "MCP") {
+                        $("#{{ form.id }} input[name={{ form.modoref.name }}][data-codigo='O']")
+                            .parent()
+                            .addClass("d-none");
+                    } else {
+                        $("#{{ form.id }} input[name={{ form.modoref.name }}][data-codigo='O']")
+                            .parent()
+                            .removeClass("d-none");
+                    }
+                    $("#{{ form.id }} #filmodo").removeClass("d-none");
+                } else {
+                    $("#{{ form.id }} #filmodo").addClass("d-none");
+                }
+                var canio = $("#{{ form.id }} #{{ form.anio.auto_id }}");
+                anioelegido = parseInt(canio.val());
+                aniomaximo = parseInt(canio.find("option:eq(0)").val());
+                aniominimo = parseInt($(this).data("anioinicio"));
+                canio.selectpicker('destroy').empty();
+                scanio = document.getElementById("{{ form.anio.auto_id }}");
+                for (anio = aniomaximo; anio >= aniominimo; anio--) {
+                    let option = document.createElement("option");
+                    option.id = option.text = anio;
+                    scanio.add(option);
+                }
+                canio.selectpicker('refresh');
+                if (anioelegido < aniominimo) {
+                    canio.val(aniominimo).trigger("change");
+                } else {
+                    canio.val(anioelegido).trigger("change");
+                }
+                if (!{{ form.id }}pv) {
+                    $("#{{ form.id }} input[name={{ form.modoref.name }}][data-codigo='E']").prop(
+                        "checked", true
+                    ).trigger("change");
+                }
+                {{ form.id }}pv = false;
+                setTimeout(function () {
+                    $("#{{ form.id }} #{{ form.numero.auto_id }}").focus();
+                }, 200);
+            }
+        });
+        $("#{{ form.id }} input[name={{ form.modoref.name }}]").on("change", function (e) {
+            let korigen = $("#{{ form.id }} input[name={{ form.origen.name }}]:checked").data("codigo").toLowerCase();
+            $("#{{ form.id }} [id^=filofi]").addClass("d-none");
+            if (parseInt($(this).data("pideoficina")) === 1) {
+                $("#{{ form.id }} #filofi" + korigen).removeClass("d-none");
+            }
+            $("#{{ form.id }} [id^=filtipo]").addClass("d-none");
+            if (parseInt($(this).data("pidetipo")) === 1) {
+                $("#{{ form.id }} #filofi" + korigen).removeClass("col-sm-12").addClass("col-sm-6");
+                $("#{{ form.id }} #filtipo" + korigen).removeClass("d-none");
+            } else {
+                $("#{{ form.id }} #filofi" + korigen).removeClass("col-sm-6").addClass("col-sm-12");
+            }
+            if (korigen === "mcp" && $(this).data("codigo") === "D") {
+                $("#{{ form.id }} #filorimcp").removeClass("d-none");
+                $("#{{ form.id }} #{{ form.documentoorigenmcp.auto_id }}").trigger("change");
+
+            } else {
+                $("#{{ form.id }} #filorimcp").addClass("d-none");
+                $("#{{ form.id }} #filoripermcp").addClass("d-none");
+            }
+        });
+        $("#{{ form.id }} #{{ form.documentoorigenmcp.auto_id }}").on("change", function () {
+            if ($(this).val() === "O") {
+                $("#{{ form.id }} #filoripermcp").addClass("d-none");
+            } else {
+                $("#{{ form.id }} #filoripermcp").removeClass("d-none");
+            }
+        });
+        $("#{{ form.id }} #{{ form.numero.auto_id }}").on("change", function (e) {
+            $(this).parent().nextAll("label").remove();
+        });
+        $("#{{ form.id }} #{{ form.oficinasgd.auto_id }}, " +
+            "#{{ form.id }} #{{ form.documentotiposgd.auto_id }}, " +
+            "#{{ form.id }} #{{ form.oficinamcp.auto_id }}, " +
+            "#{{ form.id }} #{{ form.documentotipomcp.auto_id }}").on(
+            "change", function (e) {
+                $(this).nextAll("label").remove();
+            }
+        );
+        $("#{{ form.id }} #{{ form.numero.auto_id }}_btnsearch").on("click", function (e) {
+            let parametros = $("#{{ form.id }}").serializeObject();
+            parametros["ctrlnro"] = "{{ form.expedientenro.auto_id }}";
+            parametros["ctrlemi"] = "{{ form.expedienteemi.auto_id }}";
+            parametros["ctrldes"] = "{{ form.descripcion.auto_id }}";
+            $("#filexpres").hide().cargarPagina(
+                "post", "{% url 'apptra:consulta_expediente_ref' %}", $("#documento-detalle-modal .modal-content"),
+                "Consultando...", parametros, null, function () {
+                    $("#filexpres").show();
+                }
+            );
+        });
+        {% for choice in form.origen.field.choices %}
+            {% if form.origen.value|entero == choice.0 %}
+                $("#{{ form.id }} input[name='{{ form.origen.name }}'][value='{{ choice.0 }}']").trigger("change");
+            {% endif %}
+        {% endfor %}
+        {% for choice in form.modoref.field.choices %}
+            {% if form.modoref.value|entero == choice.0 %}
+                $("#{{ form.id }} input[name='{{ form.modoref.name }}'][value='{{ choice.0 }}']").trigger("change");
+            {% endif %}
+        {% endfor %}
+        $("#{{ form.id }}").on("submit", function (e) {
+            e.preventDefault();
+            let ori = $("#{{ form.id }} input[name={{ form.origen.name }}]:checked");
+            let korigen = ori.data("codigo").toLowerCase();
+            if ($("#{{ form.id }} #{{ form.expedientenro.auto_id }}").val() === "" && korigen !== "ext") {
+                appMensaje("Alerta", "info", "Debe buscar el expediente", "info", "bg-info text-white");
+            } else {
+                let me = $(this);
+                let jqform = document.getElementById("{{ form.id }}");
+                if (jqform.checkValidity()) {
+                    let lista = me.serializeObject();
+                    let modoref = $("#{{ form.id }} input[name={{ form.modoref.name }}]:checked");
+                    lista["codigo"] = parseInt(lista["codigo"]);
+                    if (lista["codigo"] < 0) {
+                        lista["editar"] = true;
+                        lista["eliminar"] = true;
+                    }
+                    lista["origenfull"] = ori.data("text");
+                    //
+                    if (korigen === "ext") {
+                        lista["descripcionlink"] = lista["refereciaexterna"];
+                    } else {
+                        lista["descripcionlink"] = lista["descripcion"];
+                        if (parseInt(ori.data("tienepdf")) === 1) {
+                            lista["descripcionlink"] = "<a href='javascript:;' onclick=\"verRefPdf('" +
+                                ori.data("codigo") + "', '" + lista["expedientenro"] + "', '" +
+                                lista["expedienteemi"] + "', 0)\">" +
+                                lista["descripcion"] + "</a>";
+                        }
+                    }
+                    //
+                    lista["aniodesc"] = lista["anio"];
+                    if (parseInt(ori.data("pidedependencia")) === 1) {
+                        lista["origenfull"] =
+                            ori.data("text") +
+                            " - " + $("#{{ form.id }} #{{ form.dependencia.auto_id }}").select2("data")[0].depsig;
+                    }
+                    if (parseInt(ori.data("pideanio")) === 0) {
+                        lista["aniodesc"] = "-";
+                    }
+                    if (parseInt(modoref.data("pideoficina")) === 1) {
+                        lista["oficinanombre"] = $("#{{ form.id }} #id_oficina" + korigen).select2(
+                            "data"
+                        )[0].text;
+                    }
+                    if (parseInt(modoref.data("pidetipo")) === 1) {
+                        lista["documentotiponombre"] = $("#{{ form.id }} #id_documentotipo" + korigen).select2(
+                            "data"
+                        )[0].text;
+                    }
+                    guardarDetalle("referencias", lista);
+                } else {
+                    appMensaje("Alerta", "info", "Complete los campos", "info", "bg-info text-white");
+                }
+            }
+            return false;
+        });
+    </script>
+{% endblock modalScriptPost %}

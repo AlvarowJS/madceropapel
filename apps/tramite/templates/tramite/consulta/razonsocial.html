@@ -1,0 +1,14 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    Consulta Razón Social
+{% endblock modalTitulo %}
+{% block modalBodyTotal %}
+    <iframe src="{{ configapp.ConsultaRazonSocialUrl }}" width="100%" height="400px">
+    </iframe>
+{% endblock modalBodyTotal %}

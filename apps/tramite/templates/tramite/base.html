@@ -1,0 +1,21 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+<script type="text/javascript">
+    $("#kt_header_menu_wrapper_label").html("{{ tituloPagina }}");
+    $("#kt_subheader_menu_wrapper_label").html("{{ tituloPagina }}");
+</script>
+{% block TramiteScriptsPre %}
+{% endblock TramiteScriptsPre %}
+{% block TramiteContenido %}
+{% endblock %}
+<script type="text/javascript">
+    funcExec(function () {
+        $.formatearCampos("html");
+    });
+</script>
+{% block TramiteScriptsPost %}
+{% endblock TramiteScriptsPost %}

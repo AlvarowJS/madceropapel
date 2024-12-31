@@ -1,0 +1,20 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+<div class="text-center">
+    <button id="btnrefpdf" type="button" class="btn btn-icon btn-circle btn-primary m-2">
+    <i class="fa fa-file-pdf" ></i>
+</button>
+</div>
+<script type="text/javascript">
+    $("#btnrefpdf").on("click", function (e) {
+        viewPDF(
+            "{% url 'apptra:documento_referencia_pdf' ori nro emi dest %}",
+            "", "{{ user.auth_token.key }}",
+            null, $("#documento-detalle-modal .modal-content")
+        );
+    });
+</script>

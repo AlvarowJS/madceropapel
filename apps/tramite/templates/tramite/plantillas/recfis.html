@@ -1,0 +1,42 @@
+{% extends "tramite/plantillas/recfis/_base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static queries utiles %}
+{% block PlantillaTitulo %}
+    Documento de Recepción Física
+{% endblock %}
+{% block PlantillaEstilo %}
+    {% include "tramite/plantillas/recfis/_estilos.html" %}
+{% endblock PlantillaEstilo %}
+{% block PlantillaEncabezado %}
+    {% include "tramite/plantillas/recfis/_encabezado.html" %}
+{% endblock PlantillaEncabezado %}
+{% block PlantillaContenido %}
+    <h1 class="text-center text-bold text-underline">
+        CARGO DE RECEPCIÓN FÍSICA
+    </h1>
+    <p class="text-justify">
+        Yo, <span class="text-bold">{{ responsable.persona.apellidocompleto }}</span>,
+        {{ responsable.Cargo }} de la unidad organizacional
+        {{ responsable.area.nombre }} <strong>RECIBO</strong> la documentación
+        física anexa al documento: {{ destino.documento.obtenerNumeroSiglas }},
+        remitido por {{ destino.documento.Remitente|safe }}, conteniendo lo siguiente:
+    </p>
+    <p class="text-justify">
+        {{ destino.entregafisica|linebreaks }}
+    </p>
+    {% if destino.entregaimagen %}
+        <p class="text-center">
+            {% img2b64 destino.entregaimagen "600px" %}
+        </p>
+    {% endif %}
+
+    <p class="text-right" style="margin-top:.5cm">
+        {{ user.persona|periodoactual:"area.dependencia.ubigeo.provincia.nombre"|title }},
+        {% now 'd \d\e F \d\e Y' %}
+    </p>
+{% endblock PlantillaContenido %}

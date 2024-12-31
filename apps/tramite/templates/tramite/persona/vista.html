@@ -1,0 +1,39 @@
+{% extends "webadmin/base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load table_tags %}
+{% block BaseContainer %}
+    <div class="col-12 px-0">
+        <div class="card card-custom gutter-b">
+            <div class="card-body">
+                <form id="form-pdf" action="">
+                    <div class="row">
+                        <div class="col-10">
+                            {{ form.cbpersona }}
+                        </div>
+                        <div class="col-2">
+                            <button id="btn-pdf" type="button" class="btn btn-primary btn-sm">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                        <div id="capa-pdf" class="col-12">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock BaseContainer %}
+{% block BaseScriptsPost %}
+    <script>
+        $("#btn-pdf").on("click", function () {
+            $("#capa-pdf").cargarPagina(
+                "post", "{% url 'apptra:persona_pdf_vista' %}", $("#capa-pdf"), "", $("#form-pdf").serializeObject()
+            );
+        });
+    </script>
+{% endblock BaseScriptsPost %}

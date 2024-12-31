@@ -1,0 +1,36 @@
+{% extends "tramite/base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load i18n table_tags %}
+{% block TramiteContenido %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-custom">
+                <div class="card-body">
+                    <div class="row">
+                        {% include "campos/campoform.html" with campo=formEncargatura.cbperiodos %}
+                        <div class="col-12">
+                            {% render_table tablaEncargaturaDocumentos %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock TramiteContenido %}
+{% block TramiteScriptsPost %}
+    <script>
+        $("#{{ formEncargatura.cbperiodos.auto_id }}").on("change", function () {
+            let urlme = "{% url 'apptra:misencargaturas_listar' 0 %}".replace("0", $(this).val());
+            table_tablaEncargaturaDocumentos.api().ajax.url(urlme).load();
+        });
+
+        funcExec(function () {
+            $("#{{ formEncargatura.cbperiodos.auto_id }}").trigger("change");
+        });
+    </script>
+{% endblock TramiteScriptsPost %}

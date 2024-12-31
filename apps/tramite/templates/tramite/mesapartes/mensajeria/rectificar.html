@@ -1,0 +1,22 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% block modalTitulo %}
+    Editando Destino Detalle
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% url 'apptra:mesapartes_planillado_rectificar' object.pk %}
+{% endblock %}
+{% block modalBody %}
+    {% include "campos/errorform.html" %}
+    {% include "campos/campoform.html" with campo=form.detalle numcol=12 %}
+    {% include "campos/campoform.html" with campo=form.ubigeo numcol=12 %}
+    {% include "campos/campoform.html" with campo=form.direccion numcol=12 %}
+    {% include "campos/campoform.html" with campo=form.referencia numcol=12 %}
+{% endblock %}
+{% block modalPost %}refrescar_tablaMensajeriaPL{% endblock modalPost %}

@@ -1,0 +1,24 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% block modalTitulo %}
+    Recibiendo {{ destinos.count }} de Documento{{ destinos.count|pluralize:"s" }}
+{% endblock modalTitulo %}
+{% block modalAction %}{% url 'apptra:mesapartes_mensajeria_recibir' view.kwargs.ids %}{% endblock %}
+{% block modalBody %}
+    {% if recepcionok %}
+        <script type="text/javascript">
+            $("#modal-centro-scroll").modal("hide");
+            refrescar_tablaMensajeriaPE();
+        </script>
+    {% else %}
+        {% for destino in destinos %}
+            {% include "tramite/mesapartes/mensajeria/destino_info.html" with destino=destino %}
+        {% endfor %}
+    {% endif %}
+{% endblock %}

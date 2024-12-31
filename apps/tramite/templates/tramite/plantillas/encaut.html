@@ -1,0 +1,87 @@
+{% extends "tramite/plantillas/encaut/_base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static queries utiles %}
+{% block PlantillaTitulo %}
+    Documento de Autorización de Encargatura
+{% endblock %}
+{% block PlantillaEstilo %}
+    {% include "tramite/plantillas/encaut/_estilos.html" %}
+{% endblock PlantillaEstilo %}
+{% block PlantillaEncabezado %}
+    {% include "tramite/plantillas/encaut/_encabezado.html" %}
+{% endblock PlantillaEncabezado %}
+{% block PlantillaContenido %}
+    <h1 class="text-center text-bold text-underline">
+        AUTORIZACIÓN DE ENCARGATURA DE FUNCIONES
+    </h1>
+    <p class="text-justify">
+        Yo,
+        <span class="text-bold">
+            {{ responsable.persona.nombrecompleto }}
+{#            {% if encargatura.creador.persona == encargatura.area.jefeactual.persona %}#}
+{#                {{ encargatura.area.jefeactual.persona.nombrecompleto }},#}
+{#            {% else %}#}
+{#                {{ encargatura.creador.persona.nombrecompleto }},#}
+{#            {% endif %}#}
+        </span>
+{#        {{ encargatura.Cargo }}#}
+        {{ responsable.Cargo }}
+{#        {% if encargatura.creador.persona == encargatura.area.jefeactual.persona %}#}
+{#            {{ encargatura.area.jefeactual.persona|periodoactual:"Cargo()" }}#}
+{#        {% else %}#}
+{#            {{ encargatura.creador.persona|periodoactual:"Cargo()" }}#}
+{#        {% endif %}#}
+        de la unidad organizacional
+        {{ responsable.area.nombre }},
+{#        {% if encargatura.creador.persona == encargatura.area.jefeactual.persona %}#}
+{#            {{ encargatura.area.nombre }},#}
+{#        {% else %}#}
+{#            {{ encargatura.creador.persona|periodoactual:"area.nombre" }}#}
+{#        {% endif %}#}
+        <span class="text-bold">AUTORIZO</span>
+        el
+        <span class="text-underline">realizar la encargatura de funciones de
+            {% if encargatura.creador.persona == encargatura.area.jefeactual.persona %}
+                ésta unidad organizacional
+            {% else %}
+                la unidad organizacional {{ encargatura.area.nombre }}
+            {% endif %}
+        </span>
+        a <span class="text-bold">{{ encargatura.persona.nombrecompleto|upper }}</span>
+        {{ encargatura.persona.ultimoperiodotrabajo.Cargo }} de la
+        {% if encargatura.area == encargatura.persona.ultimoperiodotrabajo.area %}misma{% endif %}
+        {% if encargatura.area != encargatura.persona.ultimoperiodotrabajo.area %}
+            unidad organizacional
+            <span class="text-bold">{{ encargatura.persona.ultimoperiodotrabajo.area.nombre }}</span>,
+        {% else %}
+            unidad organizacional,
+        {% endif %}
+        para cubrir las funciones
+        {% if encargatura.area == user.persona|periodoactual:"area" %}
+        en mi ausencia
+        {% endif %}
+        desde el
+        <strong>{{ encargatura.inicio|date:"d/m/Y h:i a" }}</strong> al
+        <strong>{{ encargatura.fin|date:"d/m/Y h:i a" }}</strong>.
+    </p>
+    <p class="text-justify">
+        {% if encargatura.documentosustento %}
+            El documento <span class="text-bold">{{ encargatura.documentosustento.obtenerNumeroSiglas }}</span>,
+            sustenta el motivo por el cual se realiza la encargatura de funciones.
+        {% else %}
+            La encargatura se sustentará posteriormente con un documento oficial.
+        {% endif %}
+    </p>
+    <p>
+        Me afirmo y me ratifico en lo expresado, en señal de lo cual firmo el presente documento.
+    </p>
+    <p class="text-right">
+        {{ encargatura.area.dependencia.ubigeo.provincia.nombre|title }},
+        {{ encargatura.creado|formatdate:"dd 'de' MMMM 'de' yyyy" }}
+    </p>
+{% endblock PlantillaContenido %}

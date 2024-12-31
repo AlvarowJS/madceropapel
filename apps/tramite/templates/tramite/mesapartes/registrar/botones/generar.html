@@ -1,0 +1,26 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% if object.ultimoestado.estado == "PY" %}
+    {% if not object.documentotipoarea.documentotipo.plantillaautomatica %}
+        <div class="btn-gen-doc">
+            <button type="button"
+                    class="btn btn-xs btn-light-warning btn-hover-warning text-warning btn-icon-warning mr-2">
+                <i class="far fa-file-alt p-0"></i>
+                <span class="ml-1 d-none d-sm-inline-block">
+                    Generar Documento
+                </span>
+            </button>
+            <div></div>
+            <script>
+                $(".btn-gen-doc button").on("click", function () {
+                    $(this).next().cargarPagina("post", "{% url 'apptra:documento_emitir_generar' object.pk %}");
+                });
+            </script>
+        </div>
+    {% endif %}
+    {% include "tramite/documento/emitir/botones/despacho.html" %}
+{% endif %}

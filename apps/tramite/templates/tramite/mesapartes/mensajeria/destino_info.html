@@ -1,0 +1,51 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+<div class="col-12 bg-light rounded px-3 py-2 mb-2" style="font-size: .95em">
+    <strong>{{ destino.documento.obtenerNumeroSiglas }}</strong>
+    <span class="mx-4">
+        {{ destino.documento.folios|zfill:2 }} folio{{ destino.documento.folios|pluralize:'s' }}
+    </span>
+    <span class="float-right">
+        Exp: <span class="text-primary">{{ destino.documento.expediente }}</span>
+    </span>
+    <div class="my-2 font-size-sm">
+        {{ destino.documento.asunto|safe }}
+    </div>
+    {% if not sindetalle %}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="small text-primary">Remitente</div>
+                {{ destino.documento.Remitente|safe }}
+            </div>
+            <div class="col-md-6">
+                <div class="small text-primary">Destino</div>
+                <div>{{ destino.destinatario }}</div>
+                <small class="font-weight-bold mt-1">{{ destino.direccion|default:'' }}</small>
+                {% if destino.referencia %}
+                    <small class="ml-2">({{ destino.referencia|escape }})</small>
+                {% endif %}
+                <div class="small">{{ destino.ubigeo.RutaDepartamento }}</div>
+                {% if destino.correo %}
+                    <div class="small mt-1">{{ destino.correo }}</div>
+                {% endif %}
+            </div>
+            {% if destino.entregafisica %}
+                <div class="col-12">
+                    <div class="small text-primary">Documentación Física</div>
+                    {{ destino.entregafisica|safe }}
+                </div>
+            {% endif %}
+            {% if destino.indicacion %}
+                <div class="col-12">
+                    <div class="small text-primary">Indicación</div>
+                    {{ destino.indicacion|safe }}
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>

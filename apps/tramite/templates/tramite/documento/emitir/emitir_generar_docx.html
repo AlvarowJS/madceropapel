@@ -1,0 +1,49 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% if codigo %}
+    {% load static %}
+    <script type="text/javascript">
+        let capaCarga{{ codigo }} = document.createElement("iframe");
+        capaCarga{{ codigo }}.id = "capaCarga{{ codigo }}";
+        capaCarga{{ codigo }}.style.height = "0%";
+        capaCarga{{ codigo }}.style.width = "0%";
+        capaCarga{{ codigo }}.style.border = "none";
+        capaCarga{{ codigo }}.style.display = "none";
+        capaCarga{{ codigo }}.src = "{{ urldown }}";
+        modalWaitMeOpera(
+            "Documento", "{% static 'images/icono_officegrc.png' %}", "Generando su documento..."
+        );
+
+        function fnSocketDocGenOk(data) {
+            $("#capaCarga{{ codigo }}").remove();
+            fnSocketDocGenOk = fnSocketDocGenError = undefined;
+            recargaBotones(false, function () {
+                modalWaitMeOpera(
+                    "Documento",
+                    "{% static 'images/icono_check.png' %}",
+                    data.mensaje,
+                    3000
+                );
+            });
+        }
+
+        function fnSocketDocGenError(data) {
+            $("#capaCarga{{ codigo }}").remove();
+            fnSocketDocGenOk = fnSocketDocGenError = undefined;
+            recargaBotones(false, function () {
+                modalWaitMeOpera(
+                    "Documento",
+                    "{% static 'images/icono_error.png' %}",
+                    "<div>" + data.mensaje + "</div>" +
+                    "<button type='button' class='btn btn-outline-primary mt-2 py-1' data-dismiss='modal'>Cerrar</button>"
+                );
+            });
+        }
+
+        document.body.appendChild(capaCarga{{ codigo }});
+    </script>
+{% endif %}

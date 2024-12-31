@@ -1,0 +1,141 @@
+/*
+@autor Dirección Regional de Transformación Digital
+@titularidad GOBIERNO REGIONAL CAJAMARCA
+@licencia Python Software Foundation License. Ver LICENCIA.txt
+@año 2022
+*/
+@media screen{
+    .ticket-mad3 {
+        display: none;
+    }
+}
+
+
+@media print {
+    @page {
+        margin: 0;
+    }
+
+    * {
+        border: 0;
+        padding: 0;
+        margin: 0;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+    }
+
+    #ticket-expediente{
+        visibility: hidden;
+    }
+    #btnImprimirTicket{
+        visibility: hidden;
+    }
+
+    .ticket-mad3 {
+        /*position: absolute;*/
+        width: 265px;
+        border: 1px solid black;
+        padding: 9px;
+        /*font-family: "Arial Narrow", Arial, serif;*/
+        font-family: Verdana, serif;
+        font-size: 8pt;
+    }
+
+    .dependencia-nombre {
+        text-align: center;
+        font-weight: bold;
+        margin-top: 4px;
+        font-size: 9pt;
+    }
+
+    .dependencia-direccion {
+        text-align: center;
+        font-size: 7pt;
+    }
+
+    .dependencia-lugar {
+        text-align: center;
+        font-size: 7pt;
+    }
+
+    .dependencia-ruc {
+        text-align: center;
+        font-size: 9pt;
+    }
+
+    .mesapartes {
+        text-align: center;
+        background-color: #D5E5FF;
+        padding: 5px;
+        font-size: 11pt;
+        margin: 3mm 0;
+    }
+
+    .documento-siglas {
+        margin: 4px 2px;
+        border: 1px solid dimgray;
+        border-radius: 5px;
+        padding: 1.5mm;
+        text-align: center;
+        font-weight: bold;
+        font-size: 9pt;
+    }
+
+    .expediente-label {
+        margin-top: 8px;
+        margin-bottom: 5px;
+        text-align: center;
+        font-size: 9pt;
+    }
+
+    .expediente-numero {
+        border-radius: 15px;
+        background-color: dimgray;
+        padding: 5px 2px;
+        color: #FFFFFF;
+        text-align: center;
+        font-size: 11pt;
+        font-weight: bold;
+    }
+
+    .expediente-clave-fila {
+        font-size: 9pt;
+        text-align: center;
+        margin-top: 5px;
+        margin-bottom: 8px;
+    }
+
+    .expediente-fechafolios {
+        border: 1px solid dimgray;
+        border-radius: 5px;
+        padding: 1.5mm;
+    }
+
+    .expediente-fecha-label {
+        font-size: 8pt;
+        margin-bottom: 1mm;
+    }
+
+    .expediente-fecha {
+        font-size: 9pt;
+    }
+
+    .expediente-folios-label {
+        font-size: 8pt;
+        margin-bottom: 1mm;
+    }
+
+    .expediente-folios {
+        font-size: 9pt;
+    }
+    .seguimiento-fila{
+        margin-top: 10px;
+        text-align: center;
+    }
+    .seguimiento {
+        text-align: center;
+        font-family: "Arial Narrow", Arial, serif;
+        font-size: 9pt;
+    }
+ }

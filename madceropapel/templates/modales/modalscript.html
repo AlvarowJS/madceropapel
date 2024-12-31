@@ -1,0 +1,180 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+<script type="text/javascript">
+    $.fn.modal.Constructor.prototype._enforceFocus = function() {};
+    $('html').on('show.bs.modal', '.modal', function (e) {
+        if ((e.relatedTarget && (!$(this).data("auto") || e.relatedTarget.attributes["data-remove"])) ||
+            (!e.relatedTarget && $(this).data("auto"))) {
+            $(this).find(".modal-content").html(
+                '<div class="text-center m-2 p-3 d-flex align-items-center flex-column  justify-content-center h-100">' +
+                '<div class="spinner spinner-track spinner-primary spinner-lg h-30px w-30px" ></div>' +
+                '<div class="pt-3">Cargando...</div></div>'
+            );
+        }
+        $('html').addClass('modal-open');
+    }).on('hidden.bs.modal', '.modal', function (e) {
+        if (!$(this).data("auto") && $(this).data("remove") === "True") {
+            $(this).find(".modal-content").html("");
+            $(this).removeData('bs.modal');
+        }
+        if ($('.modal:visible').length) {
+            $('html').addClass('modal-open');
+            $('body').addClass('modal-open');
+        } else {
+            $('html').removeClass('modal-open');
+            $('body').removeClass('modal-open');
+        }
+    });
+    (function (Modal) {
+        var show = Modal.prototype.show;
+        Modal.prototype.changesize = function (e) {
+            let me = $(this._dialog);
+            me.removeClass("modal-xl modal-lg modal-md modal-sm modal-xs");
+            me.addClass("modal-" + e);
+        };
+        Modal.prototype.show = function (e) {
+            if ($(e).attr("href")) {
+                let modalsize = $(e).data("modal-size") || "md";
+                let me = $(this._dialog);
+                me.removeClass("modal-xl modal-lg modal-md modal-sm modal-xs");
+                me.addClass("modal-" + modalsize);
+                me.find('.modal-content').load(
+                    $(e).attr("href"), function (rT, tS, xhr) {
+                        if (tS === "error") {
+                            me.find('.modal-content').html(
+                                '<div class="text-center m-2 pt-3"><div>' +
+                                '<i class="fa fa-exclamation-triangle text-warning mb-2 fa-2x"></i>' +
+                                '</div><div class="text-danger"><b>Error al cargar el contenido</b></div>' +
+                                '<button type="button" class="btn btn-primary mt-4 mb-2" data-dismiss="modal">' +
+                                'Cerrar' +
+                                '</button></div>'
+                            );
+                        }
+                    }
+                );
+            }
+            let nzIndex = 1040 + (10 * $('.modal:visible').length);
+            let me = this;
+            setTimeout(function () {
+                if (me._backdrop) {
+                    me._backdrop.style.zIndex = nzIndex;
+                }
+                me._element.style.zIndex = nzIndex + 1;
+                $(me._element).find(".modal-open").css('z-index', nzIndex + 1);
+            }, 0);
+            show.apply(this, arguments);
+        };
+    })($.fn.modal.Constructor);
+
+    function modalDialogPost(e, funcpre, funcpost, cerrar) {
+        let continuar = true;
+        if (funcpre) continuar = funcpre();
+        let vform = $(e).parents("form").first();
+        if (continuar) {
+            let oform = document.getElementById(vform.prop("id"));
+            let sigform = (!oform || (oform && oform.checkValidity()));
+            if (sigform) {
+                let vmodal = $(e).parents(".modal").first();
+                vform.one("submit", function (event) {
+                    if (funcpost) {
+                        vmodal.on("hidden.bs.modal", function () {
+                            if (typeof funcpost === "string") {
+                                eval(funcpost);
+                            } else {
+                                funcpost();
+                            }
+                            vmodal.off("hidden.bs.modal");
+                        });
+                    }
+                    vform.off("submit");
+                    event.preventDefault();
+                    vmodal.find(".modal-content").block({
+                        message: '<i class="flaticon-spinner-5 fa-3x spin"></i>',
+                        {#timeout: 2000, //unblock after 2 seconds#}
+                        overlayCSS: {
+                            backgroundColor: '#4f5163',
+                            opacity: 0.9,
+                            cursor: 'wait'
+                        },
+                        css: {
+                            border: 0,
+                            padding: 0,
+                            color: '#fff',
+                            backgroundColor: 'transparent'
+                        }
+                    });
+                    let dataForm = new FormData(vform[0]);
+                    for (let [key, value] of dataForm.entries()) {
+                        if (key.indexOf("[]") === -1) {
+                            let campoE = vform.find("input[name=" + key + "]");
+                            if (campoE.data("crop-image") !== undefined) {
+                                if (eval("typeof " + campoE.attr("id") + "_fileUP") !== "undefined") {
+                                    let campoF = eval(campoE.attr("id") + "_fileUP");
+                                    if (campoF) {
+                                        const fd = new FormData();
+                                        fd.set('a', campoF, campoE.val().split("\\").pop());
+                                        let imageE = fd.get('a');
+                                        dataForm.set(key, imageE)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    let request = new XMLHttpRequest();
+                    request.open(vform.attr('method'), vform.attr('action'));
+                    request.onload = function (e) {
+                        if (request.status === 200) {
+                            if (request.response.match("form_invalid")) {
+                                vmodal.off("hidden.bs.modal");
+                                vmodal.find(".modal-content").html(request.response);
+                                return false;
+                            } else {
+                                if (funcpost) {
+                                    vmodal.find(".modal-content").html(request.response);
+                                    vmodal.modal("hide");
+                                } else {
+                                    if (!request.response.match("form_redirect")) {
+                                        vmodal.find(".modal-content").html(request.response);
+                                    } else {
+                                        {#vmodal.find(".modal-content").html(request.response);#}
+                                    }
+                                }
+                            }
+                        } else {
+                            vmodal.off("hidden.bs.modal");
+                            {#console.log("Error", e);#}
+                        }
+                    }
+                    request.send(dataForm);
+                });
+            } else {
+                let dataForm = new FormData(vform[0]);
+                let tabpane = null;
+                for (let [key, value] of dataForm.entries()) {
+                    let campoE = document.getElementsByName(key);
+                    if (campoE) {
+                        campoE = campoE[0];
+                        if (!campoE.validity.valid) {
+                            tabpane = $(campoE).parents(".tab-pane").first();
+                            break;
+                        }
+                    }
+                }
+                if (tabpane) {
+                    let tabcontent = tabpane.parents(".tab-content").first();
+                    let navtabs = tabcontent.prev(".nav-tabs").first();
+                    navtabs.find("a[href='#" + tabpane.attr("id") + "']").trigger("click");
+                }
+            }
+        } else {
+            vform.one("submit", function (event) {
+                vform.off("submit");
+                event.preventDefault();
+             });
+        }
+    }
+</script>

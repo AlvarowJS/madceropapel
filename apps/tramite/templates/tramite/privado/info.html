@@ -1,0 +1,447 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static %}
+{% block modalTitulo %}
+    DOCUMENTO PRIVADO
+{% endblock modalTitulo %}
+{% block modalBody %}
+    <p class="col-12">
+        Con base en la Ley Nº 27806, Ley de Transparencia y Acceso a la Información Pública y su TUO, es posible denegar
+        el acceso a la información para proteger un bien o un derecho constitucional, como el derecho a la intimidad, la
+        seguridad nacional, entre otros.
+    </p>
+    <p class="col-12">
+        Existen tres tipos de información que puede excluirse del conocimiento público:
+    </p>
+    <div class="accordion col-12" id="accordionExample">
+        <div class="card">
+            <div class="card-header" id="headingOne">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse"
+                            data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                        1. Información secreta
+                    </button>
+                </h2>
+            </div>
+
+            <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                <div class="card-body text-justify">
+                    Aquella información que se sustente en razones de seguridad nacional que además tenga
+                    como base fundamental garantizar la seguridad de las personas y cuya revelación originaría
+                    riesgo para la integridad territorial y/o subsistencia del sistema democrático, así como
+                    respecto a las actividades de inteligencia y contrainteligencia.
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" id="headingTwo">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse"
+                            data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        2. Información reservada
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+                <div class="card-body text-justify">
+                    Aquella que tiene como finalidad prevenir y reprimir la criminalidad en el país y cuya
+                    divulgación originaría un riesgo a la seguridad nacional en el ámbito del orden interno, a la
+                    integridad territorial y a la subsistencia del sistema democrático; aquella información que busca
+                    proteger la eficacia de las acciones externas del Estado y la seguridad nacional en este ámbito.
+                    En ese sentido, puede ser reservada la información que ponga en riesgo la seguridad e integridad
+                    territorial del Estado, la defensa nacional en el ámbito externo, el curso de las negociaciones
+                    internacionales o la subsistencia del sistema democrático.
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" id="headingThree">
+                <h2 class="mb-0">
+                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse"
+                            data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        3. Información confidencial
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
+                <div class="card-body text-justify">
+                    La información que contenga consejos, recomendaciones u opiniones producidas como parte del proceso
+                    deliberativo y consultivo previo a la toma de una decisión de gobierno, salvo que esta sea
+                    pública. Una vez tomada la decisión, esta excepción cesa, si la entidad de la Administración
+                    Pública opta por hacer referencia en forma expresa a esos consejos, recomendaciones u opiniones.
+                    La información protegida por el secreto bancario, tributario, comercial, industrial, tecnológico y
+                    bursátil, regulados por el inciso 5 del artículo 2° de la Constitución Política y la legislación
+                    pertinente.
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 mt-3">
+        <a class="btn btn-sm btn-outline-warning" data-toggle="collapse" href="#collapseExample" role="button"
+           aria-expanded="false"
+           aria-controls="collapseExample">
+            Leer más
+        </a>
+    </div>
+    <div class="col-6 mt-3 text-right">
+        <a class="btn btn-sm btn-outline-success" href="{% static 'docs/manual_acceso_info_publica.pdf'  %}" target="_blank" role="button">
+            Descargar
+        </a>
+    </div>
+    <div class="col-12 collapse" id="collapseExample">
+        <div class="card card-body p-3 text-justify" style="font-size: .85em;">
+            <h6 class="text-center">EXCEPCIONES DE ACCESO A LA INFORMACIÓN PÚBLICA</h6>
+            <p>
+                Con base en la Ley Nº 27806, Ley de Transparencia y Acceso a la Información Pública y su TUO, se tienen
+                las siguientes consideraciones:
+            </p>
+            <strong>¿Qué es el régimen de excepciones de acceso a la información pública?</strong>
+            <p>
+                Es el conjunto de restricciones excepcionales al ejercicio del derecho de acceso a la información
+                pública, el cual se fundamenta en la protección de ciertos bienes o derechos constitucionales.
+                De este modo, la correcta interpretación y aplicación de las excepciones por parte de la
+                Administración Pública, permite denegar información para proteger un bien o un derecho
+                constitucional, como el derecho a la intimidad, la seguridad nacional, entre otros.
+                En todos los casos, el daño real e inminente por la revelación de
+                la información tiene que ser mayor al daño del interés público por conocer la información.
+            </p>
+            <p>
+                Teniendo en cuenta que la información en poder de la Administración Pública se rige por el principio de
+                máxima publicidad, la interpretación de las excepciones es restringida y su aplicación solo está
+                permitida en los casos expresamente establecidos en el TUO de Ley.
+            </p>
+            <strong>¿Cuáles son las excepciones al derecho de acceso a la información pública?</strong>
+            <p>
+                De acuerdo con el TUO de la Ley, solo hay tres tipos de información que puede excluirse del
+                conocimiento público. Así tenemos:
+            </p>
+            <ol>
+                <li>Información secreta</li>
+                <li>Información reservada</li>
+                <li>Información confidencial</li>
+            </ol>
+            <p>Cualquier tipo de información que no se encuentre dentro de estos supuestos es pública.</p>
+            <strong>¿Qué información puede ser calificada como secreta?</strong>
+            <p>
+                Puede ser calificada como secreta aquella información que se sustente en razones de seguridad
+                nacional, en concordancia con el artículo 163° de la Constitución Política del Perú, que además tenga
+                como base fundamental garantizar la seguridad de las personas y
+                <strong>
+                    cuya revelación originaría riesgo para la integridad territorial y/o subsistencia
+                    del sistema democrático, así como respecto a las actividades de inteligencia y contrainteligencia
+                </strong>
+                del CNI dentro del marco que establece el Estado de Derecho, en función de las situaciones
+                expresamente contempladas en la Ley19.
+            </p>
+            <p>En ese sentido, <strong>únicamente comprende</strong> los siguientes supuestos:</p>
+            <ol>
+                <li>Información secreta en el ámbito militar, tanto en el frente interno como externo:
+                    <ol type="a">
+                        <li>
+                            Planes de defensa militar contra posibles agresiones de otros Estados, logísticos, de
+                            reserva y movilización y de operaciones especiales, así como oficios y comunicaciones
+                            internas que hagan referencia expresa a los mismos.
+                        </li>
+                        <li>
+                            Las operaciones y planes de inteligencia y contrainteligencia militar.
+                        </li>
+                        <li>Desarrollos técnicos y/o científicos propios de la defensa nacional.</li>
+                        <li>
+                            Órdenes de operaciones, logísticas y conexas, relacionadas con planes de defensa militar
+                            contra posibles agresiones de otros Estados o de fuerzas irregulares militarizadas internas
+                            y/o externas, así como de operaciones en apoyo a la Policía Nacional del Perú, planes de
+                            movilización y operaciones especiales relativas a ellas.
+                        </li>
+                        <li>
+                            Planes de defensa de bases e instalaciones militares.
+                        </li>
+                        <li>
+                            El material bélico, sus componentes, accesorios, operatividad y/o ubicación, cuyas
+                            características pondrían en riesgo los planes de defensa militar contra posibles agresiones
+                            de otros Estados o de fuerzas irregulares militarizadas internas y/o externas, así como de
+                            operación en apoyo a la Policía Nacional del Perú, planes de movilización y operaciones
+                            especiales relativas a ellas.
+                        </li>
+                        <li>
+                            Información del personal militar que desarrolla actividades de seguridad nacional y que
+                            pueda poner en riesgo la vida e integridad de las personas involucradas.
+                        </li>
+                    </ol>
+                </li>
+                <li>Información secreta en el ámbito de inteligencia tanto en el frente externo e interno
+                    <ol type="a">
+                        <li>
+                            Los planes estratégicos y de inteligencia, así como la información que ponga en riesgo
+                            sus fuentes.
+                        </li>
+                        <li>Los informes que, de hacerse públicos, perjudicarían la información de inteligencia.</li>
+                        <li>
+                            Aquellos informes oficiales de inteligencia que, de hacerse públicos, incidirían
+                            negativamente en la protección de información sobre los planes estratégicos y
+                            de inteligencia, así como la información que ponga en riesgo sus fuentes.
+                        </li>
+                        <li>Información relacionada con el alistamiento del personal y material.</li>
+                        <li>
+                            Las actividades y planes estratégicos de inteligencia y contrainteligencia de los
+                            organismos conformantes del Sistema de Inteligencia Nacional (SINA), así como la
+                            información que ponga en riesgo sus fuentes.
+                        </li>
+                        <li>
+                            Información del personal civil o militar que desarrolla actividades de seguridad nacional
+                            y que pueda poner en riesgo la vida e integridad de las personas involucradas.
+                        </li>
+                        <li>
+                            La información de inteligencia que contemple alguno de los supuestos contenidos en el
+                            artículo 15 numeral 1 del TUO de la Ley (información secreta en el ámbito militar).
+                        </li>
+                    </ol>
+                </li>
+            </ol>
+            <p>
+                Cabe señalar que el responsable de clasificar la información como secreta es el titular del sector o
+                pliego respectivo, o los funcionarios designados por este.
+            </p>
+            <p>
+                Asimismo, con posterioridad a los cinco (5) años de la clasificación, cualquier persona puede solicitar
+                la información clasificada como secreta, la cual será entregada si el titular del sector o pliego
+                considera que su divulgación no pone en riesgo la seguridad de las personas, la integridad
+                territorial o la subsistencia del sistema democrático. En el caso de información clasificada
+                producida por el Sistema de Inteligencia Nacional y relativa a la Seguridad Nacional,
+                la desclasificación procede después de 20 años de su clasificación.
+            </p>
+            <p>
+                Además, si el titular decide negar el acceso a la información, deberá fundamentar expresamente y por
+                escrito las razones para que se postergue la clasificación y el periodo que considera debe continuar
+                clasificada. El documento que contiene esta fundamentación se pone en conocimiento del Consejo de
+                Ministros, el cual puede desclasificarlo.
+            </p>
+            <strong>¿Qué información puede ser calificada como reservada?</strong>
+            <p>Solo existen dos tipos de información que pueden ser clasificados como reservados. Así tenemos:</p>
+            <ol>
+                <li>
+                    <p>
+                        Aquella que tiene como finalidad prevenir y reprimir la criminalidad en el país y cuya
+                        divulgación originaría un riesgo a la seguridad nacional en el ámbito del orden interno,
+                        a la integridad territorial y a la subsistencia del sistema democrático.
+                    </p>
+                    <p>
+                        Esta información es exceptuada del conocimiento público para proteger la seguridad nacional
+                        en el ámbito interno y está relacionada a las actuaciones policiales que previenen y
+                        reprimen la criminalidad.
+                    </p>
+                    <p>
+                        <strong>Únicamente comprende los siguientes supuestos:</strong>
+                    </p>
+                    <ol type="a">
+                        <li>
+                            Los planes de operaciones policiales y de inteligencia, así como aquellos destinados a
+                            combatir el terrorismo, tráfico ilícito de drogas y organizaciones criminales, así
+                            como los oficios, partes y comunicaciones que se refieran expresamente a ellos.
+                        </li>
+                        <li>
+                            Las informaciones que impidan el curso de las investigaciones en su etapa policial dentro de
+                            los límites de la ley, incluyendo los sistemas de recompensa, colaboración eficaz y
+                            protección de testigos, así como la interceptación de comunicaciones amparadas por la ley.
+                        </li>
+                        <li>
+                            Los planes de seguridad y defensa de instalaciones policiales, establecimientos
+                            penitenciarios, locales públicos y los de protección de dignatarios, así como los oficios,
+                            partes y comunicaciones que se refieran expresamente a ellos.
+                        </li>
+                        <li>
+                            El movimiento del personal que pudiera poner en riesgo la vida e integridad de las
+                            personas involucradas o afectar la seguridad ciudadana.
+                        </li>
+                        <li>
+                            El armamento y material logístico comprometido en operaciones especiales y planes de
+                            seguridad y defensa del orden interno.
+                        </li>
+                        <li>
+                            La información contenida en los Reportes de actividades con las sustancias químicas tóxicas
+                            y susv precursores listados en la Convención sobre la Prohibición del Desarrollo, la
+                            Producción, el Almacenamiento y el Empleo de Armas Químicas y sobre su Destrucción;
+                            la información contenida en los Reportes sobre las instalaciones de producción
+                            de las sustancias químicas orgánicas definidas; la información relacionada con la
+                            inspecciones nacionales e inspecciones realizadas por la Secretaría Técnica de la
+                            Organización para la Prohibición de las Armas Químicas; la información concerniente a los
+                            procesos productivos en donde intervienen sustancias químicas tóxicas y sus precursores de
+                            las Listas 1, 2 y 3 de dicha Convención; y la información concerniente al empleo de las
+                            sustancias químicas tóxicas y sus precursores de las Listas 1 y 2 de dicha Convención.
+                        </li>
+                    </ol>
+                </li>
+                <li>
+                    Aquella información que busca proteger la eficacia de las acciones externas del Estado y la
+                    seguridad nacional en este ámbito. En ese sentido, puede ser reservada la información que ponga en
+                    riesgo la seguridad e integridad territorial del Estado, la defensa nacional en el ámbito externo,
+                    el curso de las negociaciones internacionales o la subsistencia del sistema democrático.
+                    <p>
+                        Esta excepción únicamente comprende los siguientes supuestos:
+                    </p>
+                    <ol type="a">
+                        <li>
+                            Elementos de las negociaciones internacionales que de revelarse, podrían perjudicar los
+                            procesos negociadores o alterar los acuerdos adoptados.Estos no serán públicos por lo menos
+                            en el curso de las mismas.
+                        </li>
+                        <li>
+                            Información que al ser divulgada oficialmente por el Ministerio de Relaciones Exteriores,
+                            podría afectar negativamente las relaciones diplomáticas con otros países
+                        </li>
+                        <li>
+                            La información oficial referida al tratamiento en el frente externo de la información
+                            clasificada en el ámbito militar, de acuerdo con lo señalado en el inciso a) del numeral
+                            1 del artículo 15° del TUO de la Ley (información secreta).
+                        </li>
+                        <li>
+                            Los contratos de asesoría financiera o legal para realizar operaciones de endeudamiento
+                            público o administración de deuda del Gobierno Nacional que, de revelarse,
+                            podrían perjudicar o alterar los mercados financieros. Estos no serán públicos por lo
+                            menos hasta que se concreten.
+                        </li>
+                    </ol>
+                    <p>
+                        El responsable de clasificar la información como reservada es el titular del sector o pliego
+                        respectivo, o los funcionarios designados por este. La designación del funcionario
+                        necesariamente deberá recaer en aquel que tenga competencia para emitir resoluciones.
+                    </p>
+                    <p>
+                        Además, una vez que desaparece la causa que motivó la clasificación, la información reservada es
+                        de acceso público.
+                        La desclasificación de la información se realiza mediante Resolución debidamente motivada del
+                        titular del sector o pliego, o del funcionario designado para ello.
+                    </p>
+                    <p>
+                        Cabe precisar que la desclasificación de la siguiente información producida por el Sistema
+                        de Inteligencia Nacional, procede después de 20 años de su clasificación:
+                    </p>
+                    <ul>
+                        <li>
+                            Planes de operaciones policiales y de inteligencia
+                        </li>
+                        <li>
+                            Planes de seguridad y defensa de instalaciones policiales
+                        </li>
+                        <li>
+                            Información sobre el movimiento del personal
+                        </li>
+                        <li>
+                            Información referida al tratamiento de información clasificada en el ámbito
+                            militar en el frente externo
+                        </li>
+                    </ul>
+                </li>
+            </ol>
+            <strong>¿Qué información puede ser calificada como confidencial?</strong>
+            <p>
+                De acuerdo con el artículo 17° del TUO de la Ley, solo existen seis tipos de información que pueden ser
+                calificados como confidenciales. En ese sentido, únicamente tenemos a:
+            </p>
+            <ol>
+                <li>
+                    La información que contenga consejos, recomendaciones u opiniones producidas como parte del proceso
+                    deliberativo y consultivo previo a la toma de una decisión de gobierno, salvo que esta sea pública.
+                    Una vez tomada la decisión, esta excepción cesa, si la entidad de la Administración Pública opta por
+                    hacer referencia en forma expresa a esos consejos, recomendaciones u opiniones.
+                </li>
+                <li>
+                    La información protegida por el secreto bancario, tributario, comercial, industrial, tecnológico y
+                    bursátil, regulados por el inciso 5 del artículo 2° de la Constitución Política y la legislación
+                    pertinente.
+                    <p>
+                        Tanto el secreto bancario como la reserva tributaria forman parte de la vida privada de una
+                        persona.
+                        Concretamente protegen su intimidad en el ámbito económico.
+                    </p>
+                    <p>
+                        El secreto bancario busca garantizar la confidencialidad de las operaciones bancarias que una
+                        persona pudiera realizar con cualquier ente del sistema bancario o financiero
+                    </p>
+                    <p>
+                        Por su parte, la reserva tributaria busca garantizar la confidencialidad de la cuantía y la
+                        fuente de las rentas de una persona, así como sus gastos, su base imponible o cualquier otro
+                        dato relativo a ellos, cuando estén contenidos en declaraciones e informaciones que obtenga la
+                        Administración Tributaria de sus contribuyentes, responsables o terceros.
+                    </p>
+                    <p>
+                        El secreto comercial, industrial o tecnológico busca proteger la información usada en alguna
+                        actividad productiva, industrial o comercial, que sea susceptible de transmitirse a un tercero y
+                        cuya divulgación pueda ocasionar un perjuicio a la empresa. De acuerdo con lo dispuesto en la
+                        Decisión N° 486, que establece el régimen común sobre propiedad industrial de la Comunidad
+                        Andina,37 esta información debe ser:
+                    </p>
+                    <ul>
+                        <li>
+                            Secreta, en el sentido que como conjunto o en la configuración y reunión precisa de sus
+                            componentes, no sea generalmente conocida ni fácilmente accesible por quienes se encuentran
+                            en los círculos que normalmente manejan la información respectiva;
+                        </li>
+                        <li>
+                            Tener un valor comercial por ser secreta; y
+                        </li>
+                        <li>
+                            Haber sido objeto de medidas razonables tomadas por su legítimo poseedor para mantenerla
+                            secreta.
+                            La información de un secreto empresarial podrá estar referida a la naturaleza,
+                            características o finalidades de los productos; a los métodos o procesos de producción; o, a
+                            los medios o formas de distribución o comercialización de productos o prestación de
+                            servicios.
+                        </li>
+                    </ul>
+                    <p>
+                        Por otro lado, el secreto bursátil garantiza la protección de la información sobre los
+                        compradores o vendedores de los valores transados en bolsa o en otros mecanismos centralizados.
+                    </p>
+                </li>
+                <li>
+                    La información vinculada a investigaciones en trámite referidas al ejercicio de la potestad
+                    sancionadora de la Administración Pública, en cuyo caso la exclusión del acceso termina cuando la
+                    resolución que pone fin al procedimiento queda consentida o cuando transcurren más de seis (6) meses
+                    desde que se inició el procedimiento administrativo sancionador, sin que se haya dictado resolución
+                    final.
+                    <p>
+                        En este caso, la norma «excluye del acceso aquella información vinculada a la investigación en
+                        trámite al interior de un procedimiento administrativo sancionador»39y «solo podrá accederse a
+                        tal información cuando; i) queda consentida la resolución que pone fin al procedimiento, o ii)
+                        transcurren más de 6 meses desde que se inició el procedimiento sin que exista resolución final»
+                    </p>
+                </li>
+                <li>
+                    La información preparada u obtenida por asesores jurídicos o abogados de las entidades de la
+                    Administración Pública cuya publicidad pudiera revelar la estrategia a adoptarse en la tramitación o
+                    defensa en un proceso administrativo o judicial, o de cualquier tipo de información protegida por el
+                    secreto profesional que debe guardar el abogado respecto de su asesorado
+                    <p>
+                        Esta excepción termina al concluir el proceso.
+                    </p>
+                    <p>
+                        Esta excepción busca garantizar la tramitación y defensa del Estado en un proceso administrativo
+                        o judicial, así como proteger el secreto profesional.
+                    </p>
+                </li>
+                <li>
+                    La información referida a los datos personales cuya publicidad constituya una invasión de la
+                    intimidad personal y familiar. La información referida a la salud personal, se considera comprendida
+                    dentro de la intimidad personal.
+                    <p>
+                        En este caso, sólo el juez puede ordenar la publicación, sin perjuicio de lo establecido en el
+                        inciso 5 del artículo 2° de la Constitución Política.
+                    </p>
+                    <p>
+                        Esta excepción busca proteger la intimidad de las personas, concretamente, aquellos datos
+                        referidos a su vida privada y cuya divulgación conllevaría un daño a la persona.
+                    </p>
+                </li>
+                <li>
+                    Aquellas materias cuyo acceso esté expresamente exceptuado por la Constitución o por una Ley
+                    aprobada por el Congreso de la República
+                </li>
+            </ol>
+        </div>
+    </div>
+{% endblock modalBody %}

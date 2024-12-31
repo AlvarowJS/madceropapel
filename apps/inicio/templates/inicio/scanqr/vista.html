@@ -1,0 +1,139 @@
+{% extends "webadmin/base_clean.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static %}
+{% block BaseTitulo %}
+    Lector QR
+{% endblock BaseTitulo %}
+{% block BaseScriptsPre %}
+    <script src="{% static 'js/scanqr/html5-qrcode.min.js' %}"></script>
+    <script src="{% static 'js/scanqr/webcam-easy.js' %}"></script>
+{% endblock BaseScriptsPre %}
+{% block BaseHeaderTitulo %}
+    <h4 id="tituloQR" class="text-center mb-2">Escanee el código QR</h4>
+    <style>
+        .w-360px {
+            width: 360px;
+        }
+        .h-480px {
+            height: 480px;
+        }
+    </style>
+{% endblock BaseHeaderTitulo %}
+{% block BaseBody %}
+    <div class="d-flex justify-content-center align-items-center">
+        <div id="capa-total" class="mt-4">
+            <div class="w-100" id="reader"></div>
+            <video id="evidenciaVideo" class="w-360px h-480px" autoplay playsinline></video>
+            <canvas id="evidenciaCanvas" class="d-none" width="720" height="960"></canvas>
+            <div class="w-100 d-flex justify-content-center align-items-center">
+                <img id="evidenciaFoto" class="mb-2 d-none" alt="" src="" width="360" height="480"/>
+            </div>
+            <div class="w-450px d-none" id="evidenciaEnvio"></div>
+            <div id="evidenciaBotones" class="text-center">
+                <button id="btnTomarFoto" class="btn btn-primary d-none">
+                    <i class="fas fa-camera"></i>
+                    Tomar Foto
+                </button>
+                <button id="btnVolverCapturar" class="btn btn-primary d-none">
+                    <i class="fas fa-sync-alt"></i>
+                    Volver a tomar Foto
+                </button>
+                <button id="btnEnviarFoto" class="btn btn-warning ml-2 d-none">
+                    <i class="fas fa-paper-plane"></i>
+                    Enviar Evidencia
+                </button>
+            </div>
+        </div>
+    </div>
+{% endblock BaseBody %}
+{% block BaseScriptsPost %}
+    <script type="text/javascript">
+        var oFoto;
+        const capatotal = document.querySelector("#capa-total");
+
+        const btnTomarFoto = document.querySelector("#btnTomarFoto");
+        const btnVolverCapturar = document.querySelector("#btnVolverCapturar");
+        const btnEnviarFoto = document.querySelector("#btnEnviarFoto");
+
+        const eviVideo = document.getElementById("evidenciaVideo");
+        const eviCanvas = document.getElementById("evidenciaCanvas");
+        const eviFoto = document.getElementById("evidenciaFoto");
+
+        const html5QrCode = new Html5Qrcode("reader");
+        const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+            let lista = decodedText.split("|");
+            if (lista.length > 2) {
+                html5QrCode.stop();
+                html5QrCode.clear();
+                document.getElementById('tituloQR').innerHTML = 'Tome la foto de la Evidencia';
+                const eviCam = new Webcam(eviVideo, 'environment', eviCanvas);
+                eviCam.start()
+                    .then(result => {
+                        btnTomarFoto.classList.remove("d-none");
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    });
+
+                btnTomarFoto.addEventListener("click", function () {
+                    oFoto = eviCam.snap();
+                    eviCam.stop();
+                    eviVideo.classList.add("d-none");
+                    eviFoto.classList.remove("d-none");
+                    eviFoto.src = oFoto;
+                    btnTomarFoto.classList.add("d-none");
+                    btnVolverCapturar.classList.remove("d-none");
+                    btnEnviarFoto.classList.remove("d-none");
+                });
+
+                btnVolverCapturar.addEventListener("click", function () {
+                    eviVideo.classList.remove("d-none");
+                    eviFoto.classList.add("d-none");
+                    eviFoto.src = "";
+                    eviCam.start();
+                    btnTomarFoto.classList.remove("d-none");
+                    btnVolverCapturar.classList.add("d-none");
+                    btnEnviarFoto.classList.add("d-none");
+                });
+
+                btnEnviarFoto.addEventListener("click", function () {
+                    let xhr = new XMLHttpRequest();
+                    xhr.open("POST", lista[2], true);
+                    $(capatotal).blockUI2("Enviando...", 0);
+                    xhr.onload = function (e) {
+                        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                            document.getElementById('tituloQR').innerHTML = 'Foto de la Evidencia';
+                            document.querySelector("#evidenciaBotones").innerHTML =
+                                "<div>La foto fue enviada correctamente</div>" +
+                                "<button class='btn btn-primary btn-md' onclick='window.location = window.location;'>" +
+                                "<i class='fas fa-qrcode'></i> " +
+                                "Realizar otra Captura de QR" +
+                                "</button>";
+                            appMensaje("Ok", "success", this.responseText, "success", "bg-success text-white")
+                        } else if (this.status === 400) {
+                            if (this.responseText.length) {
+                                appMensaje("Error", "warning", this.responseText, "warning", "bg-info text-white")
+                            }
+                        }
+                        $(capatotal).unblock();
+                    }
+
+                    eviCanvas.toBlob(function (blob) {
+                        let formData = new FormData();
+                        formData.append("file", blob);
+                        xhr.send(formData);
+                    }, "image/jpeg");
+                });
+            } else {
+                appAlert("warning", "Error", "No es un Código QR Válido");
+            }
+        };
+        const config = {fps: 20, qrbox: 250};
+        html5QrCode.start({facingMode: "environment"}, config, qrCodeSuccessCallback);
+    </script>
+{% endblock BaseScriptsPost %}

@@ -1,0 +1,47 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% if cambiar %}
+    <script id="kt_area_change_form" type="text/html">
+        <div class="modal-header text-sm px-5 py-2 d-flex align-items-center" style="height: auto">
+            <h5 class="modal-title">CAMBIAR DE UNIDAD ORGANIZACIONAL</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <i aria-hidden="true" class="ki ki-close"></i>
+            </button>
+        </div>
+        <form id="{{ form.id }}" action="{% url 'appini:area_change' %}" method="post" role="form" autocomplete="off">
+            {% csrf_token %}
+            <div class="modal-body text-sm">
+                <div class="container px-0">
+                    {{ form }}
+                </div>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="submit" class="btn btn-primary" onclick="modalDialogPost(this, null, null, true);">
+                    Cambiar
+                </button>
+            </div>
+        </form>
+    </script>
+    <script type="text/javascript">
+        $("#modal-change-area")
+            .modal("show")
+            .find(".modal-content").html($("#kt_area_change_form").html());
+        $.formatearCampos("#{{ form.id }}");
+        $("#kt_area_change_form").remove();
+    </script>
+{% elif cambiook %}
+    <script>
+        window.location = window.location;
+    </script>
+{% else %}
+    <script>
+        appMensaje(
+            "Atención", "flaticon-warning", "No se encuentra asignado a alguna otra Unidad Organizacional o Comisión.",
+            "warning", "bg-warning"
+        );
+    </script>
+{% endif %}

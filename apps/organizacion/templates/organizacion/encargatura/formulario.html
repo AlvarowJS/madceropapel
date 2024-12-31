@@ -1,0 +1,74 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    {% if not object %}
+        Agregando
+    {% else %}
+        Editando
+    {% endif %}
+    Encargatura
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% if not object %}
+        {% url 'apporg:encargatura_agregar' %}
+    {% else %}
+        {% url 'apporg:encargatura_editar' object.pk %}
+    {% endif %}
+{% endblock modalAction %}
+{% block modalBody %}
+    <div class="col-12">
+        <div class="divider divider-primary divider-center mt-0 mb-3">
+            <div class="divider-text">Encargar a</div>
+        </div>
+    </div>
+    {% include "campos/campoform.html" with campo=form.area %}
+    {% include "campos/campoform.html" with campo=form.persona %}
+    {% include "campos/campoform.html" with campo=form.inicio numcol=6 %}
+    {% include "campos/campoform.html" with campo=form.fin numcol=6 %}
+    <div class="col-md-12 text-danger small">
+        <strong>IMPORTANTE : </strong><span>Verificar la HORA del inicio y fin de la encargatura.</span>
+    </div>
+    <div class="col-12">
+        <div class="divider divider-primary divider-center mt-3 mb-3">
+            <div class="divider-text">Documento Sustento</div>
+        </div>
+    </div>
+    {% include "campos/campoform.html" with campo=form.documentoanio numcol=3 %}
+    {% include "campos/campoform.html" with campo=form.documentooficina numcol=9 %}
+    {% include "campos/campoform.html" with campo=form.documentotipo numcol=5 %}
+    {% include "campos/campoform.html" with campo=form.documentosustento numcol=5 %}
+    <div class="col-sm-2 text-center">
+        <div class="form-group">
+            <label for="">&nbsp;</label>
+            <div>
+                <button id="enc-ver-doc" type="button" class="btn btn-primary btn-circle btn-icon">
+                    <i class="fas fa-file-pdf"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    {% include "campos/errorform.html" %}
+{% endblock modalBody %}
+{% block modalScriptPost %}
+    <script>
+        $("#enc-ver-doc").on("click", function () {
+            let iddoc = $("#{{ form.documentosustento.auto_id }}").val();
+            if (iddoc) {
+                let urldoc = "{% url 'apptra:documento_descargar' 0 %}".replace("0", iddoc);
+                viewPDF(
+                    urldoc,
+                    $("#{{ form.documentosustento.auto_id }}").text(),
+                    "{{ user.auth_token.key }}"
+                );
+            } else {
+                appMensaje("Atención", "flaticon-warning", "Debe seleccionar un documento", "warning", "bg-warning");
+            }
+        });
+    </script>
+{% endblock modalScriptPost %}
+{% block modalPost %}refrescar_tablaEncargatura{% endblock modalPost %}

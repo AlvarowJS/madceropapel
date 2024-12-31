@@ -1,0 +1,46 @@
+{% extends "tramite/base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load i18n table_tags %}
+{% block TramiteContenido %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-custom">
+                <div class="card-body">
+                    <div class="row">
+                        {% if user.is_staff %}
+                            {% include "campos/campoform.html" with campo=form.cbtrabajador %}
+                            <div class="col-12 card-body p-4">
+                                {% render_table tablaProyeccion %}
+                            </div>
+                        {% else %}
+                            <div class="col-12 card-body p-4">
+                                {% render_table tablaProyeccionArea %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        {% if user.is_staff %}
+            $("#{{ form.cbtrabajador.auto_id }}").on("change", function () {
+                let valor = $(this).val() || 0;
+                let btnadd = $("#tablaProyeccion_wrapper #btnAdd");
+
+                let urlproy = "{% url 'apporg:proyeccion_listar' 0 %}".replace("0", valor);
+                table_tablaProyeccion.api().ajax.url(urlproy).load();
+
+                let urladd = "{% url 'apporg:proyeccion_agregar' 0 %}".replace("0", valor);
+                btnadd.attr("href", urladd);
+            });
+        {% else %}
+
+        {% endif %}
+    </script>
+{% endblock TramiteContenido %}

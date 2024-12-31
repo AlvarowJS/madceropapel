@@ -1,0 +1,116 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% block modalTitulo %}
+    <button id="btnComprimirListaDocs" class="btn btn-icon btn-outline-secondary btn-circle btn-sm p-1 mr-2"
+            style="width: 22px; height: 22px" data-toggle="tooltip" title="Mostrar/Ocultar Listado" data-estado="1">
+        <i class="fas fa-angle-double-left fa-1x"></i>
+    </button>
+    Expediente N° <span class="text-primary">{{ expediente.expedientenro }}</span>
+    <script>
+        $('#btnComprimirListaDocs').tooltip({trigger: 'hover'});
+        $('#btnComprimirListaDocs').on("click", function () {
+            me = $(this);
+            $(this).data("estado", !me.data("estado"));
+            if (me.data("estado")) {
+                $("#btnComprimirListaDocs i").removeClass("fa-angle-double-right").addClass("fa-angle-double-left");
+
+                $("#docs-lista-full").show();
+                $("#modal-pdf-viewer-file-content").removeClass("col-12").addClass("col-8")
+            } else {
+                {#me.attr("title","Mostrar Listado");#}
+                $("#btnComprimirListaDocs i").removeClass("fa-angle-double-left").addClass("fa-angle-double-right");
+
+                $("#docs-lista-full").hide();
+                $("#modal-pdf-viewer-file-content").removeClass("col-8").addClass("col-12")
+            }
+        });
+    </script>
+{% endblock modalTitulo %}
+{% block modalBodyTotal %}
+    <div class="modal-body racing p-3" style="height: calc(100vh - 120px)">
+        <div class="row h-100 docs-contenedor">
+            <div class="col-4 pr-1" id="docs-lista-full">
+                <div class="timeline timeline-6">
+                    {% if documento %}
+                        {% include "tramite/documento/visualizar_detalle.html" with documento=documento primero=True %}
+                    {% endif %}
+                    {% if expedientes == 1 %}
+                        {% for destino in destinos %}
+                            {% if forloop.first and not documento %}
+                                {% setvar 'doc_primero' True %}
+                            {% else %}
+                                {% setvar 'doc_primero' False %}
+                            {% endif %}
+                            {% include "tramite/documento/visualizar_detalle.html" with destino=destino primero=doc_primero %}
+                        {% endfor %}
+                    {% else %}
+                        {% setvar "expnro" destinos.first.expedientenro %}
+                        {% for destino in destinos %}
+                            {% if forloop.first or destino.expedientenro != expnro %}
+                                <div class="separator separator-solid mb-3 text-center">
+                                    Exp. N° {{ destino.expedientenro }}
+                                </div>
+                            {% endif %}
+                            {% setvar "expnro" destino.expedientenro %}
+                            {% include "tramite/documento/visualizar_detalle.html" with destino=destino primero=doc_primero %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div id="modal-pdf-viewer-full-filecontent" class="col-8 h-100 docs-visor">
+                <iframe id="modal-pdf-viewer-full-file" class="w-100 h-100 p-0 m-0"></iframe>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block modalScriptPost %}
+    <script>
+        $("#docs-lista-full").on("click", ".docs-item", function (e) {
+            let me = $(this);
+            if (!me.hasClass("active")) {
+                e.preventDefault();
+                $.cargarPagina(
+                    "get",
+                    $(this).data("href"),
+                    $("#modal-pdf-viewer-full .modal-content"),
+                    '',
+                    null,
+                    {
+                        Authorization: "Token {{ user.auth_token.key }}",
+                        "Base64": true
+                    },
+                    function (e, s, h) {
+                        $("#modal-pdf-viewer-full-filecontent").empty().html(
+                            '<iframe id="modal-pdf-viewer-full-file" class="w-100 h-100 p-0 m-0"></iframe>'
+                        );
+                        if (h.getResponseHeader("content-type") === "text/html") {
+                            docSrc = document.getElementById("modal-pdf-viewer-full-file").contentWindow.document;
+                            docSrc.open();
+                            docSrc.write(e);
+                            docSrc.close();
+                        } else {
+                            PDFObject.embed(
+                                "data:application/pdf;base64," + e,
+                                "#modal-pdf-viewer-full-filecontent",
+                                PDFObjectOptions
+                            );
+                            {#$("#modal-pdf-viewer-file-full").attr("src", "data:application/pdf;base64," + e);#}
+                        }
+                        $("#docs-lista-full .docs-item").removeClass("bg-primary-o-40 active");
+                        me.addClass("bg-primary-o-40 active");
+                    }
+                );
+            }
+        });
+
+        setTimeout(function () {
+            $("#docs-lista-full .docs-item").first().trigger("click");
+        }, 500);
+    </script>
+{% endblock modalScriptPost %}

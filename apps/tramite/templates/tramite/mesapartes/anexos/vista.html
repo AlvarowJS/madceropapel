@@ -1,0 +1,25 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles static queries %}
+{% block modalTitulo %}
+    Anexos del Expediente: {{ doc.expedientenro }}
+{% endblock modalTitulo %}
+{% block modalBodyVacio %}
+    <button type="button" class="btn btn-primary btn-sm" data-target="#documento-detalle-modal"
+            data-toggle="modal" href="{% url 'apptra:mesapartes_registrar_anexo_agregar' doc.id %}">
+        <i class="fas fa-plus-circle"></i>
+        Agregar
+    </button>
+    {% include "tramite/documento/emitir/tabla.html" with object=doc id="tdanexos" columnas="Descripción|Archivo|" anchos="30%|50%|20%" campos="descripcion|archivonombre|" editar=True urleditarcustom=urleditarcustom urleliminarcustom=urleliminarcustom customsize="md" %}
+{% endblock modalBodyVacio %}
+{% block modalScriptPost %}
+    <script type="text/javascript">
+        var kt_tabs_data = {"tdanexos": 0};
+        dt_tdanexos_data["datos"] = {{ anexos|safe }};
+    </script>
+{% endblock modalScriptPost %}

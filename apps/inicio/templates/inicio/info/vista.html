@@ -1,0 +1,685 @@
+{% extends "webadmin/base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static utiles %}
+{% block BaseTitulo %}
+    - Ayuda
+{% endblock BaseTitulo %}
+{% block BaseBody %}
+    <div class="d-flex flex-column flex-root">
+        <!--begin::Page-->
+        <div class="d-flex flex-row flex-column-fluid page">
+            <!--begin::Wrapper-->
+            <div class="d-flex flex-column flex-row-fluid wrappers">
+                <div class="bg-white mb-7 d-flex flex-lg-column">
+                    <!--begin::Container-->
+                    <div class="container text-center py-3">
+                        <a href="javascript:;">
+                            <img src="{% static 'images/logo_mad3.svg' %}" class="max-h-50px" alt=""/>
+                        </a>
+                    </div>
+                    <!--end::Container-->
+                </div>
+                <!--begin::Content-->
+                <div class="content d-flex flex-column flex-column-fluid">
+                    <!--begin::Entry-->
+                    <div class="d-flex flex-column-fluid">
+                        <!--begin::Container-->
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <!--begin::List Widget 7-->
+                                    <div class="card card-custom gutter-b card-stretch">
+                                        <!--begin::Body-->
+                                        <div class="card-body pt-8 pb-2">
+                                            <p class="text-justify">
+                                                El nuevo <strong class="text-primary">{{ configapp.Titulo }}</strong>
+                                                (<strong>{{ configapp.TituloCorto }}</strong>) ha sido desarrollado
+                                                íntegramente por la
+                                                <strong>{{ configapp.Desarrollo }}</strong>
+                                                del {{ configapp.Empresa }}({{ configapp.Diminutivo }})
+                                                con la finalidad de gestionar digitalemente toda la documentación de la
+                                                Sede y demás dependencias del {{ configapp.Diminutivo }}.
+                                            </p>
+                                            <p class="mb-5">
+                                                Para firmar digitalmente, en el MAD Cero Papel, se utilizará el software
+                                                de Firma Digital: <strong>Firma GRC</strong>
+                                                así como los mismos certificados digitales brindados por la RENIEC y el
+                                                aplicativo <strong>Office GRC</strong> para la
+                                                edición de los documentos.
+                                            </p>
+                                            <p class="mb-5">
+                                                Para acceder al nuevo <strong>{{ configapp.TituloCorto }}</strong> debes
+                                                acceder al siguiente enlace:
+                                                <a href="{{ configapp.AppSite }}" class=" px-3 py-2 text-white rounded"
+                                                   style="background-color: #1525fd">
+                                                    {{ configapp.AppSite }}
+                                                </a>
+                                            </p>
+                                            <div class="text-center mb-6">
+
+                                            </div>
+                                            {% if configapp.TieneSGD %}
+                                                {% if contador|diasrestantes < 14 %}
+                                                    <h6 class="text-primary">Ten en cuenta éstas fechas:</h6>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <table class="w-100">
+                                                                <tr class="border-bottom">
+                                                                    <td class="py-2">
+                                                                    <span class="label label-danger label-inline mr-3"
+                                                                          style="font-size: .95rem">{{ configapp.FechaInicio|date:"d \d\e M \d\e Y" }}</span>
+                                                                    </td>
+                                                                    <td class="py-2">
+                                                                        <h6>Inicio del Uso del nuevo MAD Cero
+                                                                            Papel.</h6>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr class="border-bottom">
+                                                                    <td class="py-2">
+                                                                <span class="label label-danger label-inline mr-3"
+                                                                      style="font-size: .95rem">
+                                                                    {{ configapp.SGDFechaPeriodoCierre|date:"d \d\e M" }} al
+                                                                    {{ configapp.SGDFechaCierreDefinitivo|date:"d \d\e M \d\e Y" }}
+                                                                </span>
+                                                                    </td>
+                                                                    <td class="py-2">
+                                                                        <h6>Periodo de Cierre de Documentos en el
+                                                                            SGD.</h6>
+                                                                        <div>
+                                                                            Sólo se podrán recibir, anular o
+                                                                            archivar
+                                                                            documentos.<br>
+                                                                            Ya no se podrán crear nuevos documentos
+                                                                            en el
+                                                                            SGD.
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            </table>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <table class="w-100">
+                                                                <tr>
+                                                                    <td class="py-2">
+                                                                <span class="label label-danger label-inline mr-3"
+                                                                      style="font-size: .95rem">
+                                                                    {{ configapp.SGDFechaCierreDefinitivo|date:"d \d\e M \d\e Y" }}
+                                                                </span>
+                                                                    </td>
+                                                                    <td class="py-2">
+                                                                        <h6>Cierre Definitivo SGD.</h6>
+                                                                        <div>El SGD sólo se podrá usar en modo
+                                                                            Consulta.
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            </table>
+
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+                                            {% endif %}
+                                        </div>
+                                        <!--end::Body-->
+                                    </div>
+                                    <!--end::List Widget 7-->
+                                </div>
+                            </div>
+                            <!--begin::Row-->
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="card card-custom gutter-b card-stretch">
+                                        <!--begin::Header-->
+                                        <div class="card-header bg-primary border-0">
+                                            <h3 class="card-title font-weight-bolder text-white">Normatividad</h3>
+                                        </div>
+                                        <!--end::Header-->
+                                        <!--begin::Body-->
+                                        <div class="card-body pt-8">
+                                            <!--begin::Item-->
+                                            <div class="d-flex align-items-center flex-wrap mb-2">
+                                                <!--begin::Symbol-->
+                                                <div class="symbol symbol-40 symbol-light mr-5">
+                                                <span class="symbol-label">
+                                                    <i class="far fa-file-alt text-primary"></i>
+                                                </span>
+                                                </div>
+                                                <!--end::Symbol-->
+                                                <!--begin::Text-->
+                                                <div class="d-flex flex-column flex-grow-1 mr-2">
+                                                    <a href="#"
+                                                       class="font-weight-bold text-dark-75 text-hover-primary font-size-lg mb-1">
+                                                        Memorandum Inicio de Uso del MAD3
+                                                    </a>
+                                                    <span class="text-muted font-weight-bold">11 Noviembre del 2021</span>
+                                                </div>
+                                                <!--end::Text-->
+                                                {#                                                <span class="label label-xl label-light label-inline my-lg-0 my-2 text-dark-50 font-weight-bolder">#}
+                                                {#                                                    <i class="fas fa-cloud-download-alt text-primary"></i>#}
+                                                {#                                                </span>#}
+                                            </div>
+                                            <!--end::Item-->
+                                            <!--begin::Item-->
+                                            <div class="d-flex align-items-center flex-wrap mb-2">
+                                                <!--begin::Symbol-->
+                                                <div class="symbol symbol-40 symbol-light mr-5">
+                                                <span class="symbol-label">
+                                                    <i class="far fa-file text-primary"></i>
+                                                </span>
+                                                </div>
+                                                <!--end::Symbol-->
+                                                <!--begin::Text-->
+                                                <div class="d-flex flex-column flex-grow-1 mr-2 my-2">
+                                                    <a href="{% static 'docs/directiva_mad3.pdf' %}" target="_blank"
+                                                       class="font-weight-bold text-dark-75 text-hover-primary font-size-lg mb-1">
+                                                        Directiva de Funcionamiento MAD3
+                                                    </a>
+                                                    <span class="text-muted font-weight-bold">
+                                                DIR N° 2-2022-GR.CAJ/DRTD
+                                            </span>
+                                                </div>
+                                                <!--end::Text-->
+                                            </div>
+                                            <!--end::Item-->
+                                            <!--begin::Item-->
+                                            <div class="d-flex align-items-center flex-wrap mb-2">
+                                                <!--begin::Symbol-->
+                                                <div class="symbol symbol-40 symbol-light mr-5">
+                                                <span class="symbol-label">
+                                                    <i class="fas fa-award text-primary"></i>
+                                                </span>
+                                                </div>
+                                                <!--end::Symbol-->
+                                                <!--begin::Text-->
+                                                <div class="d-flex flex-column flex-grow-1 mr-2 my-2">
+                                                    <a href="{% static 'docs/resolucion_mad3.pdf' %}" target="_blank"
+                                                       class="font-weight-bold text-dark-75 text-hover-primary font-size-lg mb-1">
+                                                        Resolución MAD3
+                                                    </a>
+                                                    <span class="text-muted font-weight-bold">
+                                                        RES GGR D18-2022-GR.CAJ-GGR-DRAJ
+                                                    </span>
+                                                </div>
+                                                <!--end::Text-->
+                                            </div>
+                                            <!--begin::Item-->
+                                            <div class="d-flex align-items-center flex-wrap mb-2">
+                                                <!--begin::Symbol-->
+                                                <div class="symbol symbol-40 symbol-light mr-5">
+                                                <span class="symbol-label">
+                                                    <i class="fas fa-award text-primary"></i>
+                                                </span>
+                                                </div>
+                                                <!--end::Symbol-->
+                                                <!--begin::Text-->
+                                                <div class="d-flex flex-column flex-grow-1 mr-2 my-2">
+                                                    <a href="{% static 'docs/acreditacion_firma_grc_indecopi.pdf' %}" target="_blank"
+                                                       class="font-weight-bold text-dark-75 text-hover-primary font-size-lg mb-1">
+                                                        Acreditación Firma GRC ante INDECOPI
+                                                    </a>
+                                                    <span class="text-muted font-weight-bold">
+                                                        Oficio N° 091-2022/cfe-INDECOPI
+                                                    </span>
+                                                </div>
+                                                <!--end::Text-->
+                                            </div>
+                                            <!--end::Item-->
+                                        </div>
+                                        <!--end::Body-->
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <!--begin::List Widget 7-->
+                                    <div class="card card-custom gutter-b card-stretch">
+                                        <!--begin::Header-->
+                                        <div class="card-header bg-primary border-0">
+                                            <h3 class="card-title font-weight-bolder text-white">Manuales</h3>
+                                        </div>
+                                        <!--end::Header-->
+                                        <!--begin::Body-->
+                                        <div class="card-body pt-7">
+                                            <div class="d-flex align-items-center flex-wrap mb-3">
+                                                <div class="symbol symbol-40 symbol-light mr-5">
+                                                <span class="symbol-label">
+                                                    <i class="fas fa-book text-primary"></i>
+                                                </span>
+                                                </div>
+                                                <div class="d-flex flex-column flex-grow-1 mr-2">
+                                                    <a href="#"
+                                                       class="font-weight-bold text-primary font-size-lg mb-0">
+                                                        MANUAL DE USUARIO
+                                                    </a>
+                                                    <span class="font-weight-bold">MAD3 Cero Papel</span>
+                                                </div>
+                                            </div>
+                                            <div class="list-group" id="list-tab" role="tablist">
+                                                <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                                                   href="{% static 'docs/ManualGeneral1.0.pdf' %}" target="_blank"
+                                                   aria-controls="list-home">
+                                                    Módulo General
+                                                    <span class="badge badge-light badge-pill small text-muted">v1.0</span>
+                                                </a>
+                                                <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                                                   href="{% static 'docs/mad3_modulo_general_2.0.pdf' %}" target="_blank"
+                                                   aria-controls="list-home">
+                                                    Módulo General
+                                                    <span class="badge badge-light badge-pill small text-muted">v2.0</span>
+                                                </a>
+                                                <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                                                   href="{% static 'docs/mad3_emision_prof_1.0.pdf' %}" target="_blank"
+                                                   aria-controls="list-home">
+                                                    Emisión Profesional
+                                                    <span class="badge badge-light badge-pill small text-muted">v1.0</span>
+                                                </a>
+                                                <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                                                   href="{% static 'docs/mad3_emision_uo_1.0.pdf' %}" target="_blank"
+                                                   aria-controls="list-home">
+                                                   Emisión de Unidad Organizacional
+                                                    <span class="badge badge-light badge-pill small text-muted">v1.0</span>
+                                                </a>
+                                                <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                                                   href="{% static 'docs/mad3_recepcion_1.0.pdf' %}" target="_blank"
+                                                   aria-controls="list-home">
+                                                    Recepción de Documentos
+                                                    <span class="badge badge-light badge-pill small text-muted">v1.0</span>
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <div class="card-body pt-0">
+                                            <div class="d-flex align-items-center flex-wrap mb-3">
+                                                <div class="symbol symbol-40 symbol-light mr-5">
+                                                <span class="symbol-label">
+                                                    <i class="fas fa-book text-warning"></i>
+                                                </span>
+                                                </div>
+                                                <div class="d-flex flex-column flex-grow-1 mr-2">
+                                                    <a href="#"
+                                                       class="font-weight-bold text-primary font-size-lg mb-0">
+                                                        MANUAL DE USUARIO
+                                                    </a>
+                                                    <span class="font-weight-bold">Firma GRC</span>
+                                                </div>
+                                            </div>
+                                            <div class="list-group" id="list-tab" role="tablist">
+                                                <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                                                   href="{% static 'docs/firmagrc_manual_usuario_1.0.pdf' %}" target="_blank"
+                                                   aria-controls="list-home">
+                                                    Uso General
+                                                    <span class="badge badge-light badge-pill small text-muted">v1.0</span>
+                                                </a>
+
+                                            </div>
+                                        </div>
+                                        <!--end::Body-->
+                                    </div>
+                                    <!--end::List Widget 7-->
+                                </div>
+                                <div class="col-md-4">
+                                    <!--begin::Mixed Widget 2-->
+                                    <div class="card card-custom bg-gray-100 gutter-b card-stretch">
+                                        <!--begin::Header-->
+                                        <div class="card-header border-0 bg-primary py-5">
+                                            <h3 class="card-title font-weight-bolder text-white">Videotutoriales</h3>
+                                        </div>
+                                        <!--end::Header-->
+                                        <!--begin::Body-->
+                                        <div class="card-body p-0 position-relative overflow-hidden">
+                                            <!--begin::Stats-->
+
+                                            <div class="card-spacer ">
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <h6 class="mb-4">Instalación de Requisitos</h6>
+                                                    </div>
+                                                </div>
+                                                <!--begin::Row-->
+                                                <div class="row m-0">
+                                                    <div class="col bg-white py-4 text-center rounded-xl mr-7 mb-7">
+                                                        <div class="d-block my-2">
+                                                            <i class="fas fa-puzzle-piece fa-3x text-warning"></i>
+                                                        </div>
+                                                        <a href="https://drive.google.com/file/d/1SAxeBHvLLOl2cRKmtOkfAvoAoJF36lsz/view"
+                                                           class="text-primary font-weight-bold font-size-h6"
+                                                           target="_blank">
+                                                            Plugin para Mozilla Firefox
+                                                        </a>
+                                                    </div>
+                                                    <div class="col bg-white py-4 text-center rounded-xl mb-7">
+															<span class="svg-icon svg-icon-3x svg-icon-warning d-block my-2">
+																<i class="fas fa-puzzle-piece fa-3x text-success"></i>
+															</span>
+                                                        <a href="https://drive.google.com/file/d/1VDK6ZVcrNEc-MQB6g52YS2xTjjf417B0/view"
+                                                           class="text-primary font-weight-bold font-size-h6 mt-2"
+                                                           target="_blank">
+                                                            Plugin Google Chrome
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                <!--end::Row-->
+                                                <!--begin::Row-->
+                                                <div class="row m-0">
+                                                    <div class="col bg-white py-4 text-center rounded-xl mr-7">
+                                                        <div class="d-block my-2">
+                                                            <img src="{% static 'images/icono_firmagrc.png' %}"
+                                                                 class="w-50px" alt=""/>
+                                                        </div>
+                                                        <a href="https://drive.google.com/file/d/1ops9QwjH6UTvWVqjhaFx5lm8nNiOb9dT/view"
+                                                           class="text-primary font-weight-bold font-size-h6 mt-2"
+                                                           target="_blank">
+                                                            Firma GRC
+                                                        </a>
+                                                    </div>
+                                                    <div class="col bg-white py-4 text-center rounded-xl">
+															<span class="d-block my-2">
+																<img src="{% static 'images/icono_officegrc.svg' %}"
+                                                                     class="w-50px" alt=""/>
+															</span>
+                                                        <a href="https://drive.google.com/file/d/1ops9QwjH6UTvWVqjhaFx5lm8nNiOb9dT/view"
+                                                           class="text-primary font-weight-bold font-size-h6 mt-2"
+                                                           target="_blank">
+                                                            Office GRC
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                <!--end::Row-->
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <h6 class="my-4">Uso del Sistema</h6>
+                                                    </div>
+                                                </div>
+                                                <!--begin::Row-->
+                                                <div class="row m-0">
+                                                    <div class="col bg-white py-4 text-center rounded-xl mr-7 mb-7">
+                                                        <div class="d-block my-2">
+                                                            <i class="fas fa-chalkboard-teacher fa-3x text-danger"></i>
+                                                        </div>
+                                                        <a href="https://drive.google.com/file/d/1EEkvc9ixjq9D4X9R-bofzsFDruGE_xZ2/view"
+                                                           target="_blank"
+                                                           class="text-primary font-weight-bold font-size-h6">
+                                                            Demostración de Características
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!--end::Stats-->
+
+                                        </div>
+                                        <!--end::Body-->
+                                    </div>
+                                    <!--end::Mixed Widget 2-->
+                                </div>
+                            </div>
+                            <div class="row">
+
+                                <div class="col-md-4">
+                                    <!--begin::List Widget 7-->
+                                    <div class="card card-custom gutter-b card-stretch">
+                                        <!--begin::Header-->
+                                        <div class="card-header bg-primary border-0">
+                                            <h3 class="card-title font-weight-bolder text-white">Capacitaciones</h3>
+                                        </div>
+                                        <!--end::Header-->
+                                        <!--begin::Body-->
+                                        <div class="card-body pt-8">
+                                            <div class="d-flex align-items-center flex-wrap mb-2">
+                                                <div class="symbol symbol-40 symbol-light mr-5">
+														<span class="symbol-label">
+															<i class="fas fa-chalkboard-teacher text-danger"></i>
+														</span>
+                                                </div>
+                                                <div class="d-flex flex-column flex-grow-1 mr-2">
+                                                    <a href="https://drive.google.com/file/d/1c7aDtl2Hv8eglcDPR3GRZYsfr7qE6R_W/view?usp=sharing"
+                                                       target="_blank"
+                                                       class="font-weight-bold text-dark-75 text-hover-primary font-size-lg mb-1">
+                                                        18 Octubre 2021 09:00 am
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center flex-wrap mb-2">
+                                                <div class="symbol symbol-40 symbol-light mr-5">
+														<span class="symbol-label">
+															<i class="fas fa-chalkboard-teacher text-danger"></i>
+														</span>
+                                                </div>
+                                                <div class="d-flex flex-column flex-grow-1 mr-2">
+                                                    <a href="https://drive.google.com/file/d/1ykHBHr8dIw5A7QGCGkhfVnNFoG2vskO5/view?usp=sharing"
+                                                       target="_blank"
+                                                       class="font-weight-bold text-dark-75 text-hover-primary font-size-lg mb-1">
+                                                        19 octubre 2021 09:00 am
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center flex-wrap mb-2">
+                                                <div class="symbol symbol-40 symbol-light mr-5">
+														<span class="symbol-label">
+															<i class="fas fa-chalkboard-teacher text-danger"></i>
+														</span>
+                                                </div>
+                                                <div class="d-flex flex-column flex-grow-1 mr-2">
+                                                    <a href="https://drive.google.com/file/d/1wuRI3e7Ia6tkTz53knU5Eumc_-ief9eS/view?usp=sharing"
+                                                       target="_blank"
+                                                       class="font-weight-bold text-dark-75 text-hover-primary font-size-lg mb-1">
+                                                        20 Octubre 2021 09:00 am
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center flex-wrap mb-2">
+                                                <div class="symbol symbol-40 symbol-light mr-5">
+														<span class="symbol-label">
+															<i class="fas fa-chalkboard-teacher text-danger"></i>
+														</span>
+                                                </div>
+                                                <div class="d-flex flex-column flex-grow-1 mr-2">
+                                                    <a href="https://drive.google.com/file/d/1zWQkMeDEtws4UtYbuSn3l-JjxMmOxnFH/view?usp=sharing"
+                                                       target="_blank"
+                                                       class="font-weight-bold text-dark-75 text-hover-primary font-size-lg mb-1">
+                                                        21 Octubre 2021 09:00 am
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center flex-wrap mb-2">
+                                                <div class="symbol symbol-40 symbol-light mr-5">
+														<span class="symbol-label">
+															<i class="fas fa-chalkboard-teacher text-danger"></i>
+														</span>
+                                                </div>
+                                                <div class="d-flex flex-column flex-grow-1 mr-2">
+                                                    <a href="https://drive.google.com/file/d/1zfqNk7JJpbiqnL9H8Jar-mfcSX26NHuj/view?usp=sharing"
+                                                       target="_blank"
+                                                       class="font-weight-bold text-dark-75 text-hover-primary font-size-lg mb-1">
+                                                        25 Octubre 2021 09:00 am
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center flex-wrap mb-2">
+                                                <div class="symbol symbol-40 symbol-light mr-5">
+														<span class="symbol-label">
+															<i class="fas fa-chalkboard-teacher text-danger"></i>
+														</span>
+                                                </div>
+                                                <div class="d-flex flex-column flex-grow-1 mr-2">
+                                                    <a href="https://drive.google.com/file/d/1il8r9b9WIGh8gAOe-Ef7xg-k2-4zdPiA/view?usp=sharing"
+                                                       target="_blank"
+                                                       class="font-weight-bold text-dark-75 text-hover-primary font-size-lg mb-1">
+                                                        26 de Octubre 2021 09:00 am
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center flex-wrap mb-2">
+                                                <div class="symbol symbol-40 symbol-light mr-5">
+														<span class="symbol-label">
+															<i class="fas fa-chalkboard-teacher text-danger"></i>
+														</span>
+                                                </div>
+                                                <div class="d-flex flex-column flex-grow-1 mr-2">
+                                                    <a href="https://drive.google.com/file/d/1sS37yZ4IHJXTT44tPKvqabuQg1lNjTxh/view?usp=sharing"
+                                                       target="_blank"
+                                                       class="font-weight-bold text-dark-75 text-hover-primary font-size-lg mb-1">
+                                                        27 de Octubre 2021 09:00 am
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center flex-wrap mb-2">
+                                                <div class="symbol symbol-40 symbol-light mr-5">
+														<span class="symbol-label">
+															<i class="fas fa-chalkboard-teacher text-danger"></i>
+														</span>
+                                                </div>
+                                                <div class="d-flex flex-column flex-grow-1 mr-2">
+                                                    <a href="https://drive.google.com/file/d/1OTO_CrNqOBn_zqOERSD-FHCLOHXV8CR0/view?usp=sharing"
+                                                       target="_blank"
+                                                       class="font-weight-bold text-dark-75 text-hover-primary font-size-lg mb-1">
+                                                        28 de Octubre 2021 09:00 am
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center flex-wrap mb-2">
+                                                <div class="symbol symbol-40 symbol-light mr-5">
+														<span class="symbol-label">
+															<i class="fas fa-chalkboard-teacher text-danger"></i>
+														</span>
+                                                </div>
+                                                <div class="d-flex flex-column flex-grow-1 mr-2">
+                                                    <a href="#" target="_blank"
+                                                       class="font-weight-bold text-dark-75 text-hover-primary font-size-lg mb-1">
+                                                        03 de Noviembre 2021 09:00 am
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!--end::Body-->
+                                    </div>
+                                    <!--end::List Widget 7-->
+                                </div>
+                                <div class="col-md-8">
+                                    <!--begin::List Widget 7-->
+                                    <div class="card card-custom gutter-b card-stretch">
+                                        <!--begin::Header-->
+                                        <div class="card-header bg-primary border-0">
+                                            <h3 class="card-title font-weight-bolder text-white">Preguntas y Respuestas
+                                                Frecuentes</h3>
+                                        </div>
+                                        <!--end::Header-->
+                                        <!--begin::Body-->
+                                        <div class="card-body pt-8">
+                                            <div class="accordion accordion-toggle-arrow" id="acordPregResp">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <div class="card-title" data-toggle="collapse"
+                                                             data-target="#collapseOne1">
+                                                            ¿Es necesario tramitar un nuevo certificado digital?
+                                                        </div>
+                                                    </div>
+                                                    <div id="collapseOne1" class="collapse show"
+                                                         data-parent="#acordPregResp">
+                                                        <div class="card-body">
+                                                            <strong>No</strong>.
+                                                            Se puede seguir usando el mismo certificado digital siempre
+                                                            y cuando este no haya expirado
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <div class="card-title collapsed" data-toggle="collapse"
+                                                             data-target="#collapse02">
+                                                            ¿Con qué usuario debo ingresar al nuevo MAD Cero Papel?
+                                                        </div>
+                                                    </div>
+                                                    <div id="collapse02" class="collapse" data-parent="#acordPregResp">
+                                                        <div class="card-body">
+                                                            Existen dos formas:
+                                                            <ul>
+                                                                <li>
+                                                                    Usando tus credenciales de dominio (red o
+                                                                    computadora).
+                                                                </li>
+                                                                <li>
+                                                                    Con tu DNI y la contraseña creada para este nuevo
+                                                                    sistema.
+                                                                </li>
+                                                            </ul>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <div class="card-title collapsed" data-toggle="collapse"
+                                                             data-target="#collapse03">
+                                                            ¿Es necesario descargar manualmente los programas requisitos
+                                                            del sistema?
+                                                        </div>
+                                                    </div>
+                                                    <div id="collapse03" class="collapse" data-parent="#acordPregResp">
+                                                        <div class="card-body">
+                                                            <strong>No</strong>, lo único que se tiene que hacer es
+                                                            ingresar a la URL
+                                                            <a href="https://mad3.regioncajamarca.gob.pe"
+                                                               target="_blank">MAD Cero Papel</a> y en
+                                                            el momento que necesite de alguno de los requisitos, el
+                                                            sistema les pedirá que
+                                                            autorice su instalación.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <div class="card-title collapsed" data-toggle="collapse"
+                                                             data-target="#collapse04">
+                                                            ¿Cómo y quién genera las encargaturas?
+                                                        </div>
+                                                    </div>
+                                                    <div id="collapse04" class="collapse" data-parent="#acordPregResp">
+                                                        <div class="card-body">
+                                                            Las Encargaturas deberán ser generadas por el jefe de área
+                                                            o personal de apoyo a traves del menu Configuración.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <div class="card-title collapsed" data-toggle="collapse"
+                                                             data-target="#collapse04">
+                                                            ¿Cómo y quién genera las comisiones?
+                                                        </div>
+                                                    </div>
+                                                    <div id="collapse04" class="collapse" data-parent="#acordPregResp">
+                                                        <div class="card-body">
+                                                            La creación de una nueva Comisión debe ser generada por el
+                                                            Presidente de la misma en el menu Configuración.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+                                        <!--end::Body-->
+                                    </div>
+                                    <!--end::List Widget 7-->
+                                </div>
+                            </div>
+                            <!--end::Row-->
+                            {% include 'piepagina.html' with centrado=True %}
+                        </div>
+                        <!--end::Container-->
+                    </div>
+                    <!--end::Entry-->
+                </div>
+                <!--end::Content-->
+                <div>
+
+                </div>
+            </div>
+            <!--end::Wrapper-->
+        </div>
+        <!--end::Page-->
+    </div>
+{% endblock BaseBody %}

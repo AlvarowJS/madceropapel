@@ -1,0 +1,45 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load queries utiles %}
+<div class="card card-custom gutter-b mb-0 d-inline-flex d-md-none order-last order-sm-first order-md-last">
+    <div class="card-body p-2">
+        <div id="kt-tablero-acciones" class="d-flex align-items-center flex-wrap justify-content-center">
+            <span id="kt_subheader_menu_wrapper_label"></span>
+        </div>
+    </div>
+</div>
+{% if not user.is_superuser %}
+    <div class="d-flex align-items-center">
+        <a href="{% url 'apptra:documento_emitir' 'O' %}" data-toggle="modal" data-target="#modal-principal"
+           data-modal-size="xl" id="btnDocumentoOficina"
+           class="btn  btn-sm btn-light btn-hover-primary text-dark-75 btn-icon-primary mr-3 my-1 my-lg-0">
+            <i class="icon-md fas fa-building fa-1x p-0"></i>
+            Documento de Unidad Organizacional
+        </a>
+        {% if emisionpersonal %}
+            <a href="{% url 'apptra:documento_emitir' 'P' %}" data-toggle="modal" data-target="#modal-principal"
+               data-modal-size="xl" id="btnDocumentoProfesional"
+               class="btn btn-light btn-sm btn-icon-danger  text-dark-75 btn-hover-primary mr-3 my-1 my-lg-0">
+                <i class="fas fa-user-tie fa-1x p-0"></i>
+                Documento Profesional
+            </a>
+        {% endif %}
+        {% if user.persona|periodoactual:"area.mesadepartes" and user.persona|periodoactual:"permisotramite" == "T" %}
+            {% setvar 'mesaregistrar' True %}
+        {% elif user.persona|periodoactual:"permisotramite" == "T" %}
+            {% setvar 'mesaregistrar' True %}
+        {% endif %}
+        {% if mesaregistrar %}
+            <a href="{% url 'apptra:mesapartes_registrar' %}" data-toggle="modal" data-target="#modal-principal"
+               data-modal-size="xl" id="btnDocumentoMesaPartes"
+               class="btn btn-light btn-sm btn-icon-info text-dark-75 btn-hover-primary mr-3 my-1 my-lg-0">
+                <i class="fas fa-file-import fa-1x p-0 mr-1"></i>
+                Documento Mesa de Partes
+            </a>
+        {% endif %}
+    </div>
+{% endif %}

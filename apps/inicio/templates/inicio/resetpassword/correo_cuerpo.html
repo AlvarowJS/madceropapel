@@ -1,0 +1,29 @@
+{% extends 'inicio/correo/base.html' %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block basecorreoEncabezado %}
+    Restablecer Contraseña
+{% endblock basecorreoEncabezado %}
+{% block basecorreoCuerpo %}
+    <h3 style="text-align: center">Hola, <strong>{{ user.persona.NombreCorto }}</strong></h3>
+    <p style="margin-top:15px">
+        Ha solicitado restablecer la contraseña de su cuenta de
+        <span style="color: #156AF0">{{ configapp.Titulo }} {{ configapp.Diminutivo }}</span>.
+    </p>
+    <P>
+        Si no realizó esta solicitud, puede ignorar este correo electrónico.
+    </P>
+    <P>
+        De lo contrario, haga clic en el enlace de a continuación para completar el proceso.
+    </p>
+
+    <div style="margin-top:35px; margin-bottom: 15px">
+        <a href="{{ protocol }}://{{ domain }}{% url 'appini:inicio_reset_password_confirm' uidb64=uid token=token %}"
+           style="box-shadow:inset 0px 1px 0px 0px #97c4fe; background:linear-gradient(to bottom, #3d94f6 5%, #1e62d0 100%); background-color:#3d94f6; border-radius:6px; border:1px solid #337fed; cursor:pointer; color:#ffffff; font-size:15px; padding:6px 24px; text-decoration:none; text-shadow:4px 1px 0px #1570cd;">Restablecer la contraseña
+        </a>
+    </div>
+{% endblock basecorreoCuerpo %}

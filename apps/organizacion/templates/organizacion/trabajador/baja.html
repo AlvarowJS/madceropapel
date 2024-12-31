@@ -1,0 +1,89 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load queries %}
+{% block modalTitulo %}
+    Dando de Baja a Trabajador
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% url 'apporg:trabajador_baja' object.pk %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% include "campos/info.html" with value=object.persona.apellidocompleto label="Nombres" numcol=9 clase="font-weight-bold font-size-lg text-danger" %}
+    {% include "campos/info.html" with value=object.inicio|date:"d/m/Y" label="Inicio" numcol=3 %}
+    {% include "campos/info.html" with value=object.area.nombre label="Unidad Organizacional" numcol=6 %}
+    {% include "campos/info.html" with value=object.Cargo label="Cargo" numcol=6 %}
+    {#    {% include "campos/info.html" with value=object.get_permisotramite_display label="Modo" numcol=4 %}#}
+
+    {% if OtrosTrabajos %}
+        <div class="col-12">
+            <div class="alert alert-custom alert-light-danger fade show mt-2 mb-4 px-3 py-2" role="alert">
+                <div class="alert-icon">
+                    <i class="flaticon-warning"></i>
+                </div>
+                <div class="alert-text">Tenga en cuenta que al <strong>DAR DE BAJA</strong> a este personal; también se
+                    dará
+                    de baja de las siguientes encargaturas o comisiones:
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <table class="table table-bordered bg-white tabla-chica">
+                {% if OtrosTrabajos|queryfilter:"area__paracomisiones=False"|querycount > 0 %}
+                    <thead>
+                    <tr class="text-center bg-primary text-white text-uppercase">
+                        <th>Unidad Organizacional</th>
+                        <th style="width: 50px">Jefe</th>
+                        <th style="width: 90px">Modo</th>
+                        <th style="width: 60px">Apoyo</th>
+                        <th style="min-width: 160px">Cargo</th>
+                        <th style="width: 80px">Inicio</th>
+                    </tr>
+                    <tr>
+                        <th colspan="6" class="text-center bg-light-primary">ENCARGATURAS Y APOYOS</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for trabajo in OtrosTrabajos|queryfilter:"area__paracomisiones=False" %}
+                        <tr>
+                            <td>{{ trabajo.area.nombre }}</td>
+                            <td>{{ trabajo.esjefe|yesno:"Si,No" }}</td>
+                            <td>{{ trabajo.get_esjefemodo_display }}</td>
+                            <td>{{ trabajo.esapoyo|yesno:"Si,No" }}</td>
+                            <td>{{ trabajo.Cargo }}</td>
+                            <td>{{ trabajo.inicio|date:"d/m/Y" }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                {% endif %}
+
+                {% if OtrosTrabajos|queryfilter:"area__paracomisiones=True"|querycount > 0 %}
+                    <thead>
+                    <tr>
+                        <th colspan="6" class="text-center bg-light-primary">COMISIONES</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for trabajo in OtrosTrabajos|queryfilter:"area__paracomisiones=True" %}
+                        <tr>
+                            <td>{{ trabajo.area.nombre }}</td>
+                            <td>{{ trabajo.esjefe|yesno:"Si,No" }}</td>
+                            <td>{{ trabajo.get_esjefemodo_display }}</td>
+                            <td>{{ trabajo.esapoyo|yesno:"Si,No" }}</td>
+                            <td>{{ trabajo.Cargo }}</td>
+                            <td>{{ trabajo.inicio|date:"d/m/Y" }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                {% endif %}
+            </table>
+        </div>
+    {% endif %}
+    {% include "campos/errorform.html" %}
+{% endblock modalBody %}
+{% block modalPost %}refrescar_tablaPeriodoTrabajo{% endblock modalPost %}

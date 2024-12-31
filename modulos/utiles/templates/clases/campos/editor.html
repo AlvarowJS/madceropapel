@@ -1,0 +1,32 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+<div class="widget-content widget-content-area p-0 form-control">
+    <input id="{{ widget.attrs.id }}" type="hidden" name="{{ widget.name }}" value="{{ widget.value|default:"" }}">
+    <div id="{{ widget.attrs.id }}_quill" class="w-100" style="height: {{ widget.attrs.alto }}px"
+            {% include "clases/campos/attrs.html" %}>
+        {{ widget.value|default:""|safe }}
+    </div>
+</div>
+<script type="text/javascript">
+    var {{ widget.name }}_quill = new Quill('#{{ widget.attrs.id }}_quill', {
+        modules: {
+            toolbar: [
+                [{'header': [1, 2, 3, 4, 5, 6, false]}],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{'list': 'ordered'}, {'list': 'bullet'}],
+                [{'indent': '-1'}, {'indent': '+1'}],
+                [{'script': 'sub'}, {'script': 'super'}],
+                [{'color': []}, {'background': []}],
+                [{'align': []}],
+            ]
+        },
+        {% if widget.attrs.placeholder %}placeholder: '{{ widget.attrs.placeholder }}',{% endif %}
+        theme: 'snow'
+    }).on('text-change', function (e, f, g, h) {
+        $('#{{ widget.attrs.id }}').val($('#{{ widget.attrs.id }}_quill .ql-editor').html());
+    });
+</script>

@@ -1,0 +1,50 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles queries %}
+{% if object.AnularEmision %}
+    {% if object.responsable == user.persona|periodoactual %}
+        {% setvar 'puede_anular' True %}
+    {% elif object.responsable.area == user.persona|periodoactual:"area" %}
+        {% if user.persona|periodoactual:"tipo" in "EN,EP" or user.persona|periodoactual:"esjefe" %}
+            {% setvar 'puede_anular' True %}
+        {% endif %}
+    {% endif %}
+{% endif %}
+{% if puede_anular %}
+    <div class="btn-nul-emi">
+        <button type="button"
+                class="btn btn-xs btn-light-info btn-hover-info text-info btn-icon-info mr-2">
+            <i class="fas fa-undo p-0"></i>
+            <span class="ml-1 d-none d-sm-inline-block">
+                Anular Emisión
+            </span>
+        </button>
+        <div></div>
+        <script>
+            $(".btn-nul-emi button").on("click", function () {
+                let me_nul_emi = $(this);
+                appConfirm(
+                    "¿Está seguro?",
+                    "¿Desea anular la Emisión del documento?",
+                    "warning",
+                    function () {
+                        $.cargarPagina(
+                            "post",
+                            "{% url 'apptra:documento_emitir_anular_emision' object.pk %}",
+                            $("#modal-principal .modal-content"),
+                            "Un momento...", {}, null,
+                            function (e) {
+                                me_nul_emi.next().html(e);
+                            },
+                            true
+                        );
+                    }
+                );
+            });
+        </script>
+    </div>
+{% endif %}

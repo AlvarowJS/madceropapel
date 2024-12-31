@@ -1,0 +1,61 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles queries %}
+{% if destino.ultimoestado.estado in "NL,LE" %}
+    <div class="btn-doc-rec">
+        <button type="button"
+                class="btn btn-xs btn-light-primary btn-hover-primary text-primary btn-icon-primary">
+            <i class="fas fa-arrow-circle-down p-0"></i>
+            <span class="ml-1 d-none d-sm-inline-block">
+                Recibir
+            </span>
+        </button>
+        <div></div>
+        <script type="text/javascript">
+            $(".btn-doc-rec button").on("click", function () {
+                appConfirm(
+                    "¿Está seguro?",
+                    "¿Desea recibir el documento?",
+                    "info",
+                    function () {
+                        $.cargarPagina(
+                            "post",
+                            "{% url 'apptra:documento_recibir' destino.pk %}",
+                            $("#modal-principal .modal-content"),
+                            "Un momento...", {}, null,
+                            function (e) {
+                                $("#modal-principal .modal-content").load(
+                                    "{% url 'apptra:documento_emitir_editar' object.pk tab tabid %}"
+                                );
+                                {#refrescarTableros("dbDespacho,dbEmitidos", true);#}
+                                {#$("#modal-principal").modal("hide");#}
+                                appAlert(
+                                    "success", "Correcto!!", "El documento ha sido recibido correctamente"
+                                );
+                            }
+                        );
+                    }
+                );
+                {#$(this).next().cargarPagina(#}
+                {#    "post",#}
+                {#    "{% url 'apptra:documento_emitir_firmarvb' object.firmas.all|queryfirmador:user|querygetvalue:"pk" %}"#}
+                {#);#}
+            });
+        </script>
+    </div>
+    <div class="btn-doc-recobs ml-2">
+        <button type="button" href="javascript:;"
+                {#                data-toggle="modal" data-target="#documento-detalle-modal"#}
+                class="btn btn-xs btn-light-danger btn-hover-danger text-danger btn-icon-danger">
+            <i class="fas fa-ban p-0"></i>
+            <span class="ml-1 d-none d-sm-inline-block">
+                Rechazar
+            </span>
+        </button>
+        <div></div>
+    </div>
+{% endif %}

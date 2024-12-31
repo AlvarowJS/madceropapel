@@ -1,0 +1,35 @@
+{% extends "tramite/base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load table_tags utiles %}
+{% block TramiteContenido %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card card-custom">
+                <div class="card-body">
+                    <div class="pb-4">
+                        <div class="row">
+                            {% include "campos/campoform.html" with campo=formPJSelector.tipopj numcol=2 %}
+                        </div>
+                        {% render_table tablaPJ %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock TramiteContenido %}
+{% block TramiteScriptsPost %}
+    <script type="text/javascript">
+        $("#{{ formPJSelector.tipopj.auto_id }}").on("change", function (e) {
+            let tipopj = $(this).val();
+            let urlpj = "{% url 'appini:pj_listar' 'X' %}".replace("X", tipopj);
+            table_tablaPJ.api().ajax.url(urlpj).load();
+            let urladd = "{% url 'appini:pj_agregar' 'X' %}".replace("X", tipopj);
+            $("#btnAdd").attr("href", urladd);
+        });
+    </script>
+{% endblock TramiteScriptsPost %}

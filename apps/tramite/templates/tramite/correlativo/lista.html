@@ -1,0 +1,42 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+<form id="{{ form.id }}" action="{% url 'apptra:correlativo_cambiar' view.kwargs.pk %}"
+      class="form form-inline justify-content-center align-items-center"
+      method="post">
+    {% csrf_token %}
+    {% include "campos/campoform.html" with campo=form.correlativo numcol=4 %}
+    <div class="col-sm-4">
+        <button type="submit" class="mt-6 btn btn-primary">
+            <i class="fas fa-sync-alt"></i>
+            Cambiar
+        </button>
+    </div>
+</form>
+{% if actualizado %}
+    <div class="col-12 mt-6">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-4 alert alert-custom alert-light-warning fade show py-1 px-3" role="alert">
+                <div class="alert-icon"><i class="flaticon2-check-mark"></i></div>
+                <div class="alert-text">El correlativo se ha cambiado <strong>correctamente</strong>.</div>
+                <div class="alert-close">
+                    <button type="button" id="btnCerrarMsje" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true"><i class="ki ki-close"></i></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+<script type="text/javascript">
+    $.formatearCampos("#{{ form.id }}");
+    $("#{{ form.id }}").enviarForm($("#capa-correlativo"), $("html"), "Actualizando...");
+    {% if actualizado %}
+        setTimeout(function () {
+            $("#btnCerrarMsje").trigger("click");
+        }, 5000)
+    {% endif %}
+</script>

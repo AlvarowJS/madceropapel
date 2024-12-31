@@ -1,0 +1,35 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load queries %}
+{% if object.responsable == user.persona|periodoactual or object.creador == user %}
+    <div class="btn-paspro-doc">
+        <button type="button"
+                class="btn btn-xs btn-light-danger btn-hover-danger text-danger mx-2 btn-icon-danger">
+            <i class="fas fa-reply-all p-0"></i>
+            <span class="ml-1 d-none d-sm-inline-block">
+                Regresar a Proyecto
+            </span>
+        </button>
+        <div></div>
+        <script>
+            $(".btn-paspro-doc button").on("click", function () {
+                $(this).next().cargarPagina(
+                    "post",
+                    "{% url 'apptra:documento_emitir_despacho' object.pk %}",
+                    $("#modal-principal .modal-content"),
+                    "Un momento...", {codest: "PY"}, null,
+                    function () {
+                        $("#modal-principal .modal-content").load(
+                            "{% url 'apptra:documento_emitir_editar' object.pk tab tabid %}"
+                        );
+                    },
+                    true
+                );
+            });
+        </script>
+    </div>
+{% endif %}

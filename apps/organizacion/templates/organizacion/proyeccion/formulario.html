@@ -1,0 +1,18 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    Agregando Unidades Organizacionales de Proyección
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% url 'apporg:proyeccion_agregar' view.kwargs.pt %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% include "campos/campoform.html" with campo=form.areasorigen %}
+    {% include "campos/errorform.html" %}
+{% endblock modalBody %}
+{% block modalPost %}refrescar_tablaProyeccion{% endblock modalPost %}

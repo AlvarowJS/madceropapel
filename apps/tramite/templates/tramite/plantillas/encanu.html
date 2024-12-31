@@ -1,0 +1,50 @@
+{% extends "tramite/plantillas/encaut/_base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static queries utiles %}
+{% block PlantillaTitulo %}
+    Documento de Anulación de Encargatura
+{% endblock %}
+{% block PlantillaEstilo %}
+    {% include "tramite/plantillas/encaut/_estilos.html" %}
+{% endblock PlantillaEstilo %}
+{% block PlantillaEncabezado %}
+    {% include "tramite/plantillas/encaut/_encabezado.html" %}
+{% endblock PlantillaEncabezado %}
+{% block PlantillaContenido %}
+    <h1 class="text-center text-bold text-underline">
+        ANULACIÓN DE ENCARGATURA DE FUNCIONES
+    </h1>
+    <p class="text-justify">
+        Yo, <strong>{{ responsable.persona.nombrecompleto }}</strong>,
+        {{ responsable.Cargo }}, de la unidad organizacional
+        {{ responsable.area.nombre }} <span class="text-bold">ANULO a partir de la fecha y hora</span>
+        el <span class="text-underline">encargo temporal de esta unidad organizacional</span>
+        realizado a <span class="text-bold">{{ encargatura.persona.nombrecompleto }}</span>,
+        {{ encargatura.persona|periodoactual:"Cargo()" }} de la
+        {% if encargatura.area == user.persona|periodoactual:"area" %}misma{% endif %}
+        unidad organizacional
+        {% if encargatura.area != user.persona|periodoactual:"area" %}
+            <span class="text-bold">{{ encargatura.area.nombre }}</span>
+        {% endif %}
+        por el periodo del {{ encargatura.inicio|date:"d/m/Y h:i a" }} al {{ encargatura.fin|date:"d/m/Y h:i a" }}.
+    </p>
+    <p class="text-justify">
+        En consecuencia, el documento <span class="text-bold">
+        {{ encargatura.documentosustento.nombreDocumentoNumero }}</span>,
+        queda sin efecto.
+    </p>
+    <p>
+        Me afirmo y me ratifico en lo expresado, en señal de lo cual firmo el presente documento.
+    </p>
+
+     <p class="text-right">
+        {{ encargatura.area.dependencia.ubigeo.provincia.nombre|title }}
+{#        , {{ encargatura.creado|date:"dd 'de' MMMM 'de' yyyy" }}#}
+        , {% now 'd \d\e F \d\e Y' %}
+    </p>
+{% endblock PlantillaContenido %}

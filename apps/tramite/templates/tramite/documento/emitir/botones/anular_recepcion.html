@@ -1,0 +1,59 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load queries utiles %}
+{% setvar "anurec" False %}
+{% if destino.ultimoestado.estado == "RE" %}
+    {% if destino.periodotrabajo.persona.usuario == user %}
+        {% setvar "anurec" True %}
+    {% elif destino.periodotrabajo.area == user.persona|periodoactual:"area" %}
+        {% if user.persona|periodoactual:"tipo" in "EN,EP" %}
+            {% setvar "anurec" True %}
+        {% elif user.persona|periodoactual:"esapoyo" %}
+            {% setvar "anurec" True %}
+        {% endif %}
+    {% endif %}
+{% endif %}
+{% if anurec %}
+    <div class="btn-nul-emi">
+        <button type="button"
+                class="btn btn-xs btn-light-danger btn-hover-danger text-danger btn-icon-danger mr-2">
+            <i class="fas fa-reply-all p-0"></i>
+            <span class="ml-1 d-none d-sm-inline-block">
+                Anular Recepción
+            </span>
+        </button>
+        <div></div>
+        <script>
+            $(".btn-nul-emi button").on("click", function () {
+                appConfirm(
+                    "¿Está seguro?",
+                    "¿Desea anular la Recepción del documento?",
+                    "warning",
+                    function () {
+                        $.cargarPagina(
+                            "post",
+                            "{% url 'apptra:documento_recibir_anular' destino.pk %}",
+                            $("#modal-principal .modal-content"),
+                            "Un momento...", {}, null,
+                            function (e) {
+                                socketMAD0.send(JSON.stringify({
+                                    "codigo": "contadores_actualizar"
+                                }));
+                                refrescarTabla("tablaOficinaRecepcionados");
+                                $("#modal-principal").modal("hide");
+                                appAlert(
+                                    "success", "Correcto!!", "Se ha anulado la Recepción del documento correctamente"
+                                );
+                            },
+                            true
+                        );
+                    }
+                );
+            });
+        </script>
+    </div>
+{% endif %}

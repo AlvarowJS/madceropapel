@@ -1,0 +1,85 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+<style>
+    .panel-lateral {
+        position: absolute;
+        display: block;
+        z-index: 2;
+        visibility: hidden;
+        opacity: 0;
+        top: 0;
+        width: calc(100% - 25px);
+        background-color: #f8f8f8;
+        -webkit-transform: translateX(100%);
+        transform: translateX(100%);
+        -webkit-transition: all .3s ease;
+        transition: all .3s ease;
+        height: 100%;
+    {#border-left: 1px solid #dae1e7;#}
+    }
+
+
+    .panel-lateral.show {
+        visibility: visible;
+        -webkit-transition: all .3s ease;
+        opacity: 1;
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+        transition: all .3s ease
+    }
+
+
+</style>
+<div class="row">
+    <div class="col-12">
+        <div id="kt_panel_lateral" class="panel-lateral">
+            <div class="card card-custom  bg-danger">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h3 class="card-label">Basic Card
+                            <small>sub title</small></h3>
+                    </div>
+                    <div class="card-toolbar">
+                        <a href="javascript:;" class="btn btn-sm btn-success font-weight-bold">
+                            <i class="flaticon2-cross"></i></a>
+                    </div>
+                </div>
+                <div class="card-body">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
+                    Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took
+                    a
+                    galley of type and scrambled. Lorem Ipsum is simply dummy text of the printing and typesetting
+                    industry.
+                    Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
+                    printer
+                    took a galley of type and scrambled.
+                </div>
+            </div>
+
+
+            <script type="text/javascript">
+                // if it is not touch device
+                {#if (!$.app.menu.is_touch_device()) {#}
+                {#    // Email detail section#}
+                {#    if ($('.email-scroll-area').length > 0) {#}
+                {#        var users_list = new PerfectScrollbar(".email-scroll-area");#}
+                {#    }#}
+                {# }#}
+                {#// if it is a touch device#}
+                {#else {#}
+                {#    $(".email-scroll-area").css("overflow", "scroll");#}
+                {# }#}
+                funcExec(function () {
+                    $("#kt_panel_lateral .card-toolbar").on("click", "a", function (e) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        $("#kt_panel_lateral").removeClass("show");
+                    });
+                });
+            </script>
+        </div>
+    </div>
+</div>

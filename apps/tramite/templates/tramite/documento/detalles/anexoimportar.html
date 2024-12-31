@@ -1,0 +1,109 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% block modalTitulo %}
+    Importando Anexos de la Referencia : <strong class="text-primary">{{ object.destino.documento }}</strong>
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% url 'apptra:documento_anexo_importar' view.kwargs.pk %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% if anxok %}
+        <script>
+            refrescarAnexos({{ anxok }}, true);
+            $("#modal-principal-centro").modal("hide");
+        </script>
+    {% elif not anexos or anexos.count == 0 %}
+        NO EXISTEN ANEXOS EN ESTA REFERENCIA
+    {% else %}
+        {{ form.listaanexos }}
+        {% include "campos/errorform.html" with clase="p-0" %}
+        <div class="col-12 p-0">
+            <table class="table table-bordered table-hover table-checkable bg-white tabla-json tabla-detalles"
+                   id="dt_lista_anexos_importar">
+                <thead class="bg-light">
+                <tr>
+                    <th></th>
+                    <th>DESCRIPCION</th>
+                    <th>ARCHIVO</th>
+                    <th>FIRMAS</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for anx in anexos %}
+                    <tr>
+                        <td class="w-20px">
+                            <label class="checkbox checkbox-single checkbox-primary mb-0">
+                                <input type="checkbox" value="" class="checkable"
+                                       {% if anx.pk in form.listaanexos.value|evaluar %}checked{% endif %}
+                                       data-code="{{ anx.pk }}">
+                                <span></span>
+                            </label>
+                        </td>
+                        <td>{{ anx.descripcion }}</td>
+                        <td>
+                            <a href="javascript:;" onclick="{{ anx.archivourl|safe }}">{{ anx.archivonombre }}</a>
+                        </td>
+                        <td>
+                            {% for firmador in anx.firmadores.all %}
+                                <div>
+                                    {{ firmador.empleado.area.nombrecorto }}
+                                    - {{ firmador.empleado.persona.NombreCorto }}
+                                    <span class="ml-2 text-success">( {{ firmador.modo }} )</span>
+                                </div>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+{% endblock %}
+{% block modalScriptPost %}
+    <script type="text/javascript">
+        {% if not anxok %}
+            $("#dt_lista_anexos_importar").dataTable({
+                responsive: true,
+                searching: false,
+                ordering: false,
+                select: {
+                    style: 'multi',
+                    info: true,
+                    selector: 'td:first-child',
+                },
+                {#columnDefs: [{#}
+                {#orderable: false,#}
+                {#    className: 'text-center',#}
+                {#    targets: 0#}
+                {# }],#}
+                {#headerCallback: function (thead, data, start, end, display) {#}
+                {#    thead.getElementsByTagName('th')[0].innerHTML =#}
+                {#        '<label class="checkbox checkbox-single checkbox-solid checkbox-primary mb-0">' +#}
+                {#        '<input type="checkbox" value="" class="group-checkable"/>' +#}
+                {#        '<span></span>' +#}
+                {#        '</label>';#}
+                {# },#}
+                dom: 't',
+                deferRender: true,
+                scrollY: '200px',
+                autoWidth: true,
+                pageLength: 500,
+            }).on("change", "input[type=checkbox]", function () {
+                let lista = [];
+                $("#dt_lista_anexos_importar input[type=checkbox]").each(function () {
+                    if ($(this).is(":checked")) {
+                        lista.push($(this).data("code"));
+                    }
+                });
+                $("#{{ form.listaanexos.auto_id }}").val(JSON.stringify(lista));
+            });
+            ajustarTablas();
+        {% endif %}
+    </script>
+{% endblock %}

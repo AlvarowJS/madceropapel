@@ -1,0 +1,44 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static utiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    {% include "tramite/persona/estilo.html" %}
+</head>
+<body>
+<!-- Content for Static Frame 'header_frame' -->
+<div id="header_content">
+    <table>
+        <tr>
+            <td style="width: 3cm" class="text-center">
+                <img src="{% static 'images/escudo_peru.jpg' %}" alt="">
+            </td>
+            <td class="text-center text-bold">
+                {{ configapp.Empresa }} - {{ configapp.Version }}
+                {% now 'd/m/Y H:I p' %}
+            </td>
+            <td style="width: 3cm" class="text-center">
+                <img src="{% static 'images/grc_mini.png' %}" alt="">
+            </td>
+        </tr>
+    </table>
+</div>
+<!-- Content for Static Frame 'footer_frame' -->
+{% include "tramite/persona/pie.html" %}
+{#{% for xyz in 0|rango:40 %}#}
+    <!-- HTML Content -->
+    Nombres: {{ oPer.nombres }}
+    <br>
+    Paterno: {{ oPer.paterno }}
+    <br>
+    Área: {{ oPer.ultimoperiodotrabajo.area }}
+{#{% endfor %}#}
+</body>
+</html>

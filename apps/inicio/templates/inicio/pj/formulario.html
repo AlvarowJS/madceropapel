@@ -1,0 +1,38 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load queries %}
+{% block modalTitulo %}
+    {% if not object %}
+        Agregando
+    {% else %}
+        Actualizando
+    {% endif %}
+    Persona Jurídica
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% if not object %}
+        {% url 'appini:pj_agregar' view.kwargs.modo %}
+    {% else %}
+        {% url 'appini:pj_editar' object.pk %}
+    {% endif %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% include "campos/campoform.html" with campo=form.ruc numcol=4 %}
+    {% include "campos/campoform.html" with campo=form.razonsocial %}
+    {% include "campos/campoform.html" with campo=form.nombrecomercial %}
+    {% include "campos/campoform.html" with campo=form.pais numcol=4 %}
+    {% include "campos/campoform.html" with campo=form.ubigeo numcol=8 %}
+    {% include "campos/campoform.html" with campo=form.direccion %}
+    {% include "campos/campoform.html" with campo=form.referencia %}
+    {% include "campos/campoform.html" with campo=form.correo numcol=6 %}
+    {% include "campos/campoform.html" with campo=form.telefono numcol=6 %}
+    {% include "campos/campoform.html" with campo=form.representante numcol=6 %}
+    {% include "campos/campoform.html" with campo=form.representantecargo numcol=6 %}
+    {% include "campos/errorform.html" %}
+{% endblock modalBody %}
+{% block modalPost %}refrescar_tablaPJ{% endblock modalPost %}

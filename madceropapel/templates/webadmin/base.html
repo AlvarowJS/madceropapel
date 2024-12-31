@@ -1,0 +1,163 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static utiles %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <title>
+        {{ configapp.TituloMini }}
+        {{ configapp.Version }}
+
+        {% block BaseTitulo %}
+        {% endblock BaseTitulo %}
+    </title>
+    <meta name="description" content="Content width content"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <link rel="canonical" href="https://keenthemes.com/metronic"/>
+    <link rel="stylesheet" href="{% static 'fonts/poppins.css' %}"/>
+    {% include "estilospre.html" %}
+    {% include "scriptspre.html" %}
+    {% include "metas.html" %}
+</head>
+<body id="kt_body" class="header-fixed header-mobile-fixed subheader-enabled subheader-fixed
+aside-enabled aside-fixed aside-minimize aside-minimize-hoverable page-loading">
+<div class="preloader">
+    <div style='background: url("{% static 'images/logo_mad3.svg' %}") no-repeat 50%/70% rgba(255, 255, 255, 0.2)'
+         class="bb">
+    </div>
+</div>
+{% block BaseScriptsPre %}
+{% endblock BaseScriptsPre %}
+{% block BaseBody %}
+    {% include "webadmin/encabezado_mobile.html" %}
+    <div class="d-flex flex-column flex-root">
+        <div class="d-flex flex-row flex-column-fluid page">
+            {% include "webadmin/barra_izquierda.html" %}
+            <div class="d-flex flex-column flex-row-fluid wrapper" id="kt_wrapper">
+                <div id="kt_header" class="header header-fixed">
+                    <div class="container-fluid d-flex align-items-stretch justify-content-between row
+                                {% if configapp.Test %} bg-warning{% endif %}">
+                        {% include "webadmin/pagina_titulo.html" %}
+                        <a href="javascript:;" class="col px-0 text-center pt-1 d-none d-md-inline-block">
+                            {% if configapp.Test %}
+                                <span class="h1 mb-0 mr-2" style="color: #0073E9">TEST</span>
+                            {% endif %}
+                            <img class="kt_logo_status" alt="Logo" src="{% static 'images/logo_mad3.svg' %}"
+                                 width="110px"/>
+                            {% if configapp.Dependencia != '000775' %}
+                                <img class="kt_logo_status h-30px ml-4 pl-3" alt="Logo Entidad"
+                                     style="border-left: 2px solid rgba(0,0,0,.12)"
+                                     src="{{ MEDIA_URL|concatenar:configapp.Dependencia|concatenar:'/images/logo.png' }}"/>
+                            {% endif %}
+                        </a>
+
+                        {% include "webadmin/barra_herramientas.html" %}
+                    </div>
+                </div>
+                <div class="content d-flex flex-column flex-column-fluid" id="kt_content">
+                    <div class="subheader pt-2 pb-1 pb-sm-2 subheader-solid" id="kt_subheader">
+                        <div class="container-fluid d-flex align-items-center justify-content-center
+                        justify-content-sm-between justify-content-md-center flex-wrap flex-sm-nowrap">
+                            {% include "webadmin/acciones.html" %}
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column-fluid">
+                        <div id="kt_content_fluid" class="container-fluid overflow-hidden">
+                            {% include "webadmin/panel_lateral.html" %}
+                            <div id="kt_content_clean">
+                                {% block BaseContainerLimpio %}
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="card card-custom card-stretch gutter-b">
+                                                <div id="kt_content_container" class="card-body p-4">
+                                                    {% block BaseContainer %}
+                                                    {% endblock BaseContainer %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endblock BaseContainerLimpio %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% include "webadmin/pie.html" %}
+            </div>
+        </div>
+    </div>
+    {% include "webadmin/user_panel.html" %}
+    {% include "modales/bmodal.html" with modalid="modal-principal" lateral=True %}
+    {% include "modales/bmodal.html" with modalid="modal-principal-centro" centrado=True %}
+    {% include "modales/bmodal.html" with modalid="modal-centro-scroll" centrado=True scroll=True %}
+    {% include "modales/bmodal.html" with modalid="documento-detalle-modal" centrado=True modalsize="lg" modalauto=True %}
+    {% include "modales/bmodal.html" with modalid="modal-change-area" centrado=True remove=False modalsize="lg" %}
+    {% include "modales/bmodal.html" with modalid="documento-privado-info" centrado=True modalsize="lg" scroll=True %}
+    {% if configapp.ConsultaRazonSocial %}
+        {% include "modales/bmodal.html" with modalid="modal-consulta-razonsocial" centrado=True remove=False modalsize="lg" %}
+    {% endif %}
+    {% include "webadmin/accion_top.html" %}
+    {% include "webadmin/barra_herramientas_derecha.html" %}
+{% endblock BaseBody %}
+{% include "scriptspost.html" %}
+{% include "scriptscomun.html" %}
+{% if certificadovencimiento %}
+    <script>
+        {% setvar "vencecolor" "success" %}
+        {% setvar "vencefrase" "Vigente" %}
+        {% if certificadoporvencer %}
+            {% setvar "vencecolor" "warning" %}
+            {% setvar "vencefrase" "Por Vencer" %}
+        {% elif certificadovencido %}
+            {% setvar "vencecolor" "danger" %}
+            {% setvar "vencefrase" "Vencido" %}
+        {% endif %}
+        function certificadoVencimiento() {
+            appAlert(
+                "{{ vencecolor }}",
+                "<span class='bg-{{ vencecolor }}" +
+                " text-white rounded py-2 px-3'>Certificado Digital <strong>" +
+                "{{ vencefrase }}" +
+                "</strong></span>",
+                "<div class='row'>" +
+                "<div class='col-12 mb-3 bg-light-{{ vencecolor }} p-2'>" +
+                "Estimado usuario, " +
+                {% if certificadoporvencer or not certificadovencido %}
+                    "quedan <strong>{{ certificadovencimiento }} " +
+                    "día{{ certificadovencimiento|pluralize:'s' }}</strong> " +
+                    "para el vencimiento de su certificado digital." +
+                {% else %}
+                    "su certificado ha vencido hace <strong>{{ certificadovencimiento|absoluto }} " +
+                    "día{{ certificadovencimiento|absoluto|pluralize:'s' }}</strong>" +
+                {% endif %}
+                "</div>" +
+                {% if certificadoporvencer or certificadovencido %}
+                    "<div class='col-12 mb-2'>" +
+                    "Debe realizar el trámite para renovar su certificado ingresando a: " +
+                    "</div><div class='col-12'>" +
+                    "<a href='{{ configapp.TramiteCertificado.dj }}' target='_blank'>" +
+                    "{{ configapp.TramiteCertificado.dj }}</a>" +
+                    "</div><div class='col-12 mt-3'>" +
+                    "Para mayor información puede acceder a: " +
+                    "<a href='{{ configapp.TramiteCertificado.ayuda }}' target='_blank'>" +
+                    "{{ configapp.TramiteCertificado.ayuda }}</a>" +
+                    "</div>" +
+                {% endif %}
+                "</div>"
+            );
+        }
+
+        {% if certificadoaviso %}
+            certificadoVencimiento();
+        {% endif %}
+    </script>
+{% endif %}
+{% include "modales/modalscript.html" %}
+{% block BaseScriptsPost %}
+{% endblock BaseScriptsPost %}
+</body>
+</html>

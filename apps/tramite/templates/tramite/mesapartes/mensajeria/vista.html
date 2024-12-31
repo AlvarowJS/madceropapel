@@ -1,0 +1,53 @@
+{% extends "tramite/base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load table_tags %}
+{% block TramiteContenido %}
+    <div id="lista-msj" class="col-12 px-0">
+        <div class="card card-custom gutter-b">
+            <div class="card-body p-7">
+                <div class="row mb-5">
+                    <div class="col-12 text-center p-0">
+                        <div class="btn-group btn-group-sm btn-group-toggle" data-toggle="buttons">
+                            {% for bandeja in bandejas %}
+                                <label class="btn btn-sm btn-light-primary{% if forloop.first %} active{% endif %}">
+                                    <input type="radio" name="modomsg"
+                                           data-url="{% url 'apptra:mesapartes_mensajeria_tabla' bandeja.id %}"
+                                           {% if forloop.first %}checked{% endif %}/>
+                                    <span>{{ bandeja.titulo }}</span>
+                                    <span class="badge badge-white ml-2 badge-pill border border-primary py-1 px-2
+                                        badge-msj-{{ bandeja.id }}">
+                                    </span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div id="capa-tabla" class="col-12 p-1">
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block TramiteScriptsPost %}
+    <script type="text/javascript">
+        $("#lista-msj").on("change", "input[name='modomsg']", function () {
+            $("#capa-tabla").cargarPagina(
+                "post", $(this).data("url"), $("#lista-msj"), "Cargando..."
+            )
+        });
+
+        $("#lista-msj input[name='modomsg']:first").trigger("change");
+
+        function colocaTotales(data) {
+            for (var key in data.api().ajax.json().totales) {
+                $("#lista-msj span.badge-msj-" + key).html(data.api().ajax.json().totales[key]);
+            }
+        }
+
+    </script>
+{% endblock TramiteScriptsPost %}

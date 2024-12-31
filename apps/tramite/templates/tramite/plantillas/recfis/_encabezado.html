@@ -1,0 +1,36 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static utiles %}
+{% if configapp.Test %}
+    <div id="watermark_content">
+        <img src="{% static 'images/grc_mad3_sellodemo.png' %}" alt="">
+    </div>
+{% endif %}
+<table>
+    <tr>
+        <td colspan="2" style="height: 2cm">&nbsp;</td>
+    </tr>
+    <tr>
+        <td style="width: 2cm;">
+            <img src="{% static 'images/escudo_peru.jpg' %}" alt=""/>
+        </td>
+        <td class="text-center" style="font-size: 10pt;">
+            <strong>{{ configapp.Empresa|upper }}</strong>
+            <div>
+                {% if destino.periodotrabajo.area.rindentepadre %}
+                    {{ destino.periodotrabajo.area.rindentepadre.nombre|upper }}
+                {% else %}
+                    {{ destino.periodotrabajo.area.dependencia.nombre|upper }}
+                {% endif %}
+            </div>
+            <div style="margin-top:.3cm"><strong>{{ destino.periodotrabajo.area.nombre|upper }}</strong></div>
+        </td>
+        <td style="width: 2cm;">
+            <img src="{% static 'images/grc_mini.png' %}" alt=""/>
+        </td>
+    </tr>
+</table>

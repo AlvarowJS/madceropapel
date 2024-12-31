@@ -1,0 +1,110 @@
+{% extends "tramite/plantillas/232/_base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load queries utiles %}
+{% block PlantillaTitulo %}
+    Documento
+{% endblock %}
+{% block PlantillaEstilo %}
+    {% include "tramite/plantillas/232/_estilos.html" %}
+{% endblock PlantillaEstilo %}
+{% block PlantillaEncabezado %}
+    {% include "tramite/plantillas/232/_encabezado.html" %}
+{% endblock PlantillaEncabezado %}
+{% block PlantillaContenido %}
+    <div style="margin-bottom: .5cm">
+        <table class="tabla-padding">
+            <tr>
+                <td class="text-right" style="width: 2.5cm">
+                    ASUNTO:
+                </td>
+                <td class="border-1">
+                    {{ documento.asunto|safe }}
+                </td>
+                <td style="width: 0.5cm">&nbsp;</td>
+                <td class="text-center" style="width: 4cm">
+                    {% if documento.diasatencion > 0 %}
+                        Atender en {{ documento.diasatencion }} día{{ documento.diasatencion|pluralize:'s' }}
+                    {% else %}
+                        &nbsp;
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td class="text-right">
+                    REFERENCIA:
+                </td>
+                <td colspan="3" style="padding: 0">
+                    <table class="tabla-padding">
+                        <tr>
+                            <td>
+                                {{ documento.ReferenciaRespuesta.descripcion }}
+                            </td>
+                            <td>
+                                {{ documento.ReferenciaRespuesta.destino.documento.asunto|safe }}
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <table class="border-1 table-striped tabla-padding" repeat="1">
+            <thead>
+            <tr>
+                <td class="text-center">
+                    <strong>N°</strong>
+                </td>
+                <td class="text-center">
+                    <strong>DEPENDENCIA DESTINO</strong>
+                </td>
+                <td class="text-center">
+                    <strong>TRAMITE</strong>
+                </td>
+                <td class="text-center">
+                    <strong>INDICACIONES</strong>
+                </td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for destino in documento.des_documento|queryexclude:"ultimoestado__estado='AN'"|queryfilter:"tipodestinatario='UO'"|querysort:"pk" %}
+                <tr class="{% if forloop.counter|divisibleby:2 %}td-striped{% endif %}">
+                    <td class="text-center" style="width: 0.6cm">
+                        {{ forloop.counter|zfill:3 }}
+                    </td>
+                    <td>
+                        <div>{{ destino.periodotrabajo.area.nombre }}</div>
+                        <div>
+                            {{ destino.periodotrabajo.persona.apellidocompleto }}
+                            -
+                            {{ destino.periodotrabajo.Cargo }}
+                        </div>
+                    </td>
+                    <td class="text-center" style="width: 2cm">
+                        {{ destino.proveido.nombre }}
+                    </td>
+                    <td style="width: 7cm">
+                        {{ destino.indicacion|safe }}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <table class="tabla-firma">
+            <tr>
+                <td></td>
+                <td class="text-center border-1">
+                    <strong>{{ documento.responsable.persona.apellidocompleto|safe }}</strong><br>
+                    <strong>{{ documento.responsable.cargo.nombre|safe }}</strong>
+                </td>
+            </tr>
+        </table>
+    </div>
+    {#    <div id="firma_content">#}
+    {#    </div>#}
+{% endblock PlantillaContenido %}

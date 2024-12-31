@@ -1,0 +1,93 @@
+{% extends "tramite/plantillas/destinos/_base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static queries utiles %}
+{% block PlantillaTitulo %}
+    Destinos de Documento {{ documento.obtenerNumeroSiglas }}
+{% endblock %}
+{% block PlantillaEstilo %}
+    {% include "tramite/plantillas/destinos/_estilos.html" %}
+{% endblock PlantillaEstilo %}
+{% block PlantillaEncabezado %}
+    {% include "tramite/plantillas/destinos/_encabezado.html" %}
+{% endblock PlantillaEncabezado %}
+{% block PlantillaContenido %}
+    <div>
+        <table class="border-1 table-striped tabla-padding" repeat="1">
+            <thead>
+            <tr>
+                <td class="text-center">
+                    <strong>N°</strong>
+                </td>
+                <td class="text-center">
+                    <strong>DESTINO</strong>
+                </td>
+                <td class="text-center">
+                    <strong>UBIGEO</strong>
+                </td>
+                <td class="text-center">
+                    <strong>DIRECCION</strong>
+                </td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for destino in documento.des_documento|queryexclude:"ultimoestado__estado='AN'"|queryfilter:"tipodestinatario__in=['UO','PJ','CI']"|querysort:"pk" %}
+                <tr class="{% if forloop.counter|divisibleby:2 %}td-striped{% endif %}">
+                    <td class="text-center" style="width: 0.6cm">
+                        {{ forloop.counter|zfill:3 }}
+                    </td>
+                    <td>
+                        {% if destino.tipodestinatario == 'UO' %}
+                            <div>{{ destino.periodotrabajo.area.nombre }}</div>
+                            <div>
+                                {{ destino.periodotrabajo.persona.apellidocompleto }}
+                                -
+                                {{ destino.periodotrabajo.Cargo }}
+                            </div>
+                        {% elif destino.tipodestinatario == 'PJ' %}
+                            <div>
+                                {% if destino.personajuridica.tipo == "R" %}
+                                    {{ destino.personajuridica.ruc }} -
+                                {% endif %}
+                                {{ destino.personajuridica.nombrecomercial|default:destino.personajuridica.razonsocial }}
+                            </div>
+                            {% if destino.persona %}
+                                {% if destino.persona.tipodocumentoidentidad.codigo != "OTR" %}
+                                    {{ destino.persona.numero }} -
+                                {% endif %}
+                                {{ destino.persona.apellidocompleto }}
+                                {% if destino.personacargo %}
+                                    -
+                                    {{ destino.personacargo }}
+                                {% endif %}
+                            {% endif %}
+                        {% elif destino.tipodestinatario == 'CI' %}
+                            <div>
+                                {% if destino.persona.tipodocumentoidentidad.codigo != "OTR" %}
+                                    {{ destino.persona.numero }} -
+                                {% endif %}
+                                {{ destino.persona.apellidocompleto }}
+                                {% if destino.personacargo %}
+                                    -
+                                    {{ destino.personacargo }}
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td class="text-center" style="width: 2cm">
+                        {{ destino.ubigeo.RutaDepartamento|default:'-' }}
+                    </td>
+                    <td style="width: 7cm">
+                        {{ destino.direccion|default:'-' }}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <hr style="height:5px; border-top:1px solid black; border-bottom:2px solid black;">
+    </div>
+{% endblock PlantillaContenido %}

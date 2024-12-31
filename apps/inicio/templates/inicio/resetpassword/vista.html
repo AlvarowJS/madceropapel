@@ -1,0 +1,25 @@
+{% extends "inicio/login/base_login.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static utiles %}
+{% block BaseTitulo %}
+    Iniciar Sesión
+{% endblock BaseTitulo %}
+
+{% block login_contenido %}
+    <!--begin::Login Sign in form-->
+    <a href="{% url 'appini:inicio' %}" class="btn btn-pill btn-outline-white font-weight-bold opacity-90 mb-10">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    <div class="login-recovery px-15">
+        <div id="capa-reset">
+            {% include "inicio/resetpassword/formulario.html" %}
+        </div>
+    </div>
+{% endblock login_contenido %}
+
+

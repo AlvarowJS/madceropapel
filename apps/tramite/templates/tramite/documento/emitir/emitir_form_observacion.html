@@ -1,0 +1,30 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% if object.ultimoestado.estado in "OF,PY" and object.ultimoestado.observacion %}
+    <div class="col-12">
+        <div class="form-group">
+            <div class="font-weight-bold text-center text-danger">
+                {% if object.ultimoestado.estado == "OF" %}
+                    OBSERVADO
+                {% else %}
+                    ÚLTIMA OBSERVACIÓN
+                {% endif %}
+            </div>
+            <div class="bg-light-danger border border-danger rounded px-3 py-2 text-danger">
+                {{ object.ultimoestado.observacion|safe }}
+                <div class="row small">
+                    <div class="col-md-6">
+                        por : {{ object.ultimoestado.creador.persona.nombrecompleto }}
+                    </div>
+                    <div class="col-md-6">
+                        fecha : {{ object.ultimoestado.creado|date:"d/m/Y h:i a" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}

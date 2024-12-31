@@ -1,0 +1,114 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% if widget.is_initial %}
+    {{ widget.initial_text }}: <a href="{{ widget.value.url }}">{{ widget.value }}</a>
+    {% if not widget.required %}
+        <div class="custom-control custom-checkbox d-inline-block">
+            <input type="checkbox" class="custom-control-input" name="{{ widget.checkbox_name }}"
+                   id="{{ widget.checkbox_id }}">
+            <label class="custom-control-label" for="{{ widget.checkbox_id }}">
+                {{ widget.clear_checkbox_label }}
+            </label>
+        </div>
+    {% endif %}
+    <br>
+    {{ widget.input_text }}:
+{% endif %}
+<input type="{{ widget.type }}" name="{{ widget.name }}"{% include "clases/campos/attrs.html" %} />
+<script type="text/javascript">
+    var {{ widget.attrs.id }}_fileUP = null;
+    var {{ widget.attrs.id }}_fileTP = null;
+    $("#{{ widget.attrs.id }}").fileinput({
+        language: 'es',
+        showUpload: false,
+        showPreview: true,
+        previewClass: 'd-none file-input-{{ widget.name }}',
+        showUploadedThumbs: false,
+        uploadAsync: false,
+        maxFileSize: {{ widget.maxsize|default:0 }}, // en KB
+        {% if widget.extensiones %}allowedFileExtensions: {{ widget.extensiones|safe }},{% endif %}
+        {% if widget.tipos %}allowedFileTypes: {{ widget.tipos|safe }},{% endif %}
+        previewZoomButtonIcons: {
+            prev: '<i class="fas fa-caret-left"></i>',
+            next: '<i class="fas fa-caret-right"></i>',
+            toggleheader: '<i class="fas fa-arrows-alt-v"></i>',
+            fullscreen: '<i class="fas fa-expand-alt"></i>',
+            borderless: '<i class="fas fa-expand"></i>',
+            close: '<i class="fas fa-trash-alt"></i>'
+        },
+        previewFileIcon: '<i class="fas fa-file-alt"></i>',
+        browseIcon: '<i class="fas fa-folder-open"></i>&nbsp;',
+        removeIcon: '<i class="fas fa-trash-alt"></i>',
+        cancelIcon: '<i class="fas fa-ban"></i>',
+        pauseIcon: '<i class="fas fa-pause"></i>',
+        uploadIcon: '<i class="fas fa-upload"></i>',
+        msgValidationErrorIcon: '<i class="fas fa-exclamation-circle"></i> ',
+        layoutTemplates: {
+            footer: "",
+            btnBrowse: '<div tabindex="500" class="{css}"{status}>{icon}</div>',
+            btnDefault: '<button type="{type}" tabindex="500" title="{title}" class="{css}"{status}>{icon}</button>',
+            btnLink: '<a href="{href}" tabindex="500" title="{title}" class="{css}"{status}>{icon}</a>',
+        },
+        previewSettings: {
+            image: {
+                width: '{{ widget.attrs|get_attr:'data-width'|default:100 }}px',
+                height: '{{ widget.attrs|get_attr:'data-height'|default:100 }}px',
+                {#'max-width': '100%',#}
+                'max-height': '300px'
+            },
+        },
+        fileActionSettings: {
+            showZoom: false,
+            showRemove: false,
+            showUpload: false,
+            showDownload: false,
+            removeIcon: '<i class="fas fa-trash"></i>',
+            uploadIcon: '<i class="fas fa-upload"></i>',
+            uploadRetryIcon: '<i class="fas fa-redo"></i>',
+            downloadIcon: '<i class="fas fa-download"></i>',
+            zoomIcon: '<i class="fas fa-search-plus"></i>',
+            dragIcon: '<i class="fas fa-arrows-alt"></i>',
+            indicatorNew: '<i class="fas fa-plus-circle text-warning"></i>',
+            indicatorSuccess: '<i class="fas fa-check-circle text-success"></i>',
+            indicatorError: '<i class="fas fa-exclamation-circle text-danger"></i>',
+            indicatorLoading: '<i class="fas fa-hourglass text-muted"></i>',
+        }
+    }).on('fileclear', function (event) {
+        $(".file-input-{{ widget.name }}").addClass("d-none");
+    }).on('fileloaded', function (event, file, previewId, index, reader) {
+        $(".file-input-{{ widget.name }}").removeClass("d-none");
+        {{ widget.attrs.id }}_fileTP = file.type;
+        previewId = $(document.getElementById(previewId));
+        previewId.find(".kv-file-content").css({"width": "unset", "height": "unset"});
+        _cp_{{ widget.attrs.id }} = previewId.find('img.file-preview-image').cropper({
+            aspectRatio: {{ widget.attrs|get_attr:'data-width'|default:100 }}/{{ widget.attrs|get_attr:'data-height'|default:100 }},
+            viewMode: 1,
+            movable: true,
+            zoomable: true,
+            rotatable: false,
+            cropBoxResizable: false,
+            scalable: false,
+            dragMode: 'move',
+            toggleDragModeOnDblclick: false,
+            ready: function (e) {
+                _cp_{{ widget.attrs.id }}[0].cropper.setCropBoxData({
+                    width: {{ widget.attrs|get_attr:'data-width'|default:100 }},
+                    height: {{ widget.attrs|get_attr:'data-height'|default:100 }}
+                });
+            },
+            crop: function (event) {
+                _cp_{{ widget.attrs.id }}[0].cropper.getCroppedCanvas({
+                    width: {{ widget.attrs|get_attr:'data-width'|default:100 }},
+                    height: {{ widget.attrs|get_attr:'data-height'|default:100 }},
+                }).toBlob((blob) => {
+                    {{ widget.attrs.id }}_fileUP = blob;
+                }, {{ widget.attrs.id }}_fileTP, 0.90);
+            }
+        });
+    });
+</script>

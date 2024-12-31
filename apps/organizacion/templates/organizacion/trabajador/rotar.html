@@ -1,0 +1,25 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    Rotando Trabajador
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% url 'apporg:trabajador_rotar' object.pk %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% include "campos/campoform.html" with campo=form.cbdep %}
+    {% include "campos/campoform.html" with campo=form.area %}
+    {% include "campos/campoform.html" with campo=form.fin numcol=4 %}
+    {% include "campos/campoform.html" with campo=form.cargo numcol=4 %}
+    {% include "campos/campoform.html" with campo=form.poscargo numcol=4 %}
+    {% include "campos/campoform.html" with campo=form.permisotramite numcol=4 %}
+    {% include "campos/campoform.html" with campo=form.esjefemodo numcol=4 %}
+    {% include "campos/campoform.html" with campo=form.esapoyo numcol=4 %}
+    {% include "campos/errorform.html" %}
+{% endblock modalBody %}
+{% block modalPost %}refrescar_tablaPeriodoTrabajo{% endblock modalPost %}

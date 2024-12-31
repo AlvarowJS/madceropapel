@@ -1,0 +1,25 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% block modalTitulo %}
+    Desarchivando Documento
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% url 'apptra:documento_desarchivar' view.kwargs.pk %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% if desarchivado %}
+        <script type="text/javascript">
+            $("#modal-principal-centro").modal("hide");
+            $("#modal-principal").modal("hide");
+        </script>
+    {% else %}
+        ¿Desea desarchivar el documento?
+    {% endif %}
+{% endblock %}
+{#{% block modalPost %}refrescar_tabladbRecepcionadosO{% endblock %}#}

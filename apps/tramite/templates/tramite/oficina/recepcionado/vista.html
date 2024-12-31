@@ -1,0 +1,115 @@
+{% extends "tramite/base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load table_tags %}
+{% block TramiteScriptsPre %}
+    <div id="modoatencioneso" class="d-none">
+        <div class="btn-doc-ate dropdown">
+            <button class="btn btn-xs btn-light-primary btn-hover-primary px-3 text-primary dropdown-toggle"
+                    type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="ml-2 d-none d-sm-inline-block">
+                    Atender/Derivar
+                </span>
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <button type="button" class="dropdown-item bg-hover-primary text-hover-white disabled"
+                        href="javascript:;" data-tipo="O" data-forma="A">
+                    <i class="fas fa-file-import mr-2"></i>
+                    Atender con documento de Unidad Organizacional
+                </button>
+                <button type="button" class="dropdown-item bg-hover-primary text-hover-white disabled"
+                        href="javascript:;" data-tipo="P" data-forma="A">
+                    <i class="fas fa-user-tag mr-2"></i>
+                    Atender con documento Profesional
+                </button>
+                <hr class="my-1">
+                <button type="button" class="dropdown-item bg-hover-primary text-hover-white disabled"
+                        href="javascript:;" data-tipo="O" data-forma="D">
+                    <i class="fab la-telegram-plane mr-2"></i>
+                    Derivar con documento de Unidad Organizacional
+                </button>
+                <button type="button" class="dropdown-item bg-hover-primary text-hover-white disabled"
+                        href="javascript:;" data-tipo="P" data-forma="D">
+                    <i class="fab la-telegram-plane mr-2"></i>
+                    Derivar con documento Profesional
+                </button>
+            </div>
+        </div>
+        <div></div>
+    </div>
+    <script type="text/javascript">
+        function tabladbRecepcionadosO_init(oSettings, json) {
+            let fM = $("#modoatencioneso");
+            fM.appendTo(
+                $("#tabladbRecepcionadosO_wrapper .dt-buttons")
+            ).removeClass("d-none");
+         }
+
+        function tabladbRecepcionadosO_select(a, b) {
+            $("#modoatencioneso .dropdown-menu button").attr("data-toggle", "modal").removeClass("disabled");
+        }
+
+        function tabladbRecepcionadosO_deselect(a, b) {
+            if (table_tabladbRecepcionadosO.api().rows({selected: true}).data().length === 0) {
+                $("#modoatencioneso .dropdown-menu button").attr("data-toggle", null).addClass("disabled");
+            }
+        }
+    </script>
+{% endblock TramiteScriptsPre %}
+{% block TramiteContenido %}
+    <div class="col-12 px-0">
+        <div class="card card-custom gutter-b">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 d-flex justify-content-center">
+                        <select id="FiltroRecepcionados" multiple class="form-control selectpicker w-25" title="Todos">
+                            {% for estado in TablaEstados %}
+                                <option value="{{ estado.0 }}" {{ estado.2|default_if_none:"" }}>
+                                    {{ estado.1 }}s
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12 card-body p-3">
+                        {% render_table TablaOficinaRecepcionados %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock TramiteContenido %}
+{% block TramiteScriptsPost %}
+    <script>
+        $("#modoatencioneso .dropdown-menu button").on("click", function () {
+            let me = $(this);
+            let urlatenderm = "{% url 'apptra:oficina_bandeja_recepcionados_atender_multiple' 'T' 'F' %}";
+            urlatenderm = urlatenderm.replace("T", me.data("tipo"));
+            urlatenderm = urlatenderm.replace("F", me.data("forma"));
+            idsAT = "";
+            table_tabladbRecepcionadosO.api().rows({selected: true}).data().each(function (e) {
+                idsAT += $(e).last()[0] + ",";
+            });
+            $("#modoatencioneso div:eq(1)").cargarPagina(
+                "post",
+                urlatenderm,
+                $("body"),
+                "Cargando",
+                {"ids": idsAT}
+            );
+        });
+
+        $("#FiltroRecepcionados").on("change", function () {
+            if ($(this).val().indexOf("T") > -1) {
+                $(this).dropdown('toggle').val([]).trigger("change");
+            } else {
+                let listaf = "_" + $(this).val().join("_");
+                let urlf = "{% url 'apptra:oficina_bandeja_recepcionados_listar' 'X' %}".replace("X", listaf);
+                table_tabladbRecepcionadosO.api().ajax.url(urlf).load();
+            }
+        });
+    </script>
+{% endblock TramiteScriptsPost %}

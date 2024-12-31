@@ -1,0 +1,25 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% block modalTitulo %}
+    Rechazando Documento
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% url 'apptra:documento_rechazar' view.kwargs.pk %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% if rechazado %}
+        <script type="text/javascript">
+            $("#modal-principal-centro").modal("hide");
+            $("#modal-principal").modal("hide");
+        </script>
+    {% else %}
+        {% include "campos/campoform.html" with campo=form.observacion %}
+    {% endif %}
+{% endblock %}
+{#{% block modalPost %}refrescar_tabladbRecepcionadosO{% endblock %}#}

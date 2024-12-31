@@ -1,0 +1,36 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    Destinos
+{% endblock modalTitulo %}
+{% block modalAction %}{% url 'apptra:mesapartes_registrar_destinos' object.pk %}{% endblock modalAction %}
+{% block modalBody %}
+    {{ form.destinosmp }}
+    {% include "campos/errorform.html" %}
+    <div class="col-12">
+        <a type="button" class="btn btn-secondary btn-hover-primary btn-sm" href="javascript:;"
+           onclick="cargarFormDetalle(-1, 'post', {tipodestinatario: 'UO', modo: 'destinosmp'}, '{% url "apptra:documento_destinos" %}');">
+            <i class="fas fa-plus-circle fa-1x"></i>
+            Agregar
+        </a>
+    </div>
+    <div class="col-12">
+        {% include "tramite/documento/emitir/tabla.html" with object=object id="destinosmp" columnas="Destino|Dirigido a|Cargo|Trámite|Proveido|Rechazado|" anchos="21%|21%|21%|9%|9%|9%|10%" campos="nombre|dirigidoa|cargo|tramite|proveidotexto|obsdes|acciones" urleditar="apptra:documento_destinos" modo="destinosmp" anotacion=True editar=True %}
+    </div>
+{% endblock modalBody %}
+{% block modalScriptPost %}
+    <script type="text/javascript">
+        kt_tabs_data = {
+            "destinosmp": 0
+        }
+        dt_destinosmp_data.datos = {{ form.destinosmp.value|safe }};
+        //
+        ajustarTablas();
+    </script>
+    {% include "tramite/documento/emitir/emitir_tabs_acciones.html" %}
+{% endblock modalScriptPost %}

@@ -1,0 +1,127 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static %}
+<style type="text/css">
+    {% if not configapp.EnDesarrollo %}
+    @font-face {
+        font-family: 'Arial Narrow';
+        font-style: normal;
+        src: url({% static 'fonts/AriaNarrow.ttf' %});
+    }
+
+    @font-face {
+        font-family: 'Arial Narrow';
+        font-style: normal;
+        font-weight: bold;
+        src: url({% static 'fonts/AriaNarrowBold.ttf' %});
+    }
+    {% endif %}
+
+    @page {
+        size: A4 landscape;
+
+        @frame watermark_frame {
+            -pdf-frame-content: watermark_content;
+            left: 1.8cm;
+        }
+
+        @frame header_frame {
+            -pdf-frame-content: header_content;
+            top: 1.5cm;
+            left: 1.2cm;
+            height: 2.9cm;
+            right: 1.2cm;
+            {#border: 1px solid green;#}
+        }
+
+        @frame content_frame {
+            top: 4.4cm;
+            left: 1.2cm;
+            height: 14.8cm;
+            right: 1.2cm;
+            {#border: 1px solid blue;#}
+        }
+
+        @frame footer_frame {
+            -pdf-frame-content:footer_content;
+            left: 1.2cm;
+            right: 1.2cm;
+            top: 19.6cm;
+            height: .8cm;
+            {#border: 1px solid red;#}
+        }
+    }
+
+    body {
+        font-family: "Arial Narrow", serif;
+        font-size: 10pt;
+        padding-top: 0.5pt;
+        padding-bottom: -0.5pt;
+    }
+
+    .footer {
+        font-size: 6pt;
+        font-weight: bold;
+        border-spacing: 0;
+        border-collapse: collapse;
+        color: black;
+        padding-top: 3pt;
+    }
+
+    .text-justify {
+        text-align: justify;
+    }
+
+    .text-left {
+        text-align: left;
+    }
+
+    .text-right {
+        text-align: right;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .text-bold {
+        font-weight: bold;
+        padding-top: 50% !important;
+        padding-bottom: -50% !important;
+    }
+
+    .text-underline {
+        text-decoration: underline;
+    }
+
+    .border-1 {
+        border: 1px solid black;
+    }
+
+    .border-top {
+        border-top: 1px solid black;
+    }
+
+    .table-body {
+        border: 1px solid black;
+        font-size: 7pt;
+        width: 100%;
+    }
+
+    .table-body thead tr {
+        padding-top: .2cm;
+        font-weight: bold;
+        text-align: center;
+        padding-bottom: -.1cm;
+    }
+    .table-body tbody tr {
+        white-space: normal;
+        word-wrap: break-word;
+        padding: .1cm .05cm .02cm .05cm;
+    }
+
+</style>

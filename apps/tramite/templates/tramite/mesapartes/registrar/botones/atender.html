@@ -1,0 +1,37 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles queries %}
+{% if destino.ultimoestado.estado in "RE" %}
+    <div class="btn-doc-ate dropdown">
+        <button class="btn btn-xs btn-light-primary btn-hover-primary px-3 text-primary dropdown-toggle"
+                type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="ml-2 d-none d-sm-inline-block">
+                Atender
+            </span>
+        </button>
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+            <button type="button" class="dropdown-item bg-hover-primary text-hover-white" href="javascript:;"
+                data-tipo="O">
+                <i class="fas fa-file-import mr-2"></i>
+                Con documento de Unidad Organizacional
+            </button>
+            <button type="button" class="dropdown-item bg-hover-primary text-hover-white" href="javascript:;"
+                data-tipo="P">
+                <i class="fas fa-user-tag mr-2"></i>
+                Con documento Profesional
+            </button>
+        </div>
+        <div></div>
+        <script type="text/javascript">
+            $(".btn-doc-ate").on("click", "button.dropdown-item", function () {
+                urlatender = "{% url 'apptra:oficina_bandeja_recepcionados_atender' destino.pk 'X' %}";
+                urlatender = urlatender.replace("X", $(this).data("tipo"))
+                $(this).parent().next().cargarPagina("post", urlatender, $("#modal-principal .modal-content"));
+            });
+        </script>
+    </div>
+{% endif %}

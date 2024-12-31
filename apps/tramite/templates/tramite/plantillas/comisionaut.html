@@ -1,0 +1,72 @@
+{% extends "tramite/plantillas/comisionaut/_base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static queries utiles %}
+{% block PlantillaTitulo %}
+    Documento de Autorización de Comisión
+{% endblock %}
+{% block PlantillaEstilo %}
+    {% include "tramite/plantillas/comisionaut/_estilos.html" %}
+{% endblock PlantillaEstilo %}
+{% block PlantillaEncabezado %}
+    {% include "tramite/plantillas/comisionaut/_encabezado.html" %}
+{% endblock PlantillaEncabezado %}
+{% block PlantillaContenido %}
+    <h1 class="text-center text-bold text-underline">
+        AUTORIZACIÓN PARA LA CREACIÓN DE COMISIÓN
+    </h1>
+    <p class="text-justify">
+        Yo, <span class="text-bold">{{ comision.jefeactual.persona.nombrecompleto }}</span>,
+{#        identificad{{ comision.jefeactual.persona.sexo|equalto:'M'|yesno:'o,a' }} con DNI N°#}
+{#        {{ comision.jefeactual.persona.numero }},#}
+        <span class="text-bold">{{ comision.jefeactual.persona.ultimoperiodotrabajo.Cargo|upper }}</span> de la
+        unidad organizacional
+        <span class="text-bold">{{ comision.jefeactual.persona.ultimoperiodotrabajo.area.nombre }}</span>,
+        <span class="text-bold">DOY FE</span> de que los datos proporcionados para la creación de la comisión:
+        <span class="text-bold">"{{ comision.nombre }}"</span>,
+        son reales y cuentan con el documento sustentatorio
+        <span class="text-bold">{{ comision.jefeactual.documentosustento.obtenerNumeroSiglas }}</span>.
+    </p>
+    <p>La presente comisión tiene los siguientes integrantes:</p>
+
+    <table class="tabla-integrantes">
+        <thead>
+        <tr>
+            <td style="width: 2.8cm">Rol</td>
+            <td>Unidad Organizacional/Cargo</td>
+            <td>Nombre</td>
+        </tr>
+        </thead>
+        <tbody>
+        {% for trab in comision.trabajadores.all|querysort:'creado' %}
+        <tr>
+            <td>{{ trab.Cargo }}</td>
+            <td>
+                {{ trab.persona.ultimoperiodotrabajo.area.nombre }}
+                -
+                {{ trab.persona.ultimoperiodotrabajo.Cargo }}
+            </td>
+            <td>{{ trab.persona.apellidocompleto }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <p style="margin-top:.5cm">
+        En caso de resultar falsa la información que proporciono, me sujeto a los alcances de lo
+        establecido en el artículo 411º del Código Penal, concordante con el artículo 32º de la Ley Nº 27444,
+        Ley del Procedimiento Administrativo General.
+    </p>
+    <p>
+        Me afirmo y me ratifico en lo expresado, en señal de lo cual firmo el presente documento.
+    </p>
+
+    <p class="text-right">
+        {{ comision.jefeactual.area.dependencia.ubigeo.provincia.nombre|title }}
+        , {{ comision.creado|formatdate:"dd 'de' MMMM 'de' yyyy" }}
+    </p>
+{% endblock PlantillaContenido %}

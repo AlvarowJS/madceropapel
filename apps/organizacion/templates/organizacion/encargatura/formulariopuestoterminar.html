@@ -1,0 +1,20 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    Terminando Encargatura por Puesto
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% url 'apporg:encargaturapuesto_terminar' object.pk %}
+{% endblock modalAction %}
+{% block modalBody %}
+    <div class="col-12">
+        ¿Desea terminar la encargatura de puesto?
+    </div>
+    {% include "campos/errorform.html" %}
+{% endblock modalBody %}
+{% block modalPost %}refrescar_tablaEncargaturaPuesto{% endblock modalPost %}

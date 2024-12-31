@@ -1,0 +1,99 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static utiles %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <title></title>
+    <meta name="description" content="Content width content"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <link rel="canonical" href="https://keenthemes.com/metronic"/>
+    <link rel="stylesheet" href="{% static 'fonts/poppins.css' %}"/>
+    {% include "estilospre.html" %}
+    <script src="{% static 'plugins/global/plugins.bundle.js' %}"></script>
+    <script src="{% static 'plugins/custom/prismjs/prismjs.bundle.js' %}"></script>
+    <script src="{% static 'js/scripts.bundle.js' %}"></script>
+    <script src="{% static 'js/underscore/underscore-umd-min.js' %}"></script>
+    <script src="{% static 'js/idle/idle.min.js' %}"></script>
+    {% include "scriptscomun.html" %}
+    {% include "metas.html" %}
+</head>
+<body class="ribbon ribbon-top ribbon-ver">
+<div class="ribbon-target bg-danger" style="top: -2px; right: 20px;">
+    <i class="fa fa-lock text-white fa-2x"></i>
+</div>
+
+<div class="row w-100 mt-10 ml-0">
+    <div class="col-12 text-center mb-12">
+        <h3 class="bg-danger text-white px-4 py-2 d-inline-block rounded">
+            DOCUMENTO PRIVADO
+        </h3>
+    </div>
+    <form id="sol-form" class="w-100" method="post" autocomplete="off"
+          action="{% url 'apptra:documento_confidencial_solicitarpermiso' %}">
+        <div class="h4 col-12 text-center">
+            Debe solicitar un código para leer el documento
+        </div>
+        <div class="col-12 text-center">
+            Ingrese los últimos 4 dígitos de su DNI y su dígito verificador:
+        </div>
+        <div class="col-12 d-flex justify-content-center mt-2">
+            <div class="input-group w-150px">
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ token }}">
+                <input type="hidden" name="sol-codigo" value="{{ codigo }}">
+                <input id="sol-dni" name="sol-dni" type="text"
+                       class="form-control text-center" data-inputmask="'mask': '9999-9'"/>
+                <div class="input-group-append">
+                    <button id="sol-btn" class="btn btn-primary" title="Solicitar" rel="tooltip">
+                        <i class="fa fa-key pr-0"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div id="sol-capa" class="col-12 text-center mt-5 mb-1 d-none"></div>
+    <div class="w-100 my-4">
+        <hr>
+    </div>
+    <form id="acc-form" method="post" autocomplete="off" class="w-100"
+          action="{% url 'apptra:documento_confidencial_acceder' %}">
+        <div class="h4 col-12 text-center">
+            YA TENGO un código para leer el documento
+        </div>
+        <div class="col-12 text-center">
+            Ingrese el código:
+        </div>
+        <div class="col-12 d-flex justify-content-center">
+            <div class="input-group w-150px">
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ token }}">
+                <input type="hidden" name="acc-codigo" value="{{ codigo }}">
+                <input id="acc-cod" name="acc-cod" type="text" maxlength="5" class="form-control text-center"
+                       data-inputmask="'mask': 'AAAAA'"/>
+                <div class="input-group-append">
+                    <button id="acc-btn" class="btn btn-primary" title="Desbloquear" rel="tooltip">
+                        <i class="fa fa-lock pr-0"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div id="acc-capa" class="col-12 text-center mt-5 mb-1 d-none"></div>
+</div>
+<script type="text/javascript">
+    $("[rel='tooltip']").tooltip({
+        trigger: 'hover'
+    });
+    $("#sol-dni, #sol-cod").inputmask();
+    $("#sol-form").enviarForm($("#sol-capa"), $("html"), "Verificando", null, null, function () {
+        $("#sol-capa").removeClass("d-none")
+    });
+    $("#acc-form").enviarForm($("#acc-capa"), $("html"), "Validando", null, null, function () {
+        $("#acc-capa").removeClass("d-none")
+    });
+</script>
+</body>

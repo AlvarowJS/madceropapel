@@ -1,0 +1,32 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load queries %}
+{% block modalTitulo %}
+    {% if not object %}
+        Agregando
+    {% else %}
+        Actualizando
+    {% endif %}
+    Comisión Directa
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% if not object %}
+        {% url 'apporg:comisiondirecta_agregar' %}
+    {% else %}
+        {% url 'apporg:comisiondirecta_editar' object.pk %}
+    {% endif %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% include "campos/campoform.html" with campo=form.nombre required=True %}
+    {% include "campos/campoform.html" with campo=form.nombrecorto numcol=6 required=True %}
+    {% include "campos/campoform.html" with campo=form.siglas numcol=6 required=True %}
+    {% include "campos/campoform.html" with campo=form.cargo numcol=5 %}
+    {% include "campos/campoform.html" with campo=form.presidente numcol=6 %}
+    {% include "campos/errorform.html" %}
+{% endblock modalBody %}
+{% block modalPost %}refrescar_tablaComisionDirecta{% endblock modalPost %}

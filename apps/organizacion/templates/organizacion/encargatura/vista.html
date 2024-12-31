@@ -1,0 +1,68 @@
+{% extends "tramite/base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load i18n table_tags %}
+{% block TramiteContenido %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-custom">
+                <div class="card-body">
+                    {% if user.is_staff %}
+                        {% if user.persona.ultimoperiodotrabajo.esjefe or user.persona.ultimoperiodotrabajo.esapoyo %}
+                            <ul id="kt_tabs_enc" class="nav nav-tabs nav-tabs-line">
+                                <li class="nav-item">
+                                    <a class="nav-link active" data-toggle="tab" href="#tp_mis_encargaturas">
+                                        <span class="nav-icon"><i class="fas fa-users"></i></span>
+                                        <span class="nav-text">Mis Encargaturas</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-toggle="tab" href="#tb_solicitudes">
+                                        <span class="nav-icon"><i class="fas fa-user-check"></i></span>
+                                        <div class="nav-text">
+                                            Encargaturas por Puesto
+                                        </div>
+                                    </a>
+                                </li>
+                            </ul>
+                            <div class="tab-content mt-5" id="myTabEncargaturas">
+                                <div class="tab-pane fade show active" id="tp_mis_encargaturas" role="tabpanel"
+                                     aria-labelledby="tp_mis_encargaturas">
+                                    {% render_table tablaEncargatura %}
+                                </div>
+                                <div class="tab-pane fade" id="tp_mis_encargaturaspuesto" role="tabpanel"
+                                     aria-labelledby="tp_mis_encargaturaspuesto">
+                                    {% render_table tablaEncargaturaPuesto %}
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="row">
+                                <div class="col-12 card-body p-4">
+                                    {% render_table tablaEncargaturaPuesto %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="row">
+                            <div class="col-12 card-body p-4">
+                                {% render_table tablaEncargatura %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="capa-enc" class="d-none"></div>
+{% endblock TramiteContenido %}
+{% block TramiteScriptsPost %}
+    <script>
+        $("#{{ tablaEncargatura.opts.id }}").on("click", ".btn-action", function () {
+            $("#capa-enc").cargarPagina("post", $(this).data("url"), $("#kt_body"));
+        });
+    </script>
+{% endblock TramiteScriptsPost %}

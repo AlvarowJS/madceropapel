@@ -1,0 +1,39 @@
+{% extends "inicio/login/base_login.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static utiles i18n %}
+{% block BaseTitulo %}
+    Restablecer Contraseña
+{% endblock BaseTitulo %}
+{% block login_contenido %}
+    <div>
+        <a href="{% url 'appini:inicio' %}"
+           class="btn btn-pill btn-outline-white font-weight-bold opacity-90 mb-10">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+    </div>
+    <div class="max-w-500px">
+        {% if validlink %}
+            Hola {{ usuario.persona.NombreCorto }}
+            <div class="login-recovery-confirm mt-3">
+                <div id="capa-recovery-confirm">
+                    {% include "inicio/resetpassword/confirm_form.html" %}
+                </div>
+            </div>
+        {% else %}
+            <p class="bg-light-danger p-4 rounded text-danger align-justify">
+                {% translate "The password reset link was invalid, possibly because it has already been used.  Please request a new password reset." %}
+            </p>
+            <div class="text-center mt-5 ">
+                <a href="{% url 'appini:inicio_reset_password' %}"
+                   class="btn btn-pill btn-outline-white font-weight-bold opacity-90 px-15 py-3 mt-3">
+                    Restablecer nuevamente
+                </a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock login_contenido %}

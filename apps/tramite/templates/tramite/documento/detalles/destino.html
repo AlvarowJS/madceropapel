@@ -1,0 +1,415 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% block modalTitulo %}
+    Destino: {{ tipoDest }}
+{% endblock modalTitulo %}
+{% block modalBodyTotal %}
+    <form id="{{ form.id }}" autocomplete="off">
+        <div class="modal-body text-sm">
+            <div class="container p-0">
+                <div class="row">
+                    {{ form.codigo }}
+                    {{ form.tipodestinatario }}
+                    {{ form.cargonombre }}
+                    {{ form.dependenciasiglas }}
+                    {{ form.obsnew }}
+                    {% if form.tipodestinatario.value == "DP" %}
+                        {% include "campos/campoform.html" with campo=form.dependencia %}
+                        {% include "campos/campoform.html" with campo=form.dependencia_area %}
+                        {% include "campos/campoform.html" with campo=form.dependencia_responsable_texto %}
+                        {{ form.dependencia_responsable_dni }}
+                        {{ form.dependencia_responsable_cargo }}
+                    {% elif form.tipodestinatario.value == "UO" %}
+                        {% include "campos/campoform.html" with campo=form.dep %}
+                    {% else %}
+                        {% include "campos/campoform.html" with campo=form.mensajeriamodoentrega %}
+                    {% endif %}
+                    {% include "campos/campoform.html" with campo=form.area %}
+                    {% include "campos/campoform.html" with campo=form.periodotrabajo %}
+                    {% include "campos/campoform.html" with campo=form.personajuridicatipo numcol=3 %}
+                    {% include "campos/campoform.html" with campo=form.personajuridicaruc numcol=3 search="button" idfila="pj_ruc" required=True %}
+                    {% if configapp.ConsultaRazonSocial %}
+                        {% include "campos/campoform.html" with campo=form.personajuridica idfila="pj_selector" numcol=6 search="button" required=True %}
+                    {% else %}
+                        {% include "campos/campoform.html" with campo=form.personajuridica idfila="pj_selector" numcol=6 required=True %}
+                    {% endif %}
+                    {% include "campos/campoform.html" with campo=form.personajuridicarz idfila="pjrz_selector" numcol=9 required=True %}
+                    {% if form.tipodestinatario.value == "CI" %}
+                        {% include "campos/campoform.html" with campo=form.personadni numcol=4 search="button" %}
+                        {% include "campos/campoform.html" with campo=form.persona idfila="per_selector" numcol=8 %}
+                        {% include "campos/campoform.html" with campo=form.personacargo %}
+                    {% endif %}
+                    {% include "campos/campoform.html" with campo=form.ubigeo idfila="ubigeo" %}
+                    {% include "campos/campoform.html" with campo=form.direccion %}
+                    {% include "campos/campoform.html" with campo=form.referencia %}
+                    {% include "campos/campoform.html" with campo=form.correo %}
+                    {% if form.tipodestinatario.value == "PJ" %}
+                        {% include "campos/campoform.html" with campo=form.personadni numcol=4 search="button" %}
+                        {% include "campos/campoform.html" with campo=form.persona idfila="per_selector" numcol=8 %}
+                        {% include "campos/campoform.html" with campo=form.personacargo %}
+                    {% endif %}
+                    {% include "campos/campoform.html" with campo=form.tipotramite numcol=4 %}
+                    {% if form.diasatencion %}
+                        {% include "campos/campoform.html" with campo=form.proveido numcol=4 %}
+                        {% include "campos/campoform.html" with campo=form.diasatencion numcol=4 %}
+                    {% else %}
+                        {% include "campos/campoform.html" with campo=form.proveido numcol=8 %}
+                    {% endif %}
+                    {% include "campos/campoform.html" with campo=form.indicacion %}
+                    {% include "campos/campoform.html" with campo=form.tieneentregafisica %}
+                    {% setvar 'claseentfis' 'd-none' %}
+                    {% if form.tieneentregafisica.value %}
+                        {% setvar 'claseentfis' '' %}
+                    {% endif %}
+                    {% include "campos/campoform.html" with campo=form.entregafisica clase=claseentfis idfila="entfissel" required=True %}
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                Cerrar
+            </button>
+            <button type="submit" class="btn btn-primary">
+                {% if form.codigo.value|entero == -1 %}
+                    Agregar
+                {% else %}
+                    Actualizar
+                {% endif %}
+            </button>
+        </div>
+    </form>
+{% endblock modalBodyTotal %}
+{% block modalScriptPost %}
+    <script type="text/javascript">
+        {% if form.mensajeriamodoentrega %}
+            function ModoEntrega(modo) {
+                sModo = lModos["M" + modo];
+                return ModoEntregaMenu(sModo["nombre"], sModo["icono"], sModo["color"]);
+            }
+            $("#{{ form.mensajeriamodoentrega.auto_id }}").on("change", function (e) {
+                if ([2, 3].indexOf(parseInt($(this).val())) > -1) {
+                    $("#{{ form.correo.auto_id }}").attr("required", true);
+                } else {
+                    $("#{{ form.correo.auto_id }}").attr("required", false);
+                }
+            }).trigger("change");
+        {% endif %}
+        {% if configapp.ConsultaRazonSocial %}
+            $("#{{ form.personajuridica.auto_id }}").parent(".input-group").addClass("d-flex");
+            $("#{{ form.personajuridica.auto_id }}").next()
+                .css("width", "unset")
+                .addClass("flex-grow-1")
+                .find("span.select2-selection.select2-selection--single").addClass("rounded-right-0");
+            $("#{{ form.personajuridica.auto_id }}_btnsearch")
+                .attr("href", "{% url 'apptra:consulta_razonsocial' %}")
+                .attr("data-toggle", "modal")
+                .attr("data-modal-size", "lg")
+                .attr("data-target", "#modal-consulta-razonsocial");
+        {% endif %}
+        {% if form.personajuridicaruc or form.personadni %}
+            $("#{{ form.id }} #{{ form.personadni.auto_id }}").on("keypress", function (e) {
+                if (e.keyCode === 13) {
+                    e.preventDefault();
+                    $("#{{ form.id }} #{{ form.personadni.auto_id }}_btnsearch").trigger("click");
+                }
+            });
+        {% endif %}
+        {% if form.personajuridicaruc %}
+            $("#{{ form.personajuridicatipo.auto_id }}").on("change", function (e) {
+                let tipopj = $(this).val();
+                if (tipopj === "R") {
+                    $("#pjrz_selector").hide();
+                    $("#pj_ruc").show();
+                    $("#pj_selector").show();
+                    $("#{{ form.personajuridicarz.auto_id }}")
+                        .attr("required", false)
+                        .djangoSelect2("destroy")
+                        .data("allow-clear", true)
+                        .djangoSelect2();
+                    $("#{{ form.personajuridicaruc.auto_id }}").attr("required", true);
+                    $("#{{ form.personajuridica.auto_id }}")
+                        .attr("required", true)
+                        .djangoSelect2("destroy")
+                        .data("allow-clear", false)
+                        .djangoSelect2();
+                } else {
+                    $("#pj_ruc").hide();
+                    $("#pj_selector").hide();
+                    $("#pjrz_selector").show();
+                    //
+                    $("#{{ form.personajuridicarz.auto_id }}")
+                        .attr("required", true)
+                        .djangoSelect2("destroy")
+                        .data("allow-clear", false)
+                        .djangoSelect2();
+                    $("#{{ form.personajuridicaruc.auto_id }}").attr("required", false);
+                    $("#{{ form.personajuridica.auto_id }}")
+                        .attr("required", false)
+                        .djangoSelect2("destroy")
+                        .data("allow-clear", true)
+                        .djangoSelect2();
+                }
+            });
+            $("#{{ form.personajuridicaruc.auto_id }} + div button").on("click", function () {
+                if (!$("#{{ form.personajuridicaruc.auto_id }}").inputmask('isComplete')) {
+                    Swal.fire("Alerta!!", "Debe completar el RUC", "warning").then(function (result) {
+                        setTimeout(function () {
+                            $("#{{ form.personajuridicaruc.auto_id }}").focus();
+                        }, 300);
+                    });
+                } else {
+                    let me = $(this);
+                    let ruc = $("#{{ form.personajuridicaruc.auto_id }}").val();
+                    $.cargarPagina(
+                        "post",
+                        "{% url 'apptra:consulta_ruc_destino' %}",
+                        $("#documento-detalle-modal .modal-content"),
+                        "Consultando...",
+                        {"ruc": ruc}, null,
+                        function (e) {
+                            if (e.success) {
+                                me.parents(".input-group").first().next().addClass("d-none");
+                                $("#{{ form.id }} #{{ form.personajuridica.auto_id }}").trigger(
+                                    "select2:sel_id", e.pjcodigo
+                                ).next().next().addClass("d-none");
+                                $("#{{ form.id }} #{{ form.ubigeo.auto_id }}").trigger(
+                                    "select2:sel_id", e.distrito
+                                ).next().next().addClass("d-none");
+                                $("#{{ form.id }} #{{ form.direccion.auto_id }}").val(e.direccion);
+                                $("#{{ form.id }} #{{ form.correo.auto_id }}").val(e.correo);
+                                if (e.rep_numero) {
+                                    $("#{{ form.id }} #{{ form.personadni.auto_id }}").val(e.rep_numero);
+                                    $("#{{ form.id }} #{{ form.personadni.auto_id }}_btnsearch").trigger("click");
+                                }
+                                $("#{{ form.id }} #{{ form.personacargo.auto_id }}").val(e.rep_cargo);
+                            } else {
+                                me.parents(".input-group").first().next().removeClass("d-none");
+                                appMensaje(
+                                    "Alerta!!", "", e.message, "warning",
+                                    "bg-warning text-white", "top", "right"
+                                );
+                            }
+                        }
+                    )
+                }
+            });
+        {% endif %}
+        {% if form.personajuridica %}
+            $("#{{ form.id }} .modal-body").on("change", "#{{ form.personajuridica.auto_id }}", function (e) {
+                if ($(this).val()) {
+                    let pjSel = $(this).select2('data')[0];
+                    $("#{{ form.personajuridicaruc.auto_id }}").val(pjSel.ruc);
+                    $("#{{ form.personajuridicaruc.auto_id }} + div button").trigger("click");
+                }
+            });
+            $("#{{ form.personajuridicarz.auto_id }}").on("change", function (e) {
+                let pjrzSel = $(this).select2('data')[0];
+                $("#{{ form.ubigeo.auto_id }}").trigger(
+                    "select2:sel_id", pjrzSel.ubigeo
+                ).next().next().addClass("d-none");
+                $("#{{ form.direccion.auto_id }}").val(pjrzSel.direccion).next().addClass("d-none");
+                $("#{{ form.referencia.auto_id }}").val(pjrzSel.referencia);
+                $("#{{ form.correo.auto_id }}").val(pjrzSel.correo);
+            });
+        {% endif %}
+        {% if form.persona %}
+            $("#{{ form.id }} .modal-body").on("change", "#{{ form.persona.auto_id }}", function (e) {
+                if ($(this).val()) {
+                    let perSel = $(this).select2('data')[0];
+                    $("#{{ form.personadni.auto_id }}").val(perSel.dni);
+                    $("#{{ form.personadni.auto_id }} + div button").trigger("click");
+                } else {
+                    $("#{{ form.personadni.auto_id }}").val("");
+                }
+            });
+        {% endif %}
+        {% if form.personadni %}
+            $("#{{ form.personadni.auto_id }} + div button").on("click", function () {
+                if (!$("#{{ form.personadni.auto_id }}").inputmask('isComplete')) {
+                    Swal.fire("Alerta!!", "Debe completar el DNI", "warning").then(function (result) {
+                        setTimeout(function () {
+                            $("#{{ form.personadni.auto_id }}").focus();
+                        }, 300);
+                    });
+                } else {
+                    let me = $(this);
+                    let dni = $("#{{ form.personadni.auto_id }}").val();
+                    $.cargarPagina(
+                        "post",
+                        "{% url 'apptra:consulta_dni_persona' %}",
+                        $("#documento-detalle-modal .modal-content"),
+                        "Consultando...",
+                        {
+                            "dni": dni,
+                            "td": "{{ form.tipodestinatario.value }}"
+                        }, null,
+                        function (e) {
+                            if (e.success) {
+                                me.parents(".input-group").first().next().addClass("d-none");
+                                $("#{{ form.id }} #{{ form.persona.auto_id }}").trigger(
+                                    "select2:sel_id", e.percodigo
+                                ).next().next().addClass("d-none");
+                                {% if not form.personajuridica %}
+                                    if (e.perubigeo > 0) {
+                                        $("#{{ form.id }} #{{ form.ubigeo.auto_id }}").trigger(
+                                            "select2:sel_id", e.perubigeo
+                                        ).next().next().addClass("d-none");
+                                        $("#{{ form.id }} #{{ form.direccion.auto_id }}").val(e.perdireccion);
+                                        $("#{{ form.id }} #{{ form.referencia.auto_id }}").val(e.perreferencia);
+                                        $("#{{ form.id }} #{{ form.correo.auto_id }}").val(e.percorreo);
+                                    }
+                                {% endif %}
+                            } else {
+                                appMensaje(
+                                    "Alerta!!", "", e.message, "warning",
+                                    "bg-warning text-white", "top", "right"
+                                );
+                            }
+                        }
+                    )
+                }
+            });
+        {% endif %}
+        {% if form.dependencia %}
+            $("#{{ form.dependencia.auto_id }}").on("change", function () {
+                $(this).nextAll("label").remove();
+                $("#{{ form.dependencia_area.auto_id }}").trigger("select2:selectfirst");
+            });
+            $("#{{ form.dependencia_area.auto_id }}").on("change", function () {
+                $(this).nextAll("label").remove();
+                let areaid = $(this).val();
+                if (areaid) {
+                    let areadata = $(this).select2("data")[0];
+                    $("#{{ form.dependencia_responsable_dni.auto_id }}").val(areadata.dni);
+                    $("#{{ form.dependencia_responsable_cargo.auto_id }}").val(areadata.cargoid);
+                    $("#{{ form.dependencia_responsable_texto.auto_id }}").val(
+                        areadata.dni + " - " +
+                        areadata.nombre + " - " +
+                        areadata.cargo
+                    );
+                } else {
+                    $("#{{ form.dependencia_responsable_texto.auto_id }}").val("");
+                }
+            });
+        {% endif %}
+        {% if form.area %}
+            $("#{{ form.area.auto_id }}").on("change", function () {
+                $(this).nextAll("label").remove();
+                if (!$(this).val()) {
+                    $("#{{ form.periodotrabajo.auto_id }}").empty();
+                } else {
+                    $("#{{ form.periodotrabajo.auto_id }}").trigger("select2:selectfirst");
+                }
+            });
+        {% endif %}
+        {% if form.periodotrabajo %}
+            $("#{{ form.periodotrabajo.auto_id }}").on("change", function () {
+                $(this).nextAll("label").remove();
+            });
+        {% endif %}
+        {% if form.indicacion %}
+            $("#{{ form.indicacion.auto_id }}").on("change", function () {
+                $(this).nextAll("label").remove();
+            });
+        {% endif %}
+        {% if form.tieneentregafisica %}
+            $("#{{ form.id }} #{{ form.tieneentregafisica.auto_id }}").on(
+                "switchChange.bootstrapSwitch", function (e, state) {
+                    if (state) {
+                        $("#{{ form.id }} #entfissel").removeClass("d-none");
+                        $("#{{ form.id }} #{{ form.entregafisica.auto_id }}").attr("required", true);
+                    } else {
+                        $("#{{ form.id }} #entfissel").addClass("d-none");
+                        $("#{{ form.id }} #{{ form.entregafisica.auto_id }}").attr("required", false);
+                    }
+                }
+            );
+        {% endif %}
+        $("#{{ form.id }}").on("submit", function (e) {
+            e.preventDefault();
+            let me = $(this);
+            let jqform = document.getElementById("{{ form.id }}");
+            if (jqform.checkValidity()) {
+                let lista = me.serializeObject();
+                {% if form.personajuridicaruc %}
+                    {% if form.mensajeriamodoentrega %}
+                        lista["modoentrega"] = ModoEntrega(
+                            $("#{{ form.mensajeriamodoentrega.auto_id }}").val()
+                        );
+                    {% endif %}
+                    if ($("#{{ form.personajuridicatipo.auto_id }}").val() === "R") {
+                        lista["nombre"] = $("#{{ form.personajuridicaruc.auto_id }}").val() + " - " +
+                            $("#{{ form.personajuridica.auto_id }}").select2('data')[0].text;
+                    } else {
+                        lista["nombre"] = "OTRO - " +
+                            $("#{{ form.personajuridicarz.auto_id }}").select2('data')[0].text;
+                    }
+                    lista["dirigidoa"] = "-";
+                    if ($("#{{ form.persona.auto_id }}").select2('data').length > 0) {
+                        if ($("#{{ form.persona.auto_id }}").select2('data')[0].dni) {
+                            lista["dirigidoa"] = $("#{{ form.persona.auto_id }}").select2('data')[0].dni +
+                                " - " + $("#{{ form.persona.auto_id }}").select2('data')[0].text
+                        }
+                    }
+                    lista["cargo"] = $("#{{ form.personacargo.auto_id }}").val() || "-";
+                    lista["direccionfull"] = lista["direccion"] + " / " +
+                        $("#{{ form.ubigeo.auto_id }}").select2('data')[0].text;
+                {% elif form.personadni %}
+                    {% if form.mensajeriamodoentrega %}
+                        lista["modoentrega"] = ModoEntrega(
+                            $("#{{ form.mensajeriamodoentrega.auto_id }}").val()
+                        );
+                    {% endif %}
+                    lista["nombre"] = "Persona Natural";
+                    lista["dirigidoa"] = $("#{{ form.persona.auto_id }}").select2('data')[0].dni +
+                        " - " + $("#{{ form.persona.auto_id }}").select2('data')[0].text;
+                    lista["cargo"] = "Ciudadano";
+                    lista["direccionfull"] = lista["direccion"] + " / " +
+                        $("#{{ form.ubigeo.auto_id }}").select2('data')[0].text;
+                {% elif form.dependencia %}
+                    lista["nombre"] =
+                        $("#{{ form.dependencia.auto_id }}").select2('data')[0].text +
+                        " - " +
+                        $("#{{ form.dependencia_area.auto_id }}").select2('data')[0].text;
+                    lista["dependencia_area_nombre"] = $("#{{ form.dependencia_area.auto_id }}").select2('data')[0].text;
+                    lista["dirigidoa"] = $("#{{ form.dependencia_area.auto_id }}").select2('data')[0].nombre;
+                    lista["cargo"] = $("#{{ form.dependencia_area.auto_id }}").select2('data')[0].cargo;
+                    lista["direccionfull"] = $("#{{ form.dependencia.auto_id }}").select2('data')[0].direccion;
+                    lista["tieneentregafisica"] = lista["tieneentregafisica"] || false;
+                {% elif form.area %}
+                    lista["nombre"] =
+                        ($("#{{ form.area.auto_id }}").select2('data')[0].depsig || $("#{{ form.dependenciasiglas.auto_id }}").val()) +
+                        " - " +
+                        $("#{{ form.area.auto_id }}").select2('data')[0].text;
+                    lista["dirigidoa"] = $("#{{ form.periodotrabajo.auto_id }}").select2('data')[0].nombre;
+                    lista["cargo"] = $("#{{ form.periodotrabajo.auto_id }}").select2('data')[0].cargo ||
+                        $("#{{ form.cargonombre.auto_id }}").val();
+                    lista["direccionfull"] = "-";
+                    lista["tieneentregafisica"] = lista["tieneentregafisica"] || false;
+                {% endif %}
+                lista["proveidotexto"] = $("#{{ form.proveido.auto_id }}").select2('data')[0].text;
+                lista["tramite"] = $("#{{ form.tipotramite.auto_id }} option:selected").text();
+                if (parseInt(lista["codigo"]) < 0) {
+                    lista["editar"] = true;
+                    lista["eliminar"] = true;
+                }
+                guardarDetalle("{{ modo|default:'destinos' }}", lista, {% if form.codigo.value|entero == -1 %}
+                    true{% else %}false{% endif %});
+            } else {
+                appMensaje("Alerta", "info", "Complete los campos", "info", "bg-info text-white");
+            }
+            return false;
+        });
+        {% if form.personajuridicaruc %}
+            funcExec(function () {
+                $("#{{ form.personajuridicatipo.auto_id }}").trigger("change");
+            });
+        {% endif %}
+    </script>
+{% endblock modalScriptPost %}

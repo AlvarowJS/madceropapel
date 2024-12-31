@@ -1,0 +1,100 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static %}
+<audio id="kt_player_audio"></audio>
+{# Function Exec - Post Load JQuery #}
+<script>
+    function funcExec(_func) {
+        if (typeof _func == "function") {
+            if (window.jQuery === undefined) {
+                document.addEventListener('DOMContentLoaded', function () {
+                    _func();
+                });
+            } else {
+                $(document).ready(function () {
+                    _func();
+                });
+            }
+        }
+    }
+
+    {#    sonidos pre load #}
+    var KTAudioFiles = [
+        ["primary", "{% static 'media/toastr/primary.mp3' %}"],
+        ["info", "{% static 'media/toastr/info.mp3' %}"],
+        ["success", "{% static 'media/toastr/success.mp3' %}"],
+        ["warning", "{% static 'media/toastr/warning.mp3' %}"],
+        ["danger", "{% static 'media/toastr/error.mp3' %}"]
+    ]
+
+    var PDFObjectOptions = {
+        forceIframe: true
+    }
+
+    function KTAudioGet(name) {
+        for (var i in KTAudioFiles) {
+            if (KTAudioFiles[i][0] === name) {
+                return KTAudioFiles[i];
+            }
+        }
+        return null;
+    }
+
+    function KTAudioPreload(url) {
+        let audio = new Audio();
+        audio.addEventListener('canplaythrough', KTAudioLoaded, false);
+        audio.src = url;
+    }
+
+    var KTAudioLoadedCounter = 0;
+
+    function KTAudioLoaded() {
+        KTAudioLoadedCounter++;
+        if (KTAudioLoadedCounter === KTAudioFiles.length) {
+            KTAudioInit();
+        }
+    }
+
+    var KTAudioPlayer = document.getElementById('kt_player_audio');
+
+    function KTAudioPlay(name, muted) {
+        let kt_audio = KTAudioGet(name);
+        if (kt_audio) {
+            let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            let xhr = new XMLHttpRequest();
+            xhr.open('GET', kt_audio[1]);
+            xhr.responseType = 'arraybuffer';
+            xhr.addEventListener('load', () => {
+                let playsound = (audioBuffer) => {
+                    let source = audioCtx.createBufferSource();
+                    source.buffer = audioBuffer;
+                    source.connect(audioCtx.destination);
+                    source.loop = false;
+                    source.start();
+                };
+                audioCtx.decodeAudioData(xhr.response).then(playsound);
+            });
+            xhr.send();
+        }
+    }
+
+    function KTAudioInit() {
+        let i = 0;
+        KTAudioPlayer.onended = function () {
+            i++;
+            if (i >= KTAudioFiles.length) {
+                return;
+            }
+            KTAudioPlay(KTAudioFiles[i][0], true);
+        };
+    }
+
+    for (var i in KTAudioFiles) {
+        KTAudioPreload(KTAudioFiles[i][1]);
+    }
+
+</script>

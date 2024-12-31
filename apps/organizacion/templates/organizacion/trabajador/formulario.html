@@ -1,0 +1,96 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    {% if not object %}
+        Agregando
+    {% else %}
+        Actualizando
+    {% endif %}
+    Trabajador
+    {% if not object %}
+        <div class="small">
+            en {{ area.nombre }}
+        </div>
+    {% endif %}
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% if not object %}
+        {% url 'apporg:trabajador_agregar' view.kwargs.area %}
+    {% else %}
+        {% url 'apporg:trabajador_editar' object.pk %}
+    {% endif %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% if noArea %}
+        <div class="col-12">
+            <div class="alert alert-warning text-center">
+                Debe seleccionar una Unidad Organizacional
+            </div>
+        </div>
+    {% else %}
+        {% include "campos/campoform.html" with campo=form.personadni numcol=3 search="button" %}
+        {% include "campos/campoform.html" with campo=form.persona numcol=9 idfila="per_selector" %}
+        {% include "campos/campoform.html" with campo=form.cargo numcol=6 %}
+        {% include "campos/campoform.html" with campo=form.poscargo numcol=6 %}
+        {% include "campos/campoform.html" with campo=form.permisotramite numcol=4 %}
+        {% include "campos/campoform.html" with campo=form.esjefemodo numcol=4 %}
+        {% include "campos/campoform.html" with campo=form.esapoyo numcol=2 %}
+        {% include "campos/campoform.html" with campo=form.esmensajero numcol=2 %}
+        {% include "campos/campoform.html" with campo=form.correoinstitucional numcol=6 %}
+        {% include "campos/campoform.html" with campo=form.usuariodominio numcol=6 %}
+        {% include "campos/campoform.html" with campo=form.emiteexterno numcol=6 %}
+        {% include "campos/campoform.html" with campo=form.seguimientocompleto numcol=6 %}
+        {% include "campos/errorform.html" %}
+    {% endif %}
+{% endblock modalBody %}
+{% block modalPost %}refrescar_tablaPeriodoTrabajo{% endblock modalPost %}
+{% block modalScriptPost %}
+    <script type="text/javascript">
+        $("#{{ form.personadni.auto_id }}").on("keypress", function (e) {
+            if (e.keyCode === 13) {
+                e.preventDefault();
+                $("#{{ form.personadni.auto_id }} + div button").trigger("click");
+            }
+        });
+        $("#{{ form.personadni.auto_id }} + div button").on("click", function () {
+            if (!$("#{{ form.personadni.auto_id }}").inputmask('isComplete')) {
+                Swal.fire("Alerta!!", "Debe completar el DNI", "warning").then(function (result) {
+                    setTimeout(function () {
+                        $("#{{ form.personadni.auto_id }}").focus();
+                    }, 300);
+                });
+            } else {
+                let dni = $("#{{ form.personadni.auto_id }}").val();
+                $.cargarPagina(
+                    "post",
+                    "{% url 'apptra:consulta_dni_trabajador' %}",
+                    $("#modal-principal-centro .modal-content"),
+                    "Consultando...",
+                    {"dni": dni}, null,
+                    function (e) {
+                        if (e.success) {
+                            $("#{{ form.persona.auto_id }}").trigger("select2:sel_id", e.percodigo);
+                        } else {
+                            appMensaje(
+                                "Alerta!!", "", e.message, "warning",
+                                "bg-warning text-white", "top", "right"
+                            );
+                        }
+                    }
+                )
+            }
+        });
+
+        $("#{{ form.persona.auto_id }}").on("change", function (e) {
+            if ($(this).val()) {
+                let perSel = $(this).select2('data')[0];
+                $("#{{ form.personadni.auto_id }}").val(perSel.dni);
+            }
+        });
+    </script>
+{% endblock modalScriptPost %}

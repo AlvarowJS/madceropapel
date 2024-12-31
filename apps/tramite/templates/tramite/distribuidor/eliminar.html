@@ -1,0 +1,19 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    Eliminando Distribuidor
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% url 'apptra:distribuidor_eliminar' object.pk %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% include "campos/info.html" with value=object.get_tipo_display label="Tipo" numcol=12 %}
+    {% include "campos/info.html" with value=object.nombre label="Nombre" numcol=12 %}
+    {% include "campos/errorform.html" %}
+{% endblock modalBody %}
+{% block modalPost %}refrescar_tablaDistribuidor{% endblock modalPost %}

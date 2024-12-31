@@ -1,0 +1,78 @@
+{% extends "tramite/base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load table_tags %}
+{% block TramiteScriptsPre %}
+    <div id="modofiltro" class="d-none w-140px">
+        {{ FormMesaPartesMiMensajeria.cbmodo }}
+        <script>
+            $("#{{ FormMesaPartesMiMensajeria.cbmodo.auto_id }}").selectpicker({
+                container: 'body'
+            }).on("change", function (e) {
+                refrescar_tablaMesaPartesMiMensajeria();
+            });
+        </script>
+    </div>
+    <script type="text/javascript">
+        function tablaMesaPartesMiMensajeria_rowCallback(row, data, index) {
+            if (data[9] !== "DM" && data[9] !== "DA") {
+                row.cells[0].classList.remove("dtr-control");
+                row.cells[0].innerHTML = "";
+            }
+        }
+
+        function tablaMesaPartesMiMensajeria_afterload(settings, me) {
+            tablaMesaPartesMiMensajeria_deselect(settings, me);
+        }
+
+        function tablaMesaPartesMiMensajeria_select(a, b) {
+            $("#btnAcc").attr("data-toggle", "modal").removeClass("disabled");
+        }
+
+        function tablaMesaPartesMiMensajeria_deselect(a, b) {
+            if (table_tablaMesaPartesMiMensajeria.api().rows({selected: true}).data().length === 0) {
+                $("#btnAcc").attr("data-toggle", null).addClass("disabled");
+            }
+        }
+
+        function tablaMesaPartesMiMensajeria_init(oSettings, json) {
+            let fM = $("#modofiltro");
+            fM.appendTo(
+                $("#tablaMesaPartesMiMensajeria_wrapper .dt-buttons")
+            ).removeClass("d-none");
+        }
+
+        function tablaMesaPartesMiMensajeria_preServerParams(aoData) {
+            aoData.push({
+                "name": "modo",
+                "value": $("#{{ FormMesaPartesMiMensajeria.cbmodo.auto_id }}").val()
+            });
+        }
+    </script>
+{% endblock TramiteScriptsPre %}
+{% block TramiteContenido %}
+    <div class="col-12 px-0">
+        <div class="card card-custom gutter-b">
+            <div class="card-body">
+                {% render_table TablaMesaPartesMiMensajeria %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block TramiteScriptsPost %}
+    <script>
+        funcExec(function () {
+            $("#btnAcc").on("click", function (e) {
+                let idsAM = "";
+                table_tablaMesaPartesMiMensajeria.api().rows({selected: true}).data().each(function (e) {
+                    idsAM += $(e).last()[0] + "_";
+                });
+                $(this).attr("href", "{% url 'apptra:mesapartes_mimensajeria_accionesfull' %}" + "?ids=" + idsAM);
+            });
+        });
+    </script>
+{% endblock TramiteScriptsPost %}

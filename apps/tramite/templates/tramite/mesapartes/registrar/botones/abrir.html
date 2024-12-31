@@ -1,0 +1,20 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% if object.ultimoestado.estado in "PD,EM,OF,AT,RP,RT" %}
+    <button onclick='viewPDF(
+            "{{ current_site }}{% url "apptra:documento_descargar" object.pk %}",
+            "{{ object.nombreDocumentoPdf }}", "{{ user.auth_token.key }}",
+            "docnew{{ object.pk }}",
+            false,
+            {% if object.documentotipoarea.documentotipo.esmultiple and not object.documentotipoarea.documentotipo.esmultipledestino and object.forma == "I" and object.origentipo in "O,P" %}{{ object.ListaDestinosPdf|default_if_none:"null"|safe }}{% else %}null{% endif %})'
+            type="button" class="btn btn-xs btn-primary mr-2">
+        <i class="far fa-file-pdf p-0"></i>
+        <span class="ml-1 d-none d-sm-inline-block">
+            Abrir Documento{% if object.documentotipoarea.documentotipo.esmultiple and not object.documentotipoarea.documentotipo.esmultipledestino and object.forma == "I" and object.origentipo in "O,P" %}s{% endif %}
+        </span>
+    </button>
+{% endif %}

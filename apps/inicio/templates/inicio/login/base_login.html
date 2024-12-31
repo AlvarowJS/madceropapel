@@ -1,0 +1,64 @@
+{% extends "webadmin/base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static utiles %}
+{% block BaseTitulo %}
+    Iniciar Sesión
+{% endblock BaseTitulo %}
+{% block BaseBody %}
+    <style>
+        #btnInfo:visited, #btnInfo:active {
+            color: var(--warning) !important;
+        }
+
+        #btnInfo:hover {
+            color: var(--yellow);
+        }
+
+        @media (min-width: 992px) {
+            .login-signin {
+                max-width: 510px;
+            }
+        }
+    </style>
+    <div class="d-flex flex-column flex-root">
+        <!--begin::Login-->
+        <div class="login login-3 login-signin-on d-flex flex-row-fluid" id="kt_login">
+            <div class="d-flex flex-center bgi-size-cover bgi-no-repeat flex-row-fluid"
+                 style="background-position: bottom center; background-image: url(
+                         {% if configapp.Test %}{% static 'media/bg/bg-sillon-yellow.jpg' %}{% else %}{% static 'media/bg/bg-sillon-blue.jpg' %}{% endif %});">
+                <div class="login-form text-center text-white p-7 position-relative overflow-hidden">
+                    <!--begin::Login Header-->
+                    {% if configapp.Test %}
+                        <div class="mb-10">
+                            <span class="h3 text-white font-weight-bolder bg-warning rounded px-4 py-2">
+                                Módulo de Pruebas
+                            </span>
+                        </div>
+                    {% endif %}
+                    <div class="d-flex flex-center mb-10{% if not configapp.Test %} mt-12{% endif %}">
+                        <a href="javascript:;">
+                            <img src="{% static 'images/logo_mad3_white.svg' %}" class="max-h-100px" alt=""/>
+                        </a>
+                        {% if configapp.Dependencia != '000775' %}
+                            <a href="javascript:;" class="ml-8 pl-5"
+                               style="border-left: 3px solid rgba(255,255,255,.3)">
+                                <img src="{{ MEDIA_URL|concatenar:configapp.Dependencia|concatenar:'/images/logo.png' }}"
+                                     class="h-75px" alt=""/>
+                            </a>
+                        {% endif %}
+                    </div>
+                    <!--end::Login Header-->
+                    {% block login_contenido %}
+                    {% endblock login_contenido %}
+                    {% include 'piepagina.html' %}
+                </div>
+            </div>
+        </div>
+        <!--end::Login-->
+    </div>
+{% endblock BaseBody %}

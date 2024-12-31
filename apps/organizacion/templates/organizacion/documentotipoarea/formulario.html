@@ -1,0 +1,26 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    Agregando Tipos de Documento a un Area
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% url 'apporg:documentotipoarea_agregar' view.kwargs.area %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% if noarea %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                Debe seleccionar una Unidad Organizacional
+            </div>
+        </div>
+    {% else %}
+        {% include "campos/campoform.html" with campo=form.tiposdocumentos %}
+        {% include "campos/errorform.html" %}
+    {% endif %}
+{% endblock modalBody %}
+{% block modalPost %}refrescar_tablaDocumentoTipoArea{% endblock modalPost %}

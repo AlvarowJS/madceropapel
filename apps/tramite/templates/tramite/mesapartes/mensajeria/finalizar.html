@@ -1,0 +1,25 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% block modalTitulo %}
+    Finalizando Planillado
+{% endblock modalTitulo %}
+{% block modalAction %}{% url 'apptra:mesapartes_planillado_finalizar' object.pk %}{% endblock %}
+{% block modalBody %}
+    {% if finalizadook %}
+        <script type="text/javascript">
+            $("#modal-principal-centro").modal("hide");
+            $("#id_psplla").trigger("select2:selectfirst", true);
+        </script>
+    {% else %}
+        <div class="col-12">
+            ¿Desea Finalizar el Planillado N° {{ object.NumeroFull }}?
+        </div>
+        {% include "campos/errorform.html" %}
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,33 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+<input
+        type="hidden"
+        name="{{ widget.name }}"
+        {% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}
+        {% include "clases/campos/attrs.html" %}
+/>
+<button id="select_{{ widget.name }}" class="btn btn-secondary form-control" role="iconpicker">
+</button>
+<div role="iconpicker"></div>
+<script type="text/javascript">
+    $("#select_{{ widget.name }}").iconpicker({
+        arrowClass: 'btn-primary',
+        arrowPrevIconClass: 'fas fa-angle-left',
+        arrowNextIconClass: 'fas fa-angle-right',
+        icon: "{{ widget.value|default:''|stringformat:'s' }}",
+        cols: 10,
+        iconset: 'fontawesome5',
+        labelHeader: '{0} de {1} páginas',
+        labelFooter: '{0} - {1} de {2} íconos',
+        rows: 5,
+        searchText: 'Buscar',
+        unselectedClass: '',
+        container: $("#select_{{ widget.name }}").parents(".modal-body")[0]
+    }).on('change', function(e) {
+        $("#{{ widget.attrs.id }}").val(e.icon);
+    });
+</script>

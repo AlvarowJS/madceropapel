@@ -1,0 +1,26 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load queries static %}
+{% block modalTitulo %}
+    Archivando Documento de Destino
+{% endblock modalTitulo %}
+{% block modalAction %}{% url 'apptra:personal_bandeja_rechazado_archivar' object.pk %}{% endblock %}
+{% block modalBody %}
+    {% if archivadook %}
+        <script>
+            $("#modal-principal-centro").modal("hide");
+            $("#modal-principal").modal("hide");
+            refrescar_tabladbRechazadosP();
+        </script>
+    {% else %}
+        {% include "tramite/personal/rechazado/info.html" %}
+        {% include "campos/campoform.html" with campo=form.fecha numcol=6 %}
+        {% include "campos/campoform.html" with campo=form.observacion %}
+        {% include "campos/errorform.html" %}
+    {% endif %}
+{% endblock %}

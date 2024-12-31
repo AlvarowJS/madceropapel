@@ -1,0 +1,104 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% if campo %}
+    {% load utiles %}
+    {% if not fgroup %}
+        <div class="col-sm-{{ numcol|default:12 }} {{ clase|default:"" }}"{% if idfila %} id="{{ idfila }}"{% endif %}>
+    {% endif %}
+<div class="form-group">
+    {% if not nolabel %}
+        <label for="{{ campo.auto_id }}"
+               class="{% if labelinline %}d-inline-block mr-2{% else %}{{ campo.field.widget.label_class }}{% endif %}">
+            {{ campo.label }}{% if campo.help_text %}
+                <small class="badge badge-warning ml-1">{{ campo.help_text.0 }}</small>{% endif %}:
+        </label>
+        {% if campo.field.required or required %}
+            <span class="text-danger">*</span>
+        {% endif %}
+        {% if info %}
+            <span id="{{ info }}v">
+                <script type="text/javascript">
+                    if ($("#{{ info }}").length) {
+                        $("#{{ info }}v")
+                            .html($("#{{ info }}").html())
+                            .prev().removeClass("d-block");
+                    }
+                </script>
+            </span>
+        {% endif %}
+    {% endif %}
+    {% if campo.field.widget|tipo == "clearablefileinput" %}
+        {% if not campo.required and campo.value and campo.value|fileexist %}
+            <label class="checkbox d-inline-block">
+                <input type="checkbox" name="{{ campo.name }}-clear" id="{{ campo.name }}-clear_id" title="Limpiar"
+                rel="tooltip">
+                <span></span>
+            </label>
+        {% endif %}
+        {% if campo.initial|fileexist and not campo.initial|encampo:campo %}
+            <a href="{{ campo.initial.url }}" target="_blank">
+                {{ campo|filename:True }}
+            </a>
+        {% endif %}
+    {% endif %}
+    {% if 'file-upload' in campo.field.widget.attrs %}
+        {% if campo.value %}
+            <a href="{{ campo.value.url }}" target="_blank">
+                {{ campo|filename }}
+            </a>
+        {% endif %}
+        <div class="custom-file">
+            <input type="file" class="custom-file-input" id="{{ campo.auto_id }}" name="{{ campo.name }}">
+            <label class="custom-file-label" for="{{ campo.auto_id }}">
+                    <span class="d-inline-block text-truncate w-75">
+                        seleccione un archivo
+                    </span>
+            </label>
+        </div>
+    {% elif 'date-picker' in campo.field.widget.attrs or 'datetime-picker' in campo.field.widget.attrs or 'period-picker' in campo.field.widget.attrs %}
+        {% if 'datetime-picker' in campo.field.widget.attrs %}
+            <div class="input-group date" data-target-input="nearest" id="{{ campo.auto_id }}_ctrl">
+                {{ campo }}
+                <div class="input-group-append" data-target="#{{ campo.auto_id }}_ctrl"
+                     data-toggle="datetimepicker">
+                        <span class="input-group-text">
+                            <i class="ki ki-calendar"></i>
+                        </span>
+                </div>
+            </div>
+        {% else %}
+            <div class="input-group date">
+                {{ campo }}
+                <div class="input-group-append cursor-pointer">
+                        <span class="input-group-text">
+                            <i class="la la-calendar"></i>
+                        </span>
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        {% if search %}
+            <div class="input-group">
+        {% endif %}
+    {{ campo }}
+    {% if search %}
+        <div class="input-group-append">
+            <button id="{{ campo.auto_id }}_btnsearch" class="btn btn-icon btn-primary active" type="button">
+                <i class="fa fa-search fa-1x"></i>
+            </button>
+        </div>
+        </div>
+    {% endif %}
+    {% endif %}
+    {% for error in campo.errors %}
+        <label for="{{ campo.auto_id }}" class="text-danger small">{{ error }}</label>
+    {% endfor %}
+</div>
+{% if not fgroup %}
+    </div>
+{% endif %}
+{% endif %}

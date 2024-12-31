@@ -1,0 +1,94 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% if se_puede_editar %}
+    {% if configapp.Test or 1 == 1 %}
+        <div class="btn-nul-doc">
+            <button type="button"
+                    class="btn btn-xs btn-light-danger btn-hover-danger text-danger btn-icon-danger mr-2">
+                <i class="fas fa-trash p-0"></i>
+                <span class="ml-1 d-none d-sm-inline-block">
+                    {% if object.numero %}
+                        Anular
+                    {% else %}
+                        Eliminar
+                    {% endif %}
+                    Documento
+                </span>
+            </button>
+            <div></div>
+            <script>
+                $(".btn-nul-doc button").on("click", function () {
+                    {% if object.numero %}
+                        (async () => {
+                            const {value: textAnot} = await Swal.fire({
+                                title: "¿Desea Anular el documento?",
+                                icon: "info",
+                                input: 'textarea',
+                                inputLabel: 'Observación',
+                                inputValue: "",
+                                inputPlaceholder: 'Ingrese la observación...',
+                                inputAttributes: {
+                                    'aria-label': 'Observación'
+                                },
+                                showCancelButton: true,
+                                cancelButtonText: "Cancelar",
+                                confirmButtonText: "Aceptar",
+                                inputValidator: function (value) {
+                                    if (!value) {
+                                        return "Debe indicar un texto";
+                                    }
+                                }
+                            });
+                            if (textAnot) {
+                                $.cargarPagina(
+                                    "post",
+                                    "{% url 'apptra:documento_emitir_anular' object.pk %}",
+                                    $("#modal-principal .modal-content"),
+                                    "Un momento...", {
+                                        "obs": textAnot
+                                    }, null,
+                                    function (e) {
+                                        refrescarTableros("dbEnProyecto,dbDespacho", true);
+                                        $("#modal-principal").modal("hide");
+                                        appAlert(
+                                            "success",
+                                            "Correcto!!",
+                                            "Su documento ha sido {% if object.numero %}anulado{% else %}eliminado{% endif %} correctamente"
+                                        );
+                                    }
+                                );
+                            }
+                        })();
+                    {% else %}
+                        appConfirm(
+                            "¿Está seguro?",
+                            "¿Desea Eliminar el documento?",
+                            "error",
+                            function () {
+                                $.cargarPagina(
+                                    "post",
+                                    "{% url 'apptra:documento_emitir_anular' object.pk %}",
+                                    $("#modal-principal .modal-content"),
+                                    "Un momento...", {}, null,
+                                    function (e) {
+                                        refrescarTableros("dbEnProyecto,dbDespacho", true);
+                                        $("#modal-principal").modal("hide");
+                                        appAlert(
+                                            "success",
+                                            "Correcto!!",
+                                            "Su documento ha sido {% if object.numero %}anulado{% else %}eliminado{% endif %} correctamente"
+                                        );
+                                    }
+                                );
+                            }
+                        );
+                    {% endif %}
+                });
+            </script>
+        </div>
+    {% endif %}
+{% endif %}

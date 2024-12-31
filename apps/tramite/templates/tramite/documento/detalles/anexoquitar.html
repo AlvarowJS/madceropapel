@@ -1,0 +1,27 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    Quitando Anexo
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% url 'apptra:documento_anexo_quitar' view.kwargs.pk %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% if anxok %}
+        <div class="col-12">
+            El documento anexo se eliminó correctamente
+        </div>
+        <script>
+            refrescarAnexos({{ anxok }}, true);
+        </script>
+    {% else %}
+        <div class="col-12">
+            ¿Desea quitar el anexo de este documento?
+        </div>
+    {% endif %}
+{% endblock %}

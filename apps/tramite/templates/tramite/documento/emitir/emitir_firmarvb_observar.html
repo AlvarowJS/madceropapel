@@ -1,0 +1,25 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    <span class="text-danger">
+    Observar y Rechazar la Firma o VB
+    </span>
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% url 'apptra:documento_emitir_firmarvb_observar' object.pk %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% if observacion_correcta %}
+        <script type="text/javascript">
+            $("#documento-detalle-modal").modal("hide");
+            $("#modal-principal").modal("hide");
+        </script>
+    {% else %}
+        {{ form.observacion }}
+    {% endif %}
+{% endblock modalBody %}

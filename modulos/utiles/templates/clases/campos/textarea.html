@@ -1,0 +1,10 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+<textarea name="{{ widget.name }}" {% include "clases/campos/attrs.html" %}>{% if widget.value %}{{ widget.value }}{% endif %}</textarea>
+<script>
+    autosize($('#{{ widget.attrs.id }}'));
+</script>

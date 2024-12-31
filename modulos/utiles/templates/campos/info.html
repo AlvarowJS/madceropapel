@@ -1,0 +1,30 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+<div class="col-sm-{{ numcol|default:12 }}">
+    <div class="form-group h-100">
+        <label>{{ label }}:</label>
+        {% if boton %}
+            <div class="input-group">
+                <div class="bg-light border border-light-dark px-3 py-2 form-control
+                text-{{ posicion|default:"left" }} {{ clase }} h-35px">
+                    {{ value|default_if_none:'&nbsp;' }}
+                </div>
+                <div class="input-group-append h-35px">
+                    <button id="{{ boton|separar:"|"|elemento:0 }}" class="btn btn-primary pt-2"
+                            type="button" rel="tooltip" title="{{ boton|separar:"|"|elemento:2 }}">
+                        <i class="{{ boton|separar:"|"|elemento:1 }} pr-0"></i>
+                    </button>
+                </div>
+            </div>
+        {% else %}
+            <div class="bg-light border border-light-dark rounded px-3 py-2 text-{{ posicion|default:"left" }} {{ clase }}">
+                {{ value|default_if_none:'&nbsp;' }}
+            </div>
+        {% endif %}
+    </div>
+</div>

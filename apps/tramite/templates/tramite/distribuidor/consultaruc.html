@@ -1,0 +1,24 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+<div class="form-group">
+    {{ form.personajuridica.label_tag }}
+    {% if form.personajuridica.field.required %}
+        <span class="text-danger">*</span>
+    {% endif %}
+    {{ form.personajuridica }}
+    {% if errorconsulta %}
+        <label for="{{ form.personajuridica.auto_id }}" class="text-danger small">
+            {{ errorconsulta }}
+        </label>
+    {% endif %}
+</div>
+<script type="text/javascript">
+    $("#{{ form.personajuridica.auto_id }}").djangoSelect2();
+    {% if ruc_no_valido %}
+        appMensaje("Alerta!!", "", "El RUC no es válido", "warning", "bg-warning text-white", "top", "right");
+    {% endif %}
+</script>

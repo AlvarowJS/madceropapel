@@ -1,0 +1,85 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles queries %}
+{% if object.ultimoestado.estado in "EM,RP,AT,RT,RC,AR" and destino.ultimoestado.estado in "NL,LE" %}
+    <div class="btn-doc-rec">
+        <button type="button"
+                class="btn btn-xs btn-light-primary btn-hover-primary text-primary btn-icon-primary">
+            <i class="fas fa-check p-0"></i>
+            <span class="ml-1 d-none d-sm-inline-block">
+                Recepcionar
+            </span>
+        </button>
+        <div></div>
+        <script type="text/javascript">
+            {% if destino.entregafisica %}
+                function textoEntregaFisica() {
+                    let nr = Math.random() * (10000 - 1) + 1;
+                    return "<p class='mb-4 text-justify'>" +
+                        "Este documento tiene información física que será entregada de manera manual.</p> " +
+                        "<p class='small'>Si desea puede tomar una foto como evidencia ingresando " +
+                        "desde su celular a la siguiente URL: <br>" +
+                        "<strong>{{ current_site }}{% url 'appini:scan_qr' %}</strong></p>" +
+                        "<div id='recfis-{{ destino.pk }}' class='text-center'>" +
+                        "<img src='{% url "apptra:documento_recibirf_qr" destino.pk %}?" + nr + "' " +
+                        "height='180px' />" +
+                        "</div>";
+                }
+            {% endif %}
+            $(".btn-doc-rec button").on("click", function () {
+                let mebtndocrec = $(this);
+                appConfirm(
+                    "¿Desea recibir el documento?",
+                    {% if destino.entregafisica %}
+                        textoEntregaFisica(),
+                    {% else %}
+                        "",
+                    {% endif %}
+                    "",
+                    function () {
+                        {% if destino.entregafisica %}
+                            mebtndocrec.next().cargarPagina(
+                                "post",
+                                "{% url 'apptra:documento_recibirf_g' destino.pk %}",
+                                $("#modal-principal .modal-content"),
+                                "Un momento..."
+                            );
+                        {% else %}
+                            $.cargarPagina(
+                                "post",
+                                "{% url 'apptra:documento_recibir' destino.pk %}",
+                                $("#modal-principal .modal-content"),
+                                "Un momento...", {}, null,
+                                function (e) {
+                                    mebtndocrec.next().html(e);
+                                }
+                            );
+                        {% endif %}
+                    }
+                );
+            });
+            {% if destino.entregafisica %}
+                function EntFisEvidencia(texto) {
+                    $("#recfis-{{ destino.pk }}").html(texto);
+                }
+            {% endif %}
+        </script>
+    </div>
+    {% if object.des_documento|queryexclude:"ultimoestado__estado='AN'"|querycount == 1 or destino.periodotrabajo.area.pk|estaen:"197,10" %}
+        <div class="btn-doc-recobs ml-2">
+            <button type="button" data-target="#modal-principal-centro" data-toggle="modal"
+                    href="{% url 'apptra:documento_rechazar' destino.pk %}"
+                    class="btn btn-xs btn-light-danger btn-hover-danger text-danger btn-icon-danger">
+                <i class="fas fa-ban p-0"></i>
+                <span class="ml-1 d-none d-sm-inline-block">
+                    Rechazar
+                </span>
+            </button>
+            <div></div>
+        </div>
+    {% endif %}
+{% endif %}

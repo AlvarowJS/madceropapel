@@ -1,0 +1,281 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles queries %}
+<style>
+    #kt_tabs_contenido .dataTables_scrollBody {
+        height: Calc(100vh - 455px) !important;
+        max-height: Calc(100vh - 455px) !important;
+        min-height: 200px;
+    }
+
+    .dropdown-menu li {
+        position: relative;
+    }
+
+    .dropdown-menu .dropdown-submenu {
+        display: none;
+        position: absolute;
+        left: 100%;
+        top: -7px;
+    }
+
+    .dropdown-menu .dropdown-submenu-left {
+        right: 100%;
+        left: auto;
+    }
+
+    .dropdown-menu > li:hover > .dropdown-submenu {
+        display: block;
+    }
+
+    #dt_destinos .modo-entrega i {
+        cursor: pointer;
+    }
+</style>
+<ul class="nav nav-tabs nav-tabs-line" id="kt_tabs_documento">
+    <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#kt_tab_pane_destinos" data-action="post"
+           data-url="{% url 'apptra:documento_destinos' %}" data-modo="multi-des">
+            <i class="fab fa-telegram-plane mr-2"></i>
+            <span class="d-none d-sm-inline-block">Destinos</span>
+            <span class="badge bg-primary text-white ml-1 p-1" v-html="destinos.cantidad"
+                  v-show="destinos.cantidad > 0">
+            </span>
+        </a>
+    </li>
+    {% if not form.atenciones %}
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#kt_tab_pane_referencias" data-action="post"
+               data-url="{% url 'apptra:documento_referencias' %}" data-modo="single">
+                <i class="fas fa-file-import mr-2"></i>
+                <span class="d-none d-sm-inline-block">Referencias</span>
+                <span class="badge bg-warning text-white ml-1 p-1" v-html="referencias.cantidad"
+                      v-show="referencias.cantidad > 0">
+                </span>
+            </a>
+        </li>
+    {% endif %}
+    <li class="nav-item">
+        <a class="nav-link"
+           data-toggle="tab" href="#kt_tab_pane_firmas" data-action="post"
+           data-url="{% url 'apptra:documento_firmas' %}" data-modo="single">
+            <i class="fas fa-pen-nib mr-2"></i>
+            <span class="d-none d-sm-inline-block">
+                Firmas
+            </span>
+            <span v-html="firmas.cantidad" v-show="firmas.cantidad > 0"
+                    {% if object.DocumentoPorFirmarVBObservado > 0 %}
+                  class="badge bg-danger text-white font-weight-bold px-2 ml-1"
+                  rel="tooltip"
+                  title="{{ object.DocumentoPorFirmarVBObservado }} firma{{ object.DocumentoPorFirmarVBObservado|pluralize:'s' }} observada{{ object.DocumentoPorFirmarVBObservado|pluralize:'s' }}"
+                    {% else %}
+                  class="badge bg-info text-white ml-1 p-1"
+                    {% endif %}
+            >
+            </span>
+        </a>
+    </li>
+    {% if object.pk %}
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#kt_tab_pane_anexos" data-action="get"
+               data-url="{% url 'apptra:documento_anexo_agregar' object.pk %}" data-modo="multi-anx">
+                <i class="fas fa-paperclip mr-2"></i>
+                <span class="d-none d-sm-inline-block">Anexos</span>
+                <span class="badge bg-success text-white ml-1 p-1" v-html="anexos.cantidad"
+                      v-show="anexos.cantidad > 0">
+                </span>
+            </a>
+        </li>
+    {% endif %}
+    {% if se_puede_editar %}
+        <li class="nav-item ml-auto">
+            <button class="btn btn-xs btn-light btn-hover-primary px-3 py-2 text-primary"
+                    id="doc-det-btn-add-single" type="button" style="display: none">
+                <i class="fas fa-plus text-primary p-0"></i>
+                <span class="ml-2 d-none d-sm-inline-block small">Agregar</span>
+            </button>
+            <div class="dropdown" id="doc-det-btn-add-multi-des" style="display: none;">
+                <button class="btn btn-xs btn-light btn-hover-primary px-3 py-2 text-primary dropdown-toggle"
+                        type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                        id="dropdownMenuAgregar">
+                    <i class="fas fa-plus text-primary p-0"></i>
+                    <span class="ml-2 d-none d-sm-inline-block small">Agregar</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuAgregar">
+                    {% for destino in tiposdestinos %}
+                        <li>
+                            <a class="dropdown-item" href="javascript:;" data-codigo="{{ destino.0 }}">
+                                {{ destino.1 }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                    {% include "tramite/documento/emitir/emitir_grupos_menu.html" %}
+                </ul>
+            </div>
+            <div class="dropdown" id="doc-det-btn-add-multi-anx" style="display: none;">
+                <button class="btn btn-xs btn-light btn-hover-primary px-3 py-2 text-primary dropdown-toggle"
+                        type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                        id="dropdownMenuAgregar">
+                    <i class="fas fa-plus text-primary p-0"></i>
+                    <span class="ml-2 d-none d-sm-inline-block small">Agregar</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuAgregar">
+                    {% for mnanexo in mnanexos %}
+                        <li>
+                            <a class="dropdown-item" href="{{ mnanexo.url }}" data-modal-size="lg"
+                               data-toggle="modal" data-target="#documento-detalle-modal">
+                                {{ mnanexo.nombre }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </li>
+    {% endif %}
+</ul>
+{% if se_puede_editar %}
+    {% setvar 'editar' True %}
+{% endif %}
+<div class="tab-content mt-1" id="kt_tabs_contenido">
+    <div class="tab-pane fade" id="kt_tab_pane_destinos" role="tabpanel" aria-labelledby="kt_tab_pane_destinos">
+        {% include "tramite/documento/emitir/tabla.html" with object=object id="destinos" columnas="Destino|Dirigido a|Cargo|Dirección|Trámite|Proveido|Entrega|" anchos="19%|19%|12%|20%|8%|9%|6%|7%" campos="nombre|dirigidoa|cargo|direccionfull|tramite|proveidotexto|modoentrega|acciones" %}
+        {% if editar %}
+            {# Cambio de Modo de Entrega #}
+            <script type="text/javascript">
+                {#$("#dt_destinos").on("click", ".modo-entrega i", function (e) {#}
+                {#    console.log($(this));#}
+                {# });#}
+            </script>
+        {% endif %}
+    </div>
+    <div class="tab-pane fade border-1 border-dark" id="kt_tab_pane_firmas" role="tabpanel"
+         aria-labelledby="kt_tab_pane_firmas">
+        {% include "tramite/documento/emitir/tabla.html" with object=object id="firmas" columnas="Unidad Organizacional|Personal|Modo|Estado|" anchos="40%|30%|13%|10%|7%" campos="areanombre|empleadonombre|modonombre|estadonombre|acciones" %}
+    </div>
+    {% if not form.atenciones %}
+        <div class="tab-pane fade" id="kt_tab_pane_referencias" role="tabpanel"
+             aria-labelledby="kt_tab_pane_referencias">
+            {% include "tramite/documento/emitir/tabla.html" with object=object id="referencias" columnas="Origen|Documento|Año|Expediente|" anchos="10%|60%|10%|13%|7%" campos="origenfull|descripcionlink|aniodesc|expedientenro|acciones" %}
+        </div>
+    {% endif %}
+    {% if object.pk %}
+        <span id="kt_tab_pane_anexos_acciones" class="d-none">
+            {% if editar %}
+                {#                <a href="#" rel="tooltip" data-modal-size="lg" data-toggle="modal"#}
+                {#                   data-target="#modal-principal-centro" data-remove="True" title="Agregar Firmante"#}
+                {#                   class="btn btn-xs btn-clean btn-hover-primary btn-icon p-1">#}
+                {#                    <i class="fas fa-user-plus"></i>#}
+                {#                </a>#}
+                {#                <a href="#" rel="tooltip" data-modal-size="lg" data-toggle="modal"#}
+                {#                   data-target="#modal-principal-centro" data-remove="True" title="Quitar Firmante"#}
+                {#                   class="btn btn-xs btn-clean btn-hover-warning btn-icon p-1 ml-1">#}
+                {#                    <i class="fas fa-user-times"></i>#}
+                {#                </a>#}
+                {#                <a href="#" rel="tooltip" data-modal-size="lg" data-toggle="modal"#}
+                {#                   data-target="#modal-principal-centro" data-remove="True" title="Quitar Todos los Archivos"#}
+                {#                   class="btn btn-xs btn-clean btn-hover-danger btn-icon p-1 ml-1">#}
+                {#                    <i class="far fa-times-circle"></i>#}
+                {#                </a>#}
+            {% else %}
+                {% if tab in "dbFirmaVB,dbDespacho" and firmasvbs > 1 %}
+                    <a href="javascript:;" data-action="{% url 'apptra:documento_anexo_firmarvbm' object.pk %}"
+                       rel="tooltip" title="Firma Masiva" id="kt_tab_pane_anexos_acciones_fvbm"
+                       class="btn btn-xs btn-clean btn-light-primary p-1 ml-1 font-size-xs"
+                       style="text-transform: unset">
+                        <i class="fas fa-pen-nib"></i>
+                        Firma Masiva
+                    </a>
+                    <div></div>
+                    <script type="text/javascript">
+                        $("#kt_tab_pane_anexos_acciones_fvbm").on("click", function (e) {
+                            $(this).next().cargarPagina(
+                                "post", $(this).data("action"),
+                                $("#modal-principal .modal-content"),
+                                "Cargando..."
+                            )
+                        });
+                    </script>
+                {% endif %}
+            {% endif %}
+        </span>
+        <div class="tab-pane fade" id="kt_tab_pane_anexos" role="tabpanel" aria-labelledby="kt_tab_pane_anexos">
+            {% include "tramite/documento/emitir/tabla.html" with object=object id="anexos" columnas="Descripción|Archivo|Firmas Requeridas|" anchos="30%|23%|40%|7%" campos="descripcion|archivonombre|firmantes|acciones" urleditarcustom="apptra:documento_anexo_editar"|urlresolve:"0" urleliminarcustom="apptra:documento_anexo_quitar"|urlresolve:"0" %}
+        </div>
+        <script>
+            $("#dt_anexos_wrapper .dataTables_scrollHead thead th:last").addClass("text-nowrap");
+            $("#kt_tab_pane_anexos_acciones").appendTo(
+                $("#dt_anexos_wrapper .dataTables_scrollHead thead th:last")
+            ).removeClass("d-none");
+            $("#dt_anexos").on("click", ".btn-anx-fvb", function (e) {
+                let codanx = $(this).data("codigo");
+                $(this).next().cargarPagina(
+                    "post",
+                    "{% url 'apptra:documento_anexo_firmarvb' 0 %}".replace("/0", "/" + codanx)
+                );
+            });
+            $("#dt_anexos").on("click", ".btn-anx-reset", function (e) {
+                let me = $(this);
+                let anxcod = $(this).data("codigo");
+                let anxnom = $(this).data("nombre");
+                appConfirm(
+                    "Quitar Firmas/VB",
+                    "¿Desea quitar las firmas/vb del anexo: <div><strong>" + anxnom + "</strong>?</div>",
+                    "question", function () {
+                        me.next().cargarPagina(
+                            "post",
+                            "{% url 'apptra:documento_anexo_reset' 0 %}".replace("/0", "/" + anxcod)
+                        );
+                    }
+                );
+            });
+        </script>
+    {% endif %}
+</div>
+<script>
+    kt_tabs_data = {
+        "destinos": {"cantidad": 0},
+        "anexos": {"cantidad": 0},
+        "referencias": {"cantidad": 0},
+        "firmas": {"cantidad": 0}
+    }
+    funcExec(function () {
+        var kt_tabs_vue = new Vue({
+            el: '#kt_tabs_documento',
+            delimiters: ['{$', '$}'],
+            data: kt_tabs_data
+        });
+        $('#kt_tabs_documento a').on('shown.bs.tab', function (e) {
+            let modo = $(this).data("modo");
+            $("[id^='doc-det-btn-add-']").hide();
+            $("#doc-det-btn-add-" + modo).data("action", $(this).data("action")).show();
+        });
+        $("#doc-det-btn-add-single").on("click", function () {
+            cargarFormDetalle(-1, $(this).data("action"));
+        });
+        $("#doc-det-btn-add-multi-des a.dropdown-item").on("click", function () {
+            if ($(this).data("codigo")) {
+                cargarFormDetalle(-1, $(this).data("action"), {
+                    tipodestinatario: $(this).data("codigo")
+                });
+            }
+        });
+        {% if request.method == "GET" %}
+            {% if object.pk %}
+                dt_destinos_data.datos = {{ form.destinos.value|safe }};
+                dt_firmas_data.datos = {{ form.firmas.value|safe }};
+            {% endif %}
+            {% if form.referencias.value %}
+                dt_referencias_data.datos = {{ form.referencias.value|safe }};
+            {% endif %}
+            {% if form.anexos.value %}
+                dt_anexos_data.datos = {{ form.anexos.value|safe }};
+            {% endif %}
+        {% endif %}
+        $('#kt_tabs_documento li:first-child a.nav-link').tab('show');
+    });
+</script>
+{% include 'tramite/documento/emitir/emitir_tabs_acciones.html' %}

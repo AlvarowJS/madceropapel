@@ -1,0 +1,17 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% block modalTitulo %}
+    Entrega Física
+{% endblock modalTitulo %}
+{% block modalBodyTotal %}
+    <div class="col-12 text-center my-4">
+        <h5>{{ destino.documento.nombreDocumentoNumero }}</h5>
+    </div>
+    {% include "campos/info.html" with value=destino.entregafisica|linebreaksbr label="Descripción de Información Física" %}
+{% endblock %}

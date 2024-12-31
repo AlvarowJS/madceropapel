@@ -1,0 +1,19 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% block modalTitulo %}
+    Finalizando Directamente
+{% endblock modalTitulo %}
+{% block modalAction %}{% url 'apptra:mesapartes_mensajeria_finalizar_directo' view.kwargs.desid %}{% endblock %}
+{% block modalBody %}
+    {% include "tramite/mesapartes/mensajeria/destino_info.html" with destino=destino %}
+    {% include "campos/campoform.html" with campo=form.fecha numcol=6 %}
+    {% include "campos/campoform.html" with campo=form.observacion %}
+    {% include "campos/errorform.html" %}
+{% endblock %}
+{% block modalPost %}refrescar_tablaMensajeriaXE{% endblock modalPost %}

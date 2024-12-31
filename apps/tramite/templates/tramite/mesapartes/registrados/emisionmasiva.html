@@ -1,0 +1,73 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    Emisión Masiva
+{% endblock modalTitulo %}
+{% block modalAction %}{% url 'apptra:mesapartes_bandeja_registrados_emisionmasiva' %}{% endblock %}
+{% block modalBody %}
+    {% if emisionok %}
+        <script type="text/javascript">
+            appMensaje(
+                "Ok", "", "La emisión se efectuó correctamente", "info", "bg-info text-white", "bottom", "left"
+            );
+            $("#modal-principal-centro").modal("hide");
+            refrescar_tablaMesaPartesRegistrados();
+        </script>
+    {% else %}
+        <input type="hidden" id="em-documentos" name="documentos" value="">
+        <div id="fm-info" class="w-100">
+            <div class="mb-2">Se procederá a emitir la siguiente lista de documentos :</div>
+            <div class="d-flex align-items-center flex-grow-1 border rounded px-3 py-2 mb-1"
+                 v-for="(registro, indice) in data">
+                <div class="d-flex flex-wrap justify-content-between w-100">
+                    <div class="d-flex flex-column" style="width: 85%;">
+                        <div class="text-dark-75" v-html="registro.documento"></div>
+                        <p class="text-dark-50 mb-0 font-size-sm" v-html="registro.asunto"></p>
+                    </div>
+                    <span class="small text-center" style="width: 15%;" v-html="registro.fecha"></span>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+{% block modalScriptPost %}
+    <script type="text/javascript">
+        {% if request.method == "GET" %}
+            filasSelected = table_tablaMesaPartesRegistrados.api().rows({selected: true}).data();
+            if (filasSelected.length < 2) {
+                fmInfo = document.getElementById("fm-info");
+                fmInfo.innerHTML = "<div class='alert alert-custom alert-light-warning justify-content-center p-2 mb-0'>" +
+                    "Debe elegir 02 o más documentos a firmar</div>";
+                let mfoot = $("#modal-principal-centro .modal-footer");
+                mfoot
+                    .removeClass("justify-content-between")
+                    .addClass("justify-content-center")
+                    .children().last().remove()
+            }
+            KTFirmaMasivaData = {
+                "data": []
+            }
+            var _em_codigos = "";
+            filasSelected.each(function (e) {
+                _em_codigos += e[14] + ",";
+                KTFirmaMasivaData.data.push({
+                    documento: e[4],
+                    fecha: e[3],
+                    asunto: e[5],
+                    codigo: e[14]
+                });
+            });
+            $("#em-documentos").val(_em_codigos);
+            var KTFirmaMasiva = new Vue({
+                el: "#fm-info",
+                delimiters: ["{$", "$}"],
+                data: KTFirmaMasivaData
+            });
+        {% endif %}
+    </script>
+{% endblock modalScriptPost %}

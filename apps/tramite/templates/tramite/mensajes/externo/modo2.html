@@ -1,0 +1,199 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static utiles %}
+<table style="width: 100%">
+    <tr>
+        <td style="width: 50%">
+            <img src="{% static 'images/grc_hor.png' %}" alt="" width="125px">
+        </td>
+        <td style="text-align: right">
+            <img src="{% static 'images/logo_mad.png' %}" alt="" width="60px">
+        </td>
+    </tr>
+</table>
+<div class="dependencia-nombre">
+    {{ doc.documentotipoarea.area.dependencia.nombre|upper }}
+</div>
+<div class="dependencia-direccion">
+    {{ doc.documentotipoarea.area.dependencia.direccion }}
+</div>
+<div class="mesapartes">MESA DE PARTES</div>
+<div class="documento-siglas">{{ doc.documentonrosiglas }}</div>
+
+<table class="expediente-tabla">
+    <tr>
+        <td>
+            <div class="expediente-label">Expediente N°</div>
+            <div class="expediente-numero">
+                {{ doc.expedientenro }}
+            </div>
+            <div class="expediente-clave-fila">
+                Clave :
+                <strong class="expediente-clave">
+                    {{ doc.clave }}
+                </strong>
+            </div>
+        </td>
+        <td style="width: 80px">
+            <img src="{{ doc.expediente.qr }}" alt="" width="80px">
+        </td>
+    </tr>
+</table>
+<div class="expediente-fechafolios">
+    <table style="width: 100%">
+        <tr>
+            <td style="width: 80%">
+                <div class="expediente-fecha-label">Fecha</div>
+                <div class="expediente-fecha">
+                    {{ doc.creado|date:"d/m/Y h:i a" }}
+                </div>
+            </td>
+            <td>
+                <div class="expediente-folios-label">Folios</div>
+                <div class="expediente-folios">
+                    {{ doc.folios|zfill:4 }}
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="seguimiento-fila">
+    <div class="seguimiento">Seguimiento en <strong>{{ configapp.WebVerificador }}</strong></div>
+</div>
+
+<style>
+    .ticket-mad3 {
+        display: none;
+    }
+
+    @media print {
+        @page {
+            margin: 0;
+        }
+
+        * {
+            border: 0;
+            padding: 0;
+            margin: 0;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        #ticket-expediente {
+            visibility: hidden;
+        }
+
+        #btnImprimirTicket {
+            visibility: hidden;
+        }
+
+        .ticket-mad3 {
+            display: unset;
+            position: absolute;
+            width: 320px;
+            height: 320px;
+            border: 1px solid #BBB;
+            padding: 9px;
+            font-family: Verdana, serif;
+            font-size: 8pt;
+            overflow: hidden;
+        }
+
+        .dependencia-nombre {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 4px;
+            font-size: 9pt;
+        }
+
+        .dependencia-direccion {
+            text-align: center;
+            font-size: 7pt;
+        }
+
+        .mesapartes {
+            text-align: center;
+            font-size: 11pt;
+            margin: 13px 0;
+            font-weight: bold;
+        }
+
+        .documento-siglas {
+            margin: 4px 2px;
+            border: 1px solid dimgray;
+            border-radius: 5px;
+            padding: 1.5mm;
+            text-align: center;
+            font-size: 9pt;
+        }
+
+        .expediente-tabla {
+            width: 100%;
+            margin: 5px 0;
+        }
+
+        .expediente-label {
+            margin-top: 8px;
+            margin-bottom: 5px;
+            text-align: center;
+            font-size: 9pt;
+        }
+
+        .expediente-numero {
+            border-radius: 15px;
+            background-color: dimgray;
+            padding: 5px 2px;
+            color: #FFFFFF;
+            text-align: center;
+            font-size: 11pt;
+            font-weight: bold;
+        }
+
+        .expediente-clave-fila {
+            font-size: 9pt;
+            text-align: center;
+            margin-top: 5px;
+            margin-bottom: 8px;
+        }
+
+        .expediente-fechafolios {
+            border: 1px solid dimgray;
+            border-radius: 5px;
+            padding: 1.5mm;
+        }
+
+        .expediente-fecha-label {
+            font-size: 8pt;
+            margin-bottom: 1mm;
+        }
+
+        .expediente-fecha {
+            font-size: 9pt;
+        }
+
+        .expediente-folios-label {
+            font-size: 8pt;
+            margin-bottom: 1mm;
+        }
+
+        .expediente-folios {
+            font-size: 9pt;
+        }
+
+        .seguimiento-fila {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .seguimiento {
+            text-align: center;
+            font-size: 8pt;
+            margin-top: 5px;
+        }
+    }
+</style>

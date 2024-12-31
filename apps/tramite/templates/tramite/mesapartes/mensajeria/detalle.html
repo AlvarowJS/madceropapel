@@ -1,0 +1,31 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{
+    "info": {
+        "success": {{ oCE|yesno:"1,0" }},
+        "fecha": "{{ oCE.fecha|date:'d/m/Y' }}",
+        "tipo": "{{ oCE.distribuidor.get_tipo_display }}",
+        "ambito": "{{ oCE.ambito.nombre }}",
+        "distribuidor": "{{ oCE.Nombre }}",
+        "nota": "{{ oCE.nota|default:''|safe|escapejs }}",
+        "estado": "{{ oCE.Estado|upper }}",
+        "estadocolor": "{{ oCE.EstadoColor }}",
+        "cargofecha": {% if oCE.cargofecha %}"{{ oCE.cargofecha|date:"d/m/Y h:i a" }}"{% else %}false{% endif %},
+        "cargopdf": "{% if oCE.cargopdf %}{% url 'apptra:mesapartes_planillado_cargobajar' oCE.pk %}{% endif %}",
+        "cargoobservacion": "{{ oCE.cargoobservacion|default:'' }}"
+    },
+    "btn": {
+        "success": {{ oCE|yesno:"1,0" }},
+        "editar": {% if oCE.ultimoestado.estado == "GN" %}"{% url 'apptra:mesapartes_planillado_editar' oCE.pk %}"{% else %}false{% endif %},
+        "eliminar": {% if oCE.ultimoestado.estado == "GN" %}"{% url 'apptra:mesapartes_planillado_eliminar' oCE.pk %}"{% else %}false{% endif %},
+        "cerrar": {% if oCE.ultimoestado.estado == "GN" %}"{% url 'apptra:mesapartes_planillado_cerrar' oCE.pk %}"{% else %}false{% endif %},
+        "reabrir": {% if oCE.ultimoestado.estado == "CE" %}"{% url 'apptra:mesapartes_planillado_reabrir' oCE.pk %}"{% else %}false{% endif %},
+        "finalizar": {% if oCE.ultimoestado.estado == "CE" and oCE.cargopdf %}"{% url 'apptra:mesapartes_planillado_finalizar' oCE.pk %}"{% else %}false{% endif %},
+        "exportar": {% if oCE.ultimoestado.estado == "CE" %}"{% url 'apptra:mesapartes_planillado_exportar' oCE.pk %}"{% else %}false{% endif %},
+        "cargo": {% if oCE.ultimoestado.estado == "CE" %}"{% url 'apptra:mesapartes_planillado_cargo' oCE.pk %}"{% else %}false{% endif %}
+    }
+}

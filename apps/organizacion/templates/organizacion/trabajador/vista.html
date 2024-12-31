@@ -1,0 +1,63 @@
+{% extends "tramite/base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load i18n static table_tags utiles %}
+{% block TramiteContenido %}
+    <div class="card card-custom">
+        <div class="card-body">
+            <div class="row">
+                {% setvar 'numcol1' 6 %}
+                {% if not form.cbtdep %}
+                    {% setvar 'numcol1' 11 %}
+                {% endif %}
+                {% include "campos/campoform.html" with campo=form.cbtdep numcol=5 %}
+                {% include "campos/campoform.html" with campo=form.cbtarea numcol=numcol1 %}
+                {% include "campos/campoform.html" with campo=form.chktodos numcol=1 %}
+            </div>
+            <div class="row">
+                <div class="col-12 card-body p-4">
+                    {% render_table tablaTrabajadores %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        {% if form.cbtdep %}
+            $("#{{ form.cbtdep.auto_id }}").on("change", function () {
+                $("#{{ form.cbtarea.auto_id }}").trigger("select2:selectfirst");
+            });
+        {% endif %}+
+
+        $("#{{ form.cbtarea.auto_id }}").on("change", function () {
+            let valor = $(this).val() || 0;
+            let btnadd = $("#tablaPeriodoTrabajo_wrapper #btnAdd");
+            let todos = $("#{{ form.chktodos.auto_id }}").is(":checked") ? 1 : 0;
+            let urltra = "{% url 'apporg:trabajador_listar' 0 0 %}".replace("/0/", "/" + valor + "/");
+            urltra = urltra.replace("/0", "/" + todos);
+            table_tablaPeriodoTrabajo.api().column(7).visible($("#{{ form.chktodos.auto_id }}").is(":checked"));
+            table_tablaPeriodoTrabajo.api().ajax.url(urltra).load();
+            let urladd = "{% url 'apporg:trabajador_agregar' 0 %}".replace("0", valor);
+            btnadd.attr("href", urladd);
+        });
+
+        $("#{{ form.chktodos.auto_id }}").on("switchChange.bootstrapSwitch", function (e, state) {
+            {#console.log(state);#}
+            {#let checkedtodos = $(this).is(":checked");#}
+            {% if form.cbtdep %}
+                $("#{{ form.cbtdep.auto_id }}").attr("disabled", state).selectpicker('refresh');
+            {% endif %}
+            $("#{{ form.cbtarea.auto_id }}").prop("disabled", state);
+            $("#{{ form.cbtarea.auto_id }}").trigger("change");
+        });
+
+        funcExec(function () {
+            setTimeout(function () {
+                $("#{{ form.cbtarea.auto_id }}").trigger("select2:selectfirst");
+            }, 200);
+        });
+    </script>
+{% endblock TramiteContenido %}

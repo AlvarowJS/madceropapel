@@ -1,0 +1,39 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% if object.DocumentoPorFirmar and object.responsable.persona.usuario == user %}
+    <div class="btn-emi-env">
+        <button type="button" class="btn btn-xs btn-light-info btn-hover-info text-info btn-icon-info">
+            <i class="fas fa-paper-plane p-0"></i>
+            <span class="ml-1 d-none d-sm-inline-block">Emitir</span>
+        </button>
+        <div></div>
+        <script type="text/javascript">
+            $(".btn-emi-env button").on("click", function () {
+                appConfirm(
+                    "¿Está seguro?",
+                    "¿Desea emitir el documento?",
+                    "warning",
+                    function () {
+                        $.cargarPagina(
+                            "post",
+                            "{% url 'apptra:documento_emitir_enviar' object.pk %}",
+                            $("#modal-principal .modal-content"),
+                            "Un momento...", {codest: "EM"}, null,
+                            function (e) {
+                                refrescarTableros("dbDespacho,dbEmitidos", true);
+                                $("#modal-principal").modal("hide");
+                                {#appAlert(#}
+                                {#    "success", "Correcto!!", "Su documento ha sido emitido correctamente"#}
+                                {#);#}
+                            }
+                        );
+                    }
+                );
+            });
+        </script>
+    </div>
+{% endif %}

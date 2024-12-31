@@ -1,0 +1,33 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    {% if not object %}
+        Agregando
+    {% else %}
+        Editando
+    {% endif %}
+    Apoyo de Comisión
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% if not object %}
+        {% url 'apporg:comision_apoyo_agregar' view.kwargs.pk %}
+    {% else %}
+        {% url 'apporg:comision_apoyo_editar' object.pk %}
+    {% endif %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% include "campos/campoform.html" with campo=form.area %}
+    {% include "campos/campoform.html" with campo=form.persona %}
+    {% include "campos/campoform.html" with campo=form.inicio numcol=6 %}
+    {% include "campos/campoform.html" with campo=form.fin numcol=6 %}
+    <div class="col-md-12 text-danger small">
+        <strong>IMPORTANTE : </strong><span>Verificar la HORA del inicio y fin del apoyo.</span>
+    </div>
+    {% include "campos/errorform.html" %}
+{% endblock modalBody %}
+{% block modalPost %}refrescar_tablaApoyoComision{% endblock modalPost %}

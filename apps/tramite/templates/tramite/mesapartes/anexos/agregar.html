@@ -1,0 +1,70 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% block modalTitulo %}
+    {% if not object %}
+        Agregando
+    {% else %}
+        Editando
+    {% endif %}
+    Anexo
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% if not object %}
+        {% url 'apptra:mesapartes_registrar_anexo_agregar' view.kwargs.pk %}
+    {% else %}
+        {% url 'apptra:mesapartes_registrar_anexo_editar' view.kwargs.pk %}
+    {% endif %}
+{% endblock modalAction %}
+{% block modalScriptPre %}
+    {% if not anxok %}
+        <template id="tpl-fila-anexo">
+            <tr>
+                <td class="col-8">
+                    {{ formFila.codigo }}
+                    {{ formFila.empleado }}
+                </td>
+                <td class="col-3">{{ formFila.modo }}</td>
+                <td class="align-middle text-center">
+                    <a href="javascript:;" rel="tooltip"
+                       class="btn btn-icon btn-xs btn-clean btn-hover-danger btn-icon p-1" title="Quitar"
+                       onclick="this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode); guardarDetalleAnexo();">
+                        <i class="fas fa-minus-circle"></i>
+                    </a>
+                </td>
+            </tr>
+        </template>
+    {% endif %}
+{% endblock %}
+{% block modalBody %}
+    {% if not anxok %}
+        {% include "campos/campoform.html" with campo=form.descripcion %}
+        {% include "campos/campoform.html" with campo=form.archivof linkfile=True %}
+    {% endif %}
+{% endblock %}
+{% block modalScriptPost %}
+    <script type="text/javascript">
+        {% if anxok %}
+            $("#modal-principal-centro .modal-content").load(
+                "{% url 'apptra:mesapartes_registrar_anexos' doc.id %}"
+            );
+            $("#documento-detalle-modal").modal("hide");
+            refrescar_tablaMesaPartesRegistrados();
+        {% else %}
+            {% if form.archivof %}
+                $("#{{ form.id }} #{{ form.archivof.auto_id }}").on("change", function (e) {
+                    if ($("#{{ form.id }} #{{ form.descripcion.auto_id }}").val().length === 0) {
+                        $("#{{ form.id }} #{{ form.descripcion.auto_id }}").val(
+                            this.files.item(0).name.replace(/\.[^/.]+$/, "")
+                        );
+                    }
+                });
+            {% endif %}
+        {% endif %}
+    </script>
+{% endblock modalScriptPost %}

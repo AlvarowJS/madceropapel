@@ -1,0 +1,78 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles queries %}
+{
+    "cantidad": {% if total > maximo %}{{ maximo }}{% else %}{{ total }}{% endif %},
+    "mas": "{% if total > maximo %}de {{ total }}{% endif %}",
+    "data": [
+    {% for doc in data %}
+        {% setvar 'reg' doc %}
+        {% setvar 'oridoc' doc|tipo %}
+        {% setvar 'idoriginal' doc.pk %}
+        {% if doc.documento %}{% setvar 'doc' doc.documento %}{% endif %}
+        {
+            "id": "{{ doc.pk }}",
+            "confidencial": {{ doc.confidencial|lower }},
+{#            "verpdf": {{ tabobj.verpdf|lower }},#}
+            "verpdf": true,
+            "tienepdf": {% if doc.tienePdfs %}true{% else %}false{% endif %},
+            {% if tabobj.codigo == 'dbEntrada' %}
+            "urlanx": "{% if doc.anexos.exists %}{% url 'apptra:documento_anexos' doc.pk %}{% endif %}",
+            {% else %}
+            "urlanx": "{% if doc.anexos.exists %}{% url 'apptra:documento_anexos' reg.pk %}{% endif %}",
+            {% endif %}
+            "color": "{{ tabobj.color }}",
+            {% if tabobj.codigo == 'dbEntrada' or not doc.documentotipoarea.documentotipo.esmultiple or doc.documentotipoarea.documentotipo.esmultipledestino %}
+            "urlforma": 1,
+            "urldown": "{% url 'apptra:documento_descargar_2' oridoc reg.pk %}",
+            {% else %}
+            "urlforma": 0,
+            "urldown": "{% url 'apptra:documento_descargar' doc.pk %}",
+            {% endif %}
+            {% if reg.entregafisica %}
+                "urlentfis": "{% url 'apptra:documento_destino_entregafisica' reg.pk %}",
+            {% else %}
+                "urlentfis": false,
+            {% endif %}
+            "urlname": "{{ doc.nombreDocumentoPdf }}",
+            "urltoken": "{{ user.auth_token.key }}",
+            "urledit": "{% url 'apptra:documento_emitir_editar' doc.pk tabobj.codigo idoriginal %}",
+            "modo": "{{ doc.origentipo }}",
+            "modofull": "{{ doc.get_origentipo_display }}",
+            "codccc1": "{{ tabobj.codigo|lower }}",
+            "codccc2": "{{ reg.ultimoestado.estado }}",
+            "nuevo": {% if tabobj.codigo|lower == "dbentrada" and reg.ultimoestado.estado == "NL" %}true
+            {% else %}false{% endif %},
+            "documento": "{{ doc.obtenerNumeroSiglas }}",
+            {% setvar "asunto" doc.asuntocorto %}
+            {% if doc.confidencial %}
+                {% if doc.creador == request.user or doc.responsable.persona.usuario == request.user %}
+                {% else %}
+                    {% setvar "asunto" "CONFIDENCIAL" %}
+                {% endif %}
+            {% endif %}
+            "asunto": "{{ asunto|safe|escapejs }}",
+            "area": "{{ doc.documentotipoarea.area.nombrecorto }}",
+            "responsable": "{{ doc.responsable.persona.NombreCorto|default:doc.emisor.persona.NombreCorto }}",
+            "destinostotal": "{{ doc.des_documento|queryexclude:"ultimoestado__estado='AN'"|querycount }}",
+            "destinos": "{{ doc.DestinosTablero }}",
+            "creador": "{{ doc.emisor.persona.alias|lower }}",
+            "creadorfull": "{% if doc.emisor.area != doc.responsable.area %}{{ doc.emisor.area.nombrecorto }} - {% endif %}{{ doc.emisor.persona.NombreCorto }}",
+            {% if tabobj.codigo == 'dbEmitidos' %}
+                "fechaestado": "{{ doc.estadoemitido.creado|date:'d/m/Y H:i' }}",
+            {% else %}
+                "fechaestado": "{{ doc.ultimoestado.creado|date:'d/m/Y H:i' }}",
+            {% endif %}
+            "vbver": {{ tabobj.verfirmavb|lower }},
+            "vbestado": "{{ doc.estadoFirmas|safe|escapejs }}",
+            "restado": {% if doc.Rechazados %}{{ doc.Rechazados|safe }}{% else %}false{% endif %},
+            "lista": {% if tabobj.codigo == 'dbEntrada' %}null{% else %}
+            {{ doc.ListaDestinosPdf|default_if_none:"null"|safe }}{% endif %}
+        }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+    ]
+}

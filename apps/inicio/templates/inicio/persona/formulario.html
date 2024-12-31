@@ -1,0 +1,38 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    {% if not object %}
+        Agregando
+    {% else %}
+        Editando
+    {% endif %}
+    Datos de Persona
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% if not object %}
+        {% url 'appini:adm_persona_agregar' %}
+    {% else %}
+        {% url 'appini:adm_persona_editar' object.pk %}
+    {% endif %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% include "campos/campoform.html" with campo=form.tipodocumentoidentidad numcol=6 %}
+    {% include "campos/campoform.html" with campo=form.numero numcol=6 %}
+    {% include "campos/campoform.html" with campo=form.nombres numcol=4 %}
+    {% include "campos/campoform.html" with campo=form.paterno numcol=4 %}
+    {% include "campos/campoform.html" with campo=form.materno numcol=4 %}
+    {% include "campos/campoform.html" with campo=form.sexo numcol=6 %}
+    {% include "campos/campoform.html" with campo=form.nacimiento numcol=6 %}
+    {% include "campos/campoform.html" with campo=form.ubigeo %}
+    {% include "campos/campoform.html" with campo=form.direccion %}
+    {% include "campos/campoform.html" with campo=form.referencia %}
+    {% include "campos/campoform.html" with campo=form.telefono numcol=6 %}
+    {% include "campos/campoform.html" with campo=form.correo numcol=6 %}
+    {% include "campos/errorform.html" %}
+{% endblock modalBody %}
+{% block modalPost %}refrescar_tablaAdmPersona{% endblock modalPost %}

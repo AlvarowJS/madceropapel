@@ -1,0 +1,42 @@
+{% extends "tramite/base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load table_tags %}
+{% block TramiteScriptsPre %}
+    <div id="modofiltro" class="">
+        {{ FormOficinaEmitidos.cbofiorigen }}
+        <script>
+            $("#{{ FormOficinaEmitidos.cbofiorigen.auto_id }}").on("change", function (e) {
+                refrescar_tabladbEmitidosO();
+            });
+        </script>
+    </div>
+    <script type="text/javascript">
+        function tabladbEmitidosO_init(oSettings, json) {
+            let fM = $("#modofiltro");
+            fM.appendTo(
+                $("#tabladbEmitidosO_wrapper .dt-buttons")
+            ).removeClass("d-none");
+        }
+
+        function tabladbEmitidosO_preServerParams(aoData) {
+            aoData.push({
+                "name": "origen",
+                "value": $("#{{ FormOficinaEmitidos.cbofiorigen.auto_id }}").val()
+            });
+        }
+    </script>
+{% endblock TramiteScriptsPre %}
+{% block TramiteContenido %}
+    <div class="col-12 px-0">
+        <div class="card card-custom gutter-b">
+            <div class="card-body">
+                {% render_table TablaOficinaEmitidos %}
+            </div>
+        </div>
+    </div>
+{% endblock TramiteContenido %}

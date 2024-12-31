@@ -1,0 +1,68 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load static utiles %}
+{% if request.GET.imprimir %}
+    <body onload="window.print(); window.close();">
+{#    <body>#}
+    <div class="ticket-mad3">
+        {% if request.GET.modo|default:1 == "1" %}
+            {% include 'tramite/mensajes/externo/modo1.html' %}
+        {% elif request.GET.modo == "2" %}
+            {% include 'tramite/mensajes/externo/modo2.html' %}
+        {% elif request.GET.modo == "3" %}
+            {% include 'tramite/mensajes/externo/modo3.html' %}
+        {% endif %}
+    </div>
+    </body>
+{% else %}
+    {% if request.GET.estilos %}
+        {% include "estilospre.html" %}
+        {% include "scriptspre.html" %}
+        {% include "scriptspost.html" %}
+    {% endif %}
+    <div class="text-center" id="ticket-expediente">
+        <div class="mb-3">
+            <strong>
+                {{ doc.documentonrosiglasmini }}
+            </strong>
+            <div class="text-primary font-weight-bold">Registrado Correctamente</div>
+        </div>
+        <div class="mb-3 small">Expediente N°</div>
+        <span class="badge-pill badge-danger h6 text-white px-4 py-2 font-weight-bold">
+        {{ doc.expedientenro }}
+    </span>
+        <div class="mt-3">
+            <span class="small text-dark-50">Clave :</span>
+            <strong class="font-size-sm">{{ doc.clave }}</strong>
+        </div>
+        <div class="mt-3 d-flex justify-content-between">
+            <button type="button" role="button" tabindex="0"
+                    class="swal2-cancel swal2-styled btn-sm bg-secondary text-dark-65"
+                    onclick="swal.clickConfirm();">
+                <i class="fas fa-1x text-dark-65 fa-times-circle mr-1"></i>
+                Cerrar
+            </button>
+            <button type="button" role="button" tabindex="0" class="swal2-confirm swal2-styled btn-sm bg-info"
+                    onclick="imprimirTicket({{ doc.pk }}, {{ configapp.MPTicketAlto|default:1 }});">
+                <i class="flaticon2-print text-white mr-1"></i>
+                Imprimir
+            </button>
+        </div>
+    </div>
+    {#    {% if request.GET.estilos %}#}
+    {#        <div class="text-center mt-5">#}
+    {#            <a id="btnImprimirTicket" class="btn btn-primary btn-sm" value="Imprimir">#}
+    {#                <i class="fas fa-print fa-1x"></i> Imprimir#}
+    {#            </a>#}
+    {#        </div>#}
+    {#        <script>#}
+    {#            $("#btnImprimirTicket").on("click", function () {#}
+    {#                printContent("tmad3");#}
+    {#            });#}
+    {#        </script>#}
+    {#    {% endif %}#}
+{% endif %}

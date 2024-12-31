@@ -1,0 +1,50 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load i18n static %}
+<div style=" font-family: Arial; justify-content: center; text-align: center; padding: 20px; background-color: #F0F0F0">
+    <img src="{{ configapp.AppSite }}{% static 'images/logo_mad.png' %}"
+         alt="{{ configapp.Titulo }} {{ configapp.Diminutivo }}"
+         style="margin: 0 0 20px 0; width: 128px">
+    <div style="box-shadow: 0px 2px 4px rgba(126,142,177,0.12);
+            border-radius: 10px; background-color:{% block EncabezadoColor %}#156AF0{% endblock %};
+            padding: 20px 0 0 0; width: 100%">
+        <table style="width: 100%; border: 0; margin-bottom: 15px;" cellpadding=0 cellspacing=0>
+            <tr>
+                <td style="font-size: 16px; text-align: left; color: #ffffff; padding-left: 18px; font-weight: 400; padding-bottom: 3px">
+                    {% block basecorreoEncabezado %}
+                    {% endblock basecorreoEncabezado %}
+                </td>
+            </tr>
+        </table>
+        <div style="background-color: #FFFFFF; color:#1F212D; padding: 25px; text-align:center">
+            {% block basecorreoCuerpo %}
+            {% endblock basecorreoCuerpo %}
+{#            {% include "pspam.html" with spam=False %}#}
+        </div>
+    </div>
+
+    <div style=" text-align: center; font-size: .75em; color:#898989; padding: 15px 25px 0px 25px">
+        {#            <img src="{{ configapp.AppSite }}{% static 'assets/img/logo_grc_white.png' %}" #}
+        <img src="{{ configapp.AppSite }}{% static 'images/grc_mini_dark.png' %}"
+             height="24" alt="Footer logo" style="margin-bottom: 8px">
+        <div>
+            © {{ configapp.AnioInicio }} -
+            <a href="{{ configapp.AppSite }}" style="text-decoration: none; color: #7289AD;" target="_blank">
+                {{ configapp.Titulo }} {{ configapp.Diminutivo }}
+            </a> &
+            <a href="{{ configapp.WebSite }}" target="_blank"
+               style="text-decoration: none; color: #7289AD;">
+                {{ configapp.Empresa }}
+            </a> .
+            Todos los derechos reservados.
+        </div>
+        <div>
+            Diseño y Programación :
+            {{ configapp.Desarrollo }}
+        </div>
+    </div>
+</div>

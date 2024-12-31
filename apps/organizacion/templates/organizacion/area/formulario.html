@@ -1,0 +1,48 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    {% if not object %}
+        Agregando
+    {% else %}
+        Actualizando
+    {% endif %}
+    Area
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% if not object %}
+        {% url 'apporg:area_agregar' view.kwargs.padre %}
+    {% else %}
+        {% url 'apporg:area_editar' object.pk %}
+    {% endif %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% include "campos/campoform.html" with campo=form.nombre %}
+    {% include "campos/campoform.html" with campo=form.nombrecorto numcol=6 %}
+    {% include "campos/campoform.html" with campo=form.siglas numcol=6 %}
+    {% include "campos/campoform.html" with campo=form.areatipo numcol=6 %}
+    {% include "campos/campoform.html" with campo=form.nivel numcol=6 %}
+    {% include "campos/campoform.html" with campo=form.cargooficial numcol=6 %}
+    {% include "campos/campoform.html" with campo=form.mesadepartes numcol=2 %}
+    {% include "campos/campoform.html" with campo=form.esrindente numcol=2 %}
+    {% include "campos/campoform.html" with campo=form.mensajeria numcol=2 %}
+    {% if object.mensajeria %}
+        {% include "campos/campoform.html" with campo=form.mensajeriaambito|default:'-' numcol=4 %}
+        {% include "campos/campoform.html" with campo=form.mensajeriadistritosl numcol=8 %}
+        {% include "campos/campoform.html" with campo=form.mensajeriahoramaxima numcol=4 %}
+    {% endif %}
+    {% include "campos/campoform.html" with campo=form.distrito %}
+    {% include "campos/campoform.html" with campo=form.direccion %}
+    {% include "campos/campoform.html" with campo=form.telefono numcol=4 %}
+    {% include "campos/campoform.html" with campo=form.web numcol=8 %}
+    <div class="col-sm-12 pt-2 pb-3">
+        <hr>
+    </div>
+    {% include "campos/campoform.html" with campo=form.firmamargensuperior numcol=4 %}
+    {% include "campos/errorform.html" %}
+{% endblock modalBody %}
+{% block modalPost %}recargaNodo{% endblock modalPost %}

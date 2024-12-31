@@ -1,0 +1,174 @@
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+<div id="{{ widget.name }}_locsel" class="input-group">
+    <input
+            type="text"
+            value="{{ widget.attrs|get_attr:'data-dir' }}"
+            readonly="readonly"
+            class="form-control"
+            data-target="#{{ widget.attrs.id }}"
+    >
+    <input
+            type="hidden"
+            name="{{ widget.name }}"
+            {% if widget.value != None %}value="{{ widget.value|stringformat:'s' }}"{% endif %}
+            {% include "clases/campos/attrs.html" %}
+    >
+    <div class="input-group-append">
+        <button type="button" class="btn btn-sm btn-primary">
+            <i class="flaticon-location-1"></i>
+        </button>
+    </div>
+</div>
+<script type="text/javascript">
+    $("#{{ widget.name }}_locsel button").on("click", function () {
+        if ($("body").find(".modal.{{ widget.name }}_placePicker").length === 0) {
+            $("body").append(
+                '<div class="modal fade in {{ widget.name }}_placePicker" role="dialog">' +
+                '<style>.pac-container{ z-index: 550; }</style>' +
+                '<div class="modal-dialog modal-xl" style="width: 90%;">' +
+                '<div class="modal-content"><div class="modal-header text-sm">' +
+                '<h5 class="modal-title">Seleccionar Lugar</h5>' +
+                '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
+                '<span aria-hidden="true">×</span></button>' +
+                '</div><div class="modal-body text-sm" style="padding: 0;">' +
+                '<div class="address_content" style="display: none; position: absolute;' +
+                'z-index: 500; left: 25px; width: 279px; top: 43px; background-color: white; ' +
+                'padding: 5px;">' +
+                '<div class="address" style="margin-top: 10px; display: block; padding: 9.5px; ' +
+                'font-size: 13px;color: #333;background-color: #f5f5f5;border: 1px solid #ccc; ' +
+                'border-radius: 4px;max-height: 50vh;overflow-x: hidden;overflow-y: scroll; ' +
+                'text-align: left;"></div><div class="row"><div class="col-md-6">' +
+                '<div class="btn btn-sm btn-default" style="width: 100%;margin-top: 10px; ' +
+                'margin-bottom: 10px;" data-dismiss="modal"><i class="fa fa-close"></i>' +
+                'Cancelar</div></div><div class="col-md-6">' +
+                '<div class="btn btn-sm btn-success placePickerSubmit" style="width: 100%;' +
+                'margin-top: 10px;margin-bottom: 10px;"><i class="fa fa-check"></i>' +
+                'Aceptar</div></div></div></div><div class="col-md-12">' +
+                '<div id="{{ widget.name }}_capamap" style="height:calc(80vh);width:100%">' +
+                '</div><div class="small">&nbsp;</div></div></div></div></div></div>'
+            );
+        }
+        ${{ widget.name }}_modalPlacePicker = $(".modal.{{ widget.name }}_placePicker");
+        ${{ widget.name }}_modalPlacePicker.on('hidden.bs.modal', function (e) {
+            $(this).remove();
+            $('body').addClass('modal-open');
+        }).modal("show");
+        ${{ widget.name }}_modalPlacePicker.find(".address").html("");
+        ${{ widget.name }}_modalPlacePicker.find(".address_content").hide();
+        ${{ widget.name }}_modalPlacePicker.find(".placePickerSubmit").click(function () {
+            let lsel = $("#{{ widget.name }}_locsel");
+            let iview = lsel.find("input[data-target]");
+            iview.val({{ widget.name }}_placePickerMarker.address);
+            let idata = $(iview.data("target"));
+            idata.data("lat", {{ widget.name }}_placePickerMarker.getLatLng().lat);
+            idata.data("lng", {{ widget.name }}_placePickerMarker.getLatLng().lng);
+            idata.data("zoom", {{ widget.name }}_placePickerMarker._map.getZoom());
+            idata.val(
+                idata.data("lat") + "\n" +
+                idata.data("lng") + "\n" +
+                idata.data("zoom") + "\n" +
+                iview.val()
+            );
+            ${{ widget.name }}_modalPlacePicker.modal("hide");
+        });
+        //
+        setTimeout(function () {
+            {{ widget.name }}_placePickerMarker = [
+                {% if widget.attrs|get_attr:'data-lat' == '0' %}
+                    {{ widget.attrs|get_attr:'data-ini-lat'|formatearnumero:6 }},
+                {% else %}
+                    {{ widget.attrs|get_attr:'data-lat' }},
+                {% endif %}
+                {% if widget.attrs|get_attr:'data-lng' == '0' %}
+                    {{ widget.attrs|get_attr:'data-ini-lng'|formatearnumero:6 }}
+                {% else %}
+                    {{ widget.attrs|get_attr:'data-lng' }}
+                {% endif %}
+            ];
+            {{ widget.name }}_placePickerMap = L.map('{{ widget.name }}_capamap', {
+                zoomControl: false
+            }).setView(
+                {{ widget.name }}_placePickerMarker,
+                {% if widget.attrs|get_attr:'data-zoom' == '0' %}
+                    {{ widget.attrs|get_attr:'data-ini-zoom' }}
+                {% else %}
+                    {{ widget.attrs|get_attr:'data-zoom' }}
+                {% endif %}
+            ).on("click", function (e) {
+                {{ widget.name }}_placePickerMarker.setLatLng(e.latlng);
+                {{ widget.name }}_markerLocation();
+            });
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: "&copy; <a href='{{ widget.copy_url }}' target='_blank'>{{ widget.copy_name }}</a>"
+            }).addTo({{ widget.name }}_placePickerMap);
+            L.control.zoom({position: 'bottomright'}).addTo({{ widget.name }}_placePickerMap);
+            //
+            {{ widget.name }}_geocoderPlacePicker = new L.Control.Geocoder.Nominatim({
+                geocodingQueryParams: {
+                    limit: 5,
+                    countrycodes: 'PE',
+                    viewbox: "-79.63731,-4.610373,-77.545357,-7.820936",
+                    bounded: 1
+                }
+            });
+            L.Control.geocoder({
+                position: 'topleft',
+                collapsed: false,
+                placeholder: 'Buscar...',
+                errorMessage: 'Nada encontrado.',
+                iconLabel: 'Iniciar nueva búsqueda',
+                showUniqueResult: false,
+                showResultIcons: true,
+                defaultMarkGeocode: false,
+                suggestMinLength: 0,
+                geocoder: {{ widget.name }}_geocoderPlacePicker
+            }).on('markgeocode', function (e) {
+                {{ widget.name }}_placePickerMarker.setLatLng(e.geocode.center);
+                {{ widget.name }}_markerLocation();
+            }).addTo({{ widget.name }}_placePickerMap);
+            {{ widget.name }}_placePickerMarker = L.marker({{ widget.name }}_placePickerMarker, {
+                draggable: true
+            }).addTo({{ widget.name }}_placePickerMap).on("dragend", function (e) {
+                {{ widget.name }}_markerLocation();
+            });
+        }, 1000);
+    });
+
+    function {{ widget.name }}_markerLocation() {
+        let currentLocation = {{ widget.name }}_placePickerMarker.getLatLng();
+        {{ widget.name }}_placePickerMap.flyTo(currentLocation, {{ widget.name }}_placePickerMap.getZoom());
+        {#let geocoderMarkerSearch = new L.Control.Geocoder.Google(#}
+        {#    "{{ widget.copy_key_map }}", {}#}
+        {#);#}
+        let geocoderMarkerSearch = new L.Control.Geocoder.Nominatim();
+        geocoderMarkerSearch.reverse(currentLocation, {{ widget.name }}_placePickerMap.getZoom(), function (results) {
+            if (results.length > 0) {
+                let resultPlacePicker = results[0];
+                var cont = "<h6 style='font-weight:600;font-size: 16px;padding-bottom: 10px;'>" +
+                    resultPlacePicker.name + "</h6>";
+                {{ widget.name }}_placePickerMarker.address = resultPlacePicker.name;
+                let urlSrv = geocoderMarkerSearch.options.serviceUrl;
+                if (urlSrv.indexOf("google") > -1) {
+                    $(resultPlacePicker.properties.address).each(function (key, value) {
+                        cont += "<b>" + value.types.join(', ') + "</b> : " + value.long_name + "<br>";
+                    });
+                } else {
+                    cont += "<b>Lugar:</b> " + (resultPlacePicker.properties.address.amenity || "") + "<br>";
+                    cont += "<b>País:</b> " + (resultPlacePicker.properties.address.country || "") + "<br>";
+                    cont += "<b>Código de País:</b> " + (resultPlacePicker.properties.address.country_code || "") + "<br>";
+                    cont += "<b>Región:</b> " + (resultPlacePicker.properties.address.region || "") + "<br>";
+                    cont += "<b>Dirección:</b> " + (resultPlacePicker.properties.address.road || "") + "<br>";
+                    cont += "<b>Barrio:</b> " + (resultPlacePicker.properties.address.suburb || "") + "<br>";
+                }
+                ${{ widget.name }}_modalPlacePicker.find(".address").html(cont);
+                ${{ widget.name }}_modalPlacePicker.find(".address_content").show();
+            }
+        });
+    }
+</script>

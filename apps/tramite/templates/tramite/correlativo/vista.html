@@ -1,0 +1,38 @@
+{% extends "tramite/base.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load i18n static table_tags utiles %}
+{% block TramiteContenido %}
+    <div class="card card-custom">
+        <div class="card-body">
+            <div class="row">
+                {% include "campos/campoform.html" with campo=form.cbtdep numcol=4 %}
+                {% include "campos/campoform.html" with campo=form.cbtarea numcol=4 %}
+                {% include "campos/campoform.html" with campo=form.cbttipodoc numcol=4 %}
+            </div>
+            <div id="capa-correlativo" class="row justify-content-center align-items-center">
+            </div>
+        </div>
+    </div>
+{% endblock TramiteContenido %}
+{% block TramiteScriptsPost %}
+    <script type="text/javascript">
+        $("#{{ form.cbttipodoc.auto_id }}").on("change", function (e) {
+            let tipodoc = $(this).val();
+            if (!tipodoc) {
+                $("#capa-correlativo").html("");
+            } else {
+                $("#capa-correlativo").cargarPagina(
+                    "post",
+                    "{% url 'apptra:correlativo_listar' 0 %}".replace("0", tipodoc),
+                    $("#capa-correlativo"),
+                    "Consultando..."
+                );
+            }
+        });
+    </script>
+{% endblock TramiteScriptsPost %}

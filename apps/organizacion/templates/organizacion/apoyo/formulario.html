@@ -1,0 +1,58 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% block modalTitulo %}
+    {% if not object %}
+        Solicitando
+    {% else %}
+        Editando Solicitud de
+    {% endif %}
+    Apoyo
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% if not object %}
+        {% url 'apporg:apoyo_agregar' %}
+    {% else %}
+        {% url 'apporg:apoyo_editar' object.pk %}
+    {% endif %}
+{% endblock modalAction %}
+{% block modalBody %}
+    {% include "campos/campoform.html" with campo=form.area %}
+    {% include "campos/campoform.html" with campo=form.persona %}
+    {% include "campos/campoform.html" with campo=form.apoyoforma clase="text-center" nolabel=True %}
+    <div class="col-6 small">
+        <div class="alert alert-custom alert-light px-3 py-2 {{ form.apoyoforma.name }}c"
+             role="alert" id="msje-a">
+            <div class="alert-text">
+                <strong>Administrativo</strong> :
+                No podrá emitir documentos personales en el área de apoyo.
+            </div>
+        </div>
+    </div>
+    <div class="col-6 small">
+        <div class="alert alert-custom alert-light px-3 py-2 {{ form.apoyoforma.name }}c"
+             role="alert" id="msje-t">
+            <div class="alert-text">
+                <strong>Técnico</strong> :
+                Si podrá emitir documentos personales en el área de apoyo.
+            </div>
+        </div>
+    </div>
+    {% include "campos/campoform.html" with campo=form.inicio numcol=6 %}
+    {% include "campos/campoform.html" with campo=form.fin numcol=6 %}
+    {% include "campos/errorform.html" %}
+{% endblock modalBody %}
+{% block modalScriptPost %}
+    <script>
+        $("#{{ form.id }}").on("change", "input[name={{ form.apoyoforma.name }}]", function (e) {
+            $(".{{ form.apoyoforma.name }}c").removeClass("alert-light-primary").addClass("alert-light");
+            $("#msje-" + $(this).val().toLowerCase()).removeClass("alert-light").addClass("alert-light-primary");
+        });
+        $("#{{ form.id }} input[name={{ form.apoyoforma.name }}]:checked").trigger("change");
+    </script>
+{% endblock modalScriptPost %}
+{% block modalPost %}refrescar_tablaApoyo{% endblock modalPost %}

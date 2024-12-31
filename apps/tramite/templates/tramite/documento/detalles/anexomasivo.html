@@ -1,0 +1,124 @@
+{% extends "modales/formmodal.html" %}
+{% comment %}
+	@autor Dirección Regional de Transformación Digital
+	@titularidad GOBIERNO REGIONAL CAJAMARCA
+	@licencia Python Software Foundation License. Ver LICENCIA.txt
+	@año 2022
+{% endcomment %}
+{% load utiles %}
+{% block modalTitulo %}
+    Agregando Anexos
+{% endblock modalTitulo %}
+{% block modalAction %}
+    {% url 'apptra:documento_anexo_masivo_agregar' view.kwargs.pk %}
+{% endblock modalAction %}
+{% block modalScriptPre %}
+    {% if not anxok %}
+        <template id="tpl-fila-anexo">
+            <tr>
+                <td class="col-8">
+                    {{ formFila.codigo }}
+                    {{ formFila.empleado }}
+                </td>
+                <td class="col-3">{{ formFila.modo }}</td>
+                <td class="align-middle text-center">
+                    <a href="javascript:;" rel="tooltip"
+                       class="btn btn-icon btn-xs btn-clean btn-hover-danger btn-icon p-1" title="Quitar"
+                       onclick="this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode); guardarDetalleAnexo();">
+                        <i class="fas fa-minus-circle"></i>
+                    </a>
+                </td>
+            </tr>
+        </template>
+    {% endif %}
+{% endblock %}
+{% block modalBody %}
+    {% if not anxok %}
+        <style>
+            #dt-anexo-firmadores thead tr th {
+                font-size: .91rem;
+                padding: 6px 10px;
+            }
+
+            #dt-anexo-firmadores .select2.select2-container {
+                font-size: .9rem;
+            }
+
+            #dt-anexo-firmadores .bootstrap-select .dropdown-toggle,
+            #dt-anexo-firmadores .bootstrap-select .dropdown-menu li {
+                font-size: .9rem;
+            }
+        </style>
+        {% include "campos/campoform.html" with campo=form.archivos linkfile=True %}
+        {{ form.firmadores }}
+        <div class="col-12" id="firmas-requeridas">
+            <button id="dt-anexo-agregar" type="button" class="btn btn-sm btn-light-primary">
+                <i class="fas fa-plus-circle fa-1x"></i>
+                Agregar Firma Requerida
+            </button>
+            <table class="table table-bordered table-hover table-striped table-sm dataTable dtr-inline w-100"
+                   id="dt-anexo-firmadores">
+                <thead class="bg-light">
+                <tr>
+                    <th>Firma Requerida</th>
+                    <th>Forma</th>
+                    <th>&nbsp;</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for firmador in firmadores %}
+                    <tr>
+                        <td class="col-8">
+                            {{ firmador.codigo }}
+                            {{ firmador.empleado }}
+                        </td>
+                        <td class="col-3">{{ firmador.modo }}</td>
+                        <td class="align-middle text-center">
+                            <a href="javascript:;" data-toggle="tooltip"
+                               class="btn btn-icon btn-xs btn-clean btn-hover-danger btn-icon p-1" title="Quitar"
+                               onclick="this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode); guardarDetalleAnexo();">
+                                <i class="fas fa-minus-circle"></i>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+{% endblock %}
+{% block modalScriptPost %}
+    <script type="text/javascript">
+        {% if anxok %}
+            refrescarAnexos({{ object.documento.pk|default:view.kwargs.pk }}, true);
+            $("#modal-principal-centro").modal("hide");
+        {% else %}
+            var dt_anexos = {{ firmadores|length|default:0 }};
+            {% for firmador in firmadores %}
+                $("#id_empleado_{{ forloop.counter0 }}").djangoSelect2();
+            {% endfor %}
+
+            function guardarDetalleAnexo() {
+                let lista = [];
+                $("#dt-anexo-firmadores tbody tr").each(function (idx, fila) {
+                    lista.push($(fila).find("input[type=hidden], select").serializeObject());
+                });
+                $("#{{ form.id }} #{{ form.firmadores.auto_id }}").val(JSON.stringify(lista));
+            }
+
+            $("#dt-anexo-agregar").on("click", function () {
+                let anxtpl = $("#tpl-fila-anexo").html();
+                anxtpl = anxtpl.replaceAll(/ id="[a-z_]*/g, (x, y) => x + "_" + dt_anexos);
+                $("#dt-anexo-firmadores tbody").append(anxtpl);
+                $("#id_empleado_" + dt_anexos).djangoSelect2();
+                $("#id_modo_" + dt_anexos).selectpicker();
+                dt_anexos++;
+            });
+
+            $("#dt-anexo-firmadores").on("change", "select", function () {
+                guardarDetalleAnexo();
+            });
+
+        {% endif %}
+    </script>
+{% endblock modalScriptPost %}
